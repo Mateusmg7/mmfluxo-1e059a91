@@ -17,6 +17,7 @@ import { toast } from 'sonner';
 
 export default function TransacoesPage() {
   const { user } = useAuth();
+  const { activeProfile } = useProfile();
   const qc = useQueryClient();
   const now = new Date();
 
