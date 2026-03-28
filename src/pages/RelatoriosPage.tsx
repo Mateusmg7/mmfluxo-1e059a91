@@ -182,7 +182,7 @@ export default function RelatoriosPage() {
             </div>
           </CardContent>
         </Card>
-        <Card className="card-glass overflow-hidden">
+        <Card className="card-glass overflow-hidden animate-fade-up" style={{ animationDelay: '0.1s' }}>
           <CardContent className="pt-5 pb-4 relative">
             <div className="absolute top-0 left-0 w-full h-0.5 bg-accent" />
             <div className="flex items-center gap-3">
