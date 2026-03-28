@@ -107,6 +107,18 @@ export default function ProfileSwitcher() {
               </DropdownMenuItem>
             </>
           )}
+          {profiles.length > 1 && (
+            <>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={() => setDuplicateOpen(true)}
+                className="cursor-pointer"
+              >
+                <Copy size={14} className="mr-2" />
+                Duplicar dados de outro perfil
+              </DropdownMenuItem>
+            </>
+          )}
         </DropdownMenuContent>
       </DropdownMenu>
 
