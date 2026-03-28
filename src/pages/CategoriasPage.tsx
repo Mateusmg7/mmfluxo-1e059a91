@@ -20,6 +20,7 @@ const groupLabels: Record<CategoryGroup, string> = {
   essenciais: 'Essenciais',
   lazer: 'Lazer',
   imprevistos: 'Imprevistos',
+  besteiras: 'Besteiras',
 };
 
 export default function CategoriasPage() {
