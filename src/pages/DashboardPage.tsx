@@ -175,7 +175,7 @@ export default function DashboardPage() {
       {/* Charts + Breakdown row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Pie by group */}
-        <Card className="card-glass">
+        <Card className="card-glass animate-scale-up" style={{ animationDelay: '0.25s' }}>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Distribuição por grupo</CardTitle>
           </CardHeader>
