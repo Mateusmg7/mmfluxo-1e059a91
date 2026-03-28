@@ -78,6 +78,9 @@ export default function DashboardPage() {
   const imprevistos = transactions
     .filter((t: any) => t.categories?.grupo === 'imprevistos')
     .reduce((s, t) => s + Number(t.valor), 0);
+  const besteiras = transactions
+    .filter((t: any) => t.categories?.grupo === 'besteiras')
+    .reduce((s, t) => s + Number(t.valor), 0);
 
   // Pie chart data by category
   const catMap = new Map<string, { nome: string; cor: string; total: number }>();
