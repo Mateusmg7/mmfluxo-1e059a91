@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,10 +8,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
+import { Sun, Moon } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function ConfiguracoesPage() {
   const { user } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const qc = useQueryClient();
 
   const { data: profile } = useQuery({
@@ -100,6 +104,24 @@ export default function ConfiguracoesPage() {
                 <SelectItem value="America/Rio_Branco">Rio Branco (ACT)</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="card-glass">
+        <CardHeader>
+          <CardTitle className="text-base">Aparência</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              {theme === 'dark' ? <Moon className="h-5 w-5 text-muted-foreground" /> : <Sun className="h-5 w-5 text-warning" />}
+              <div>
+                <p className="text-sm font-medium">Modo escuro</p>
+                <p className="text-xs text-muted-foreground">Alternar entre tema claro e escuro</p>
+              </div>
+            </div>
+            <Switch checked={theme === 'dark'} onCheckedChange={toggleTheme} />
           </div>
         </CardContent>
       </Card>
