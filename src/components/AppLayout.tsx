@@ -8,6 +8,7 @@ import {
   Tag,
   Target,
   BarChart3,
+  Layers,
   Settings,
   LogOut,
   Menu,
