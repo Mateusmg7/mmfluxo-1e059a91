@@ -87,7 +87,7 @@ export default function ResumoGeralPage() {
 
   return (
     <div className="space-y-6">
-      <div>
+      <div className="animate-fade-up">
         <h2 className="text-2xl font-bold flex items-center gap-2">
           <Layers size={24} className="text-primary" />
           Resumo Geral
