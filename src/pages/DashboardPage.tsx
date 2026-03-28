@@ -107,7 +107,7 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <div>
+      <div className="animate-fade-up">
         <h2 className="text-2xl font-bold">Dashboard</h2>
         <p className="text-muted-foreground text-sm capitalize">
           {format(now, "MMMM 'de' yyyy", { locale: ptBR })}
@@ -116,7 +116,7 @@ export default function DashboardPage() {
 
       {/* Summary cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
-        <Card className="card-glass">
+        <Card className="card-glass animate-fade-up" style={{ animationDelay: '0.05s' }}>
           <CardContent className="pt-5 pb-4">
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-lg bg-destructive/10">
@@ -129,7 +129,7 @@ export default function DashboardPage() {
             </div>
           </CardContent>
         </Card>
-        <Card className="card-glass">
+        <Card className="card-glass animate-fade-up" style={{ animationDelay: '0.1s' }}>
           <CardContent className="pt-5 pb-4">
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-lg bg-accent/10">
@@ -142,7 +142,7 @@ export default function DashboardPage() {
             </div>
           </CardContent>
         </Card>
-        <Card className="card-glass">
+        <Card className="card-glass animate-fade-up" style={{ animationDelay: '0.15s' }}>
           <CardContent className="pt-5 pb-4">
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-lg bg-primary/10">
@@ -157,7 +157,7 @@ export default function DashboardPage() {
             </div>
           </CardContent>
         </Card>
-        <Card className="card-glass">
+        <Card className="card-glass animate-fade-up" style={{ animationDelay: '0.2s' }}>
           <CardContent className="pt-5 pb-4">
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-lg" style={{ background: 'hsl(187 82% 54% / 0.1)' }}>
@@ -175,7 +175,7 @@ export default function DashboardPage() {
       {/* Charts + Breakdown row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Pie by group */}
-        <Card className="card-glass">
+        <Card className="card-glass animate-scale-up" style={{ animationDelay: '0.25s' }}>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Distribuição por grupo</CardTitle>
           </CardHeader>
@@ -222,7 +222,7 @@ export default function DashboardPage() {
         </Card>
 
         {/* Pie by category */}
-        <Card className="card-glass">
+        <Card className="card-glass animate-scale-up" style={{ animationDelay: '0.3s' }}>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Despesas por categoria</CardTitle>
           </CardHeader>
@@ -270,7 +270,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Breakdown cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 animate-fade-up" style={{ animationDelay: '0.35s' }}>
         {[
           { label: 'Essenciais', value: essenciais, color: COLORS_MAP.essenciais },
           { label: 'Lazer', value: lazer, color: COLORS_MAP.lazer },
@@ -298,7 +298,7 @@ export default function DashboardPage() {
 
       {/* Recent transactions */}
       {recentTransactions.length > 0 && (
-        <Card className="card-glass">
+        <Card className="card-glass animate-fade-up" style={{ animationDelay: '0.4s' }}>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Últimas despesas</CardTitle>
           </CardHeader>
@@ -323,7 +323,7 @@ export default function DashboardPage() {
 
       {/* Goals progress */}
       {goals.length > 0 && (
-        <Card className="card-glass">
+        <Card className="card-glass animate-fade-up" style={{ animationDelay: '0.45s' }}>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Progresso das Metas</CardTitle>
           </CardHeader>

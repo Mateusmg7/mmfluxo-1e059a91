@@ -87,7 +87,7 @@ export default function ResumoGeralPage() {
 
   return (
     <div className="space-y-6">
-      <div>
+      <div className="animate-fade-up">
         <h2 className="text-2xl font-bold flex items-center gap-2">
           <Layers size={24} className="text-primary" />
           Resumo Geral
@@ -112,7 +112,7 @@ export default function ResumoGeralPage() {
 
       {/* Totals */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <Card className="card-glass">
+        <Card className="card-glass animate-fade-up" style={{ animationDelay: '0.05s' }}>
           <CardContent className="pt-5 pb-4">
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-lg bg-destructive/10">
@@ -125,7 +125,7 @@ export default function ResumoGeralPage() {
             </div>
           </CardContent>
         </Card>
-        <Card className="card-glass">
+        <Card className="card-glass animate-fade-up" style={{ animationDelay: '0.1s' }}>
           <CardContent className="pt-5 pb-4">
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-lg bg-accent/10">
@@ -138,7 +138,7 @@ export default function ResumoGeralPage() {
             </div>
           </CardContent>
         </Card>
-        <Card className="card-glass">
+        <Card className="card-glass animate-fade-up" style={{ animationDelay: '0.15s' }}>
           <CardContent className="pt-5 pb-4">
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-lg bg-primary/10">
@@ -157,7 +157,7 @@ export default function ResumoGeralPage() {
 
       {/* Bar chart comparison */}
       {barData.length > 1 && (
-        <Card className="card-glass">
+        <Card className="card-glass animate-scale-up" style={{ animationDelay: '0.2s' }}>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
               Comparativo por Perfil
@@ -190,8 +190,8 @@ export default function ResumoGeralPage() {
 
       {/* Per-profile cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {profileData.map((p) => (
-          <Card key={p.id} className="card-glass border-l-4" style={{ borderLeftColor: p.color }}>
+        {profileData.map((p, index) => (
+          <Card key={p.id} className="card-glass border-l-4 animate-fade-up" style={{ borderLeftColor: p.color, animationDelay: `${0.25 + index * 0.05}s` }}>
             <CardHeader className="pb-2">
               <CardTitle className="text-base font-semibold flex items-center gap-2">
                 <span className="text-lg">{p.icon}</span> {p.name}
@@ -224,7 +224,7 @@ export default function ResumoGeralPage() {
       </div>
 
       {/* Group breakdown */}
-      <Card className="card-glass">
+      <Card className="card-glass animate-scale-up" style={{ animationDelay: '0.35s' }}>
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
             Distribuição consolidada por grupo
