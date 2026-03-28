@@ -14,7 +14,193 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      categories: {
+        Row: {
+          cor_hex: string
+          created_at: string
+          grupo: Database["public"]["Enums"]["category_group"]
+          id: string
+          is_default: boolean
+          nome: string
+          user_id: string
+        }
+        Insert: {
+          cor_hex?: string
+          created_at?: string
+          grupo?: Database["public"]["Enums"]["category_group"]
+          id?: string
+          is_default?: boolean
+          nome: string
+          user_id: string
+        }
+        Update: {
+          cor_hex?: string
+          created_at?: string
+          grupo?: Database["public"]["Enums"]["category_group"]
+          id?: string
+          is_default?: boolean
+          nome?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      extra_income: {
+        Row: {
+          created_at: string
+          data: string
+          hora: string
+          id: string
+          observacao: string | null
+          origem: string
+          user_id: string
+          valor: number
+        }
+        Insert: {
+          created_at?: string
+          data?: string
+          hora?: string
+          id?: string
+          observacao?: string | null
+          origem: string
+          user_id: string
+          valor: number
+        }
+        Update: {
+          created_at?: string
+          data?: string
+          hora?: string
+          id?: string
+          observacao?: string | null
+          origem?: string
+          user_id?: string
+          valor?: number
+        }
+        Relationships: []
+      }
+      goals: {
+        Row: {
+          category_id: string | null
+          created_at: string
+          data_fim_opcional: string | null
+          data_inicio: string
+          id: string
+          nome_meta: string
+          periodo_tipo: string
+          tipo_meta: Database["public"]["Enums"]["goal_type"]
+          user_id: string
+          valor_alvo: number
+        }
+        Insert: {
+          category_id?: string | null
+          created_at?: string
+          data_fim_opcional?: string | null
+          data_inicio?: string
+          id?: string
+          nome_meta: string
+          periodo_tipo?: string
+          tipo_meta: Database["public"]["Enums"]["goal_type"]
+          user_id: string
+          valor_alvo: number
+        }
+        Update: {
+          category_id?: string | null
+          created_at?: string
+          data_fim_opcional?: string | null
+          data_inicio?: string
+          id?: string
+          nome_meta?: string
+          periodo_tipo?: string
+          tipo_meta?: Database["public"]["Enums"]["goal_type"]
+          user_id?: string
+          valor_alvo?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "goals_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string
+          fuso_horario: string
+          id: string
+          mes_referencia_inicio: number
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string
+          fuso_horario?: string
+          id?: string
+          mes_referencia_inicio?: number
+          name?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          fuso_horario?: string
+          id?: string
+          mes_referencia_inicio?: number
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      transactions: {
+        Row: {
+          category_id: string
+          created_at: string
+          data: string
+          descricao: string
+          hora: string
+          id: string
+          status: string
+          user_id: string
+          valor: number
+        }
+        Insert: {
+          category_id: string
+          created_at?: string
+          data?: string
+          descricao?: string
+          hora?: string
+          id?: string
+          status?: string
+          user_id: string
+          valor: number
+        }
+        Update: {
+          category_id?: string
+          created_at?: string
+          data?: string
+          descricao?: string
+          hora?: string
+          id?: string
+          status?: string
+          user_id?: string
+          valor?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transactions_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +209,8 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      category_group: "essenciais" | "lazer" | "imprevistos"
+      goal_type: "limite_despesas" | "meta_renda_extra" | "limite_categoria"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +337,9 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      category_group: ["essenciais", "lazer", "imprevistos"],
+      goal_type: ["limite_despesas", "meta_renda_extra", "limite_categoria"],
+    },
   },
 } as const
