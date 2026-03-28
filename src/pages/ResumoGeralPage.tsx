@@ -157,7 +157,7 @@ export default function ResumoGeralPage() {
 
       {/* Bar chart comparison */}
       {barData.length > 1 && (
-        <Card className="card-glass">
+        <Card className="card-glass animate-scale-up" style={{ animationDelay: '0.2s' }}>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
               Comparativo por Perfil
