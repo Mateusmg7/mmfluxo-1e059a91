@@ -85,6 +85,31 @@ export default function RelatoriosPage() {
     URL.revokeObjectURL(url);
   };
 
+  const handleExportPdf = () => {
+    const mesLabel = format(now, "MMMM 'de' yyyy", { locale: ptBR });
+    exportPdf({
+      title: 'MM Fluxo — Relatório Mensal',
+      subtitle: `${activeProfile?.name ?? 'Perfil'} · ${mesLabel}`,
+      sections: [
+        {
+          heading: 'Despesas',
+          columns: ['Data', 'Hora', 'Categoria', 'Descrição', 'Valor', 'Status'],
+          rows: transactions.map((t: any) => [
+            t.data, t.hora, t.categories?.nome ?? '', t.descricao, fmt(Number(t.valor)), t.status,
+          ]),
+        },
+        {
+          heading: 'Renda Extra',
+          columns: ['Data', 'Hora', 'Origem', 'Valor', 'Observação'],
+          rows: extraIncome.map((r) => [
+            r.data, r.hora, r.origem, fmt(Number(r.valor)), r.observacao ?? '',
+          ]),
+        },
+      ],
+      filename: `relatorio-${format(now, 'yyyy-MM')}.pdf`,
+    });
+  };
+
   return (
     <div className="space-y-6">
       <div>
