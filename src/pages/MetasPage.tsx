@@ -26,6 +26,7 @@ const goalTypeLabels: Record<GoalType, string> = {
 
 export default function MetasPage() {
   const { user } = useAuth();
+  const { activeProfile } = useProfile();
   const qc = useQueryClient();
   const now = new Date();
   const monthStart = format(startOfMonth(now), 'yyyy-MM-dd');
