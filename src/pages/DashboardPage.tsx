@@ -13,6 +13,7 @@ const COLORS_MAP: Record<string, string> = {
   essenciais: '#0C5BA8',
   lazer: '#F97316',
   imprevistos: '#EF4444',
+  besteiras: '#A855F7',
 };
 
 export default function DashboardPage() {
