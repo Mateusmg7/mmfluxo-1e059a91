@@ -228,6 +228,7 @@ export default function TransacoesPage() {
             <SelectItem value="essenciais">Essenciais</SelectItem>
             <SelectItem value="lazer">Lazer</SelectItem>
             <SelectItem value="imprevistos">Imprevistos</SelectItem>
+            <SelectItem value="besteiras">Besteiras</SelectItem>
             {categories.map((c) => (
               <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>
             ))}
