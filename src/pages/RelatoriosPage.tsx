@@ -32,12 +32,14 @@ export default function RelatoriosPage() {
   });
 
   const { data: extraIncome = [] } = useQuery({
-    queryKey: ['extra_income', monthStart, monthEnd],
+    queryKey: ['extra_income', monthStart, monthEnd, activeProfile?.id],
     queryFn: async () => {
-      const { data } = await supabase.from('extra_income').select('*').gte('data', monthStart).lte('data', monthEnd);
+      let q = supabase.from('extra_income').select('*').gte('data', monthStart).lte('data', monthEnd);
+      if (activeProfile) q = q.eq('profile_id', activeProfile.id);
+      const { data } = await q;
       return data ?? [];
     },
-    enabled: !!user,
+    enabled: !!user && !!activeProfile,
   });
 
   // Pie chart: by category

@@ -66,7 +66,7 @@ export default function RendaExtraPage() {
 
   const handleSave = async () => {
     if (!origem || !valor) { toast.error('Preencha origem e valor'); return; }
-    const payload = { user_id: user!.id, origem, valor: parseFloat(valor), data, hora, observacao: observacao || null };
+    const payload = { user_id: user!.id, origem, valor: parseFloat(valor), data, hora, observacao: observacao || null, profile_id: activeProfile?.id };
 
     if (editId) {
       const { error } = await supabase.from('extra_income').update(payload).eq('id', editId);

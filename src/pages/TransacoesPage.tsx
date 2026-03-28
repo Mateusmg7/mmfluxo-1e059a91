@@ -111,6 +111,7 @@ export default function TransacoesPage() {
       hora,
       descricao,
       status,
+      profile_id: activeProfile?.id,
     };
 
     if (editId) {

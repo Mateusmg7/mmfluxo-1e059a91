@@ -47,7 +47,7 @@ export default function CategoriasPage() {
 
   const handleSave = async () => {
     if (!nome) { toast.error('Informe o nome'); return; }
-    const payload = { user_id: user!.id, nome, cor_hex: corHex, grupo };
+    const payload = { user_id: user!.id, nome, cor_hex: corHex, grupo, profile_id: activeProfile?.id };
 
     if (editId) {
       const { error } = await supabase.from('categories').update(payload).eq('id', editId);

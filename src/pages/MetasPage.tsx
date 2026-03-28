@@ -102,6 +102,7 @@ export default function MetasPage() {
       valor_alvo: parseFloat(valorAlvo),
       category_id: tipoMeta === 'limite_categoria' ? categoryId || null : null,
       periodo_tipo: periodoTipo,
+      profile_id: activeProfile?.id,
     });
     if (error) { toast.error(error.message); return; }
     toast.success('Meta criada');
