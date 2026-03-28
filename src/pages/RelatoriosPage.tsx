@@ -17,16 +17,18 @@ export default function RelatoriosPage() {
   const monthEnd = format(endOfMonth(now), 'yyyy-MM-dd');
 
   const { data: transactions = [] } = useQuery({
-    queryKey: ['transactions', monthStart, monthEnd],
+    queryKey: ['transactions', monthStart, monthEnd, activeProfile?.id],
     queryFn: async () => {
-      const { data } = await supabase
+      let q = supabase
         .from('transactions')
         .select('*, categories(nome, cor_hex, grupo)')
         .gte('data', monthStart)
         .lte('data', monthEnd);
+      if (activeProfile) q = q.eq('profile_id', activeProfile.id);
+      const { data } = await q;
       return data ?? [];
     },
-    enabled: !!user,
+    enabled: !!user && !!activeProfile,
   });
 
   const { data: extraIncome = [] } = useQuery({
