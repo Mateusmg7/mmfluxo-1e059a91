@@ -43,6 +43,9 @@ export default function AppLayout({ children }: { children: ReactNode }) {
           {mobileOpen ? <X size={22} /> : <Menu size={22} />}
         </button>
         <h1 className="text-xl font-semibold gradient-brand">MM Fluxo</h1>
+        <div className="ml-auto">
+          <ProfileSwitcher />
+        </div>
       </header>
 
       <div className="flex flex-1 pt-14">
