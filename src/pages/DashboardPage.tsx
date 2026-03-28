@@ -275,6 +275,7 @@ export default function DashboardPage() {
           { label: 'Essenciais', value: essenciais, color: COLORS_MAP.essenciais },
           { label: 'Lazer', value: lazer, color: COLORS_MAP.lazer },
           { label: 'Imprevistos', value: imprevistos, color: COLORS_MAP.imprevistos },
+          { label: 'Besteiras', value: besteiras, color: COLORS_MAP.besteiras },
         ].map((item) => (
           <Card key={item.label} className="card-glass">
             <CardContent className="pt-5 pb-4">
