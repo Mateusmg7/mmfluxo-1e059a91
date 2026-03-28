@@ -11,6 +11,7 @@ import { Download } from 'lucide-react';
 
 export default function RelatoriosPage() {
   const { user } = useAuth();
+  const { activeProfile } = useProfile();
   const now = new Date();
   const monthStart = format(startOfMonth(now), 'yyyy-MM-dd');
   const monthEnd = format(endOfMonth(now), 'yyyy-MM-dd');
