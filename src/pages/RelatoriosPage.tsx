@@ -7,7 +7,8 @@ import { ptBR } from 'date-fns/locale';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
-import { Download } from 'lucide-react';
+import { Download, FileText } from 'lucide-react';
+import { exportPdf } from '@/lib/exportPdf';
 
 export default function RelatoriosPage() {
   const { user } = useAuth();
