@@ -137,7 +137,7 @@ export default function RelatoriosPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-in">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
         <div>
@@ -168,7 +168,7 @@ export default function RelatoriosPage() {
 
       {/* Summary cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <Card className="card-glass overflow-hidden">
+        <Card className="card-glass overflow-hidden animate-fade-up" style={{ animationDelay: '0.05s' }}>
           <CardContent className="pt-5 pb-4 relative">
             <div className="absolute top-0 left-0 w-full h-0.5 bg-destructive" />
             <div className="flex items-center gap-3">
@@ -182,7 +182,7 @@ export default function RelatoriosPage() {
             </div>
           </CardContent>
         </Card>
-        <Card className="card-glass overflow-hidden">
+        <Card className="card-glass overflow-hidden animate-fade-up" style={{ animationDelay: '0.1s' }}>
           <CardContent className="pt-5 pb-4 relative">
             <div className="absolute top-0 left-0 w-full h-0.5 bg-accent" />
             <div className="flex items-center gap-3">
@@ -196,7 +196,7 @@ export default function RelatoriosPage() {
             </div>
           </CardContent>
         </Card>
-        <Card className="card-glass overflow-hidden">
+        <Card className="card-glass overflow-hidden animate-fade-up" style={{ animationDelay: '0.15s' }}>
           <CardContent className="pt-5 pb-4 relative">
             <div className={`absolute top-0 left-0 w-full h-0.5 ${saldo >= 0 ? 'bg-accent' : 'bg-destructive'}`} />
             <div className="flex items-center gap-3">
@@ -215,7 +215,7 @@ export default function RelatoriosPage() {
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Pie */}
-        <Card className="card-glass">
+        <Card className="card-glass animate-scale-up" style={{ animationDelay: '0.2s' }}>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
               <PieChartIcon size={14} /> Despesas por Categoria
@@ -263,7 +263,7 @@ export default function RelatoriosPage() {
         </Card>
 
         {/* Bar */}
-        <Card className="card-glass">
+        <Card className="card-glass animate-scale-up" style={{ animationDelay: '0.3s' }}>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
               <BarChart3 size={14} /> Despesas por Semana
@@ -308,7 +308,7 @@ export default function RelatoriosPage() {
       {/* Group breakdown + Extra income */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Group breakdown */}
-        <Card className="card-glass">
+        <Card className="card-glass animate-fade-up" style={{ animationDelay: '0.35s' }}>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
               <TrendingUp size={14} /> Distribuição por Grupo
@@ -334,7 +334,7 @@ export default function RelatoriosPage() {
         </Card>
 
         {/* Extra income by origin */}
-        <Card className="card-glass">
+        <Card className="card-glass animate-fade-up" style={{ animationDelay: '0.4s' }}>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
               <ArrowUpCircle size={14} /> Renda Extra por Origem
