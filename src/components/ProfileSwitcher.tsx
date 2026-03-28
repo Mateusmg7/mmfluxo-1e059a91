@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useProfile } from '@/contexts/ProfileContext';
 import { Button } from '@/components/ui/button';
+import DuplicateDataDialog from '@/components/DuplicateDataDialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -16,7 +17,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Check, ChevronDown, Plus, Pencil, Trash2 } from 'lucide-react';
+import { Check, ChevronDown, Plus, Pencil, Trash2, Copy } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const ICONS = ['👤', '👨‍👩‍👧‍👦', '🏢', '🏠', '💼'];
@@ -25,6 +26,7 @@ const COLORS = ['#0C5BA8', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'];
 export default function ProfileSwitcher() {
   const { profiles, activeProfile, setActiveProfileId, createProfile, updateProfile, deleteProfile } = useProfile();
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [duplicateOpen, setDuplicateOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [name, setName] = useState('');
   const [icon, setIcon] = useState('👤');
@@ -105,6 +107,18 @@ export default function ProfileSwitcher() {
               </DropdownMenuItem>
             </>
           )}
+          {profiles.length > 1 && (
+            <>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={() => setDuplicateOpen(true)}
+                className="cursor-pointer"
+              >
+                <Copy size={14} className="mr-2" />
+                Duplicar dados de outro perfil
+              </DropdownMenuItem>
+            </>
+          )}
         </DropdownMenuContent>
       </DropdownMenu>
 
@@ -155,6 +169,8 @@ export default function ProfileSwitcher() {
           </div>
         </DialogContent>
       </Dialog>
+
+      <DuplicateDataDialog open={duplicateOpen} onOpenChange={setDuplicateOpen} />
     </>
   );
 }
