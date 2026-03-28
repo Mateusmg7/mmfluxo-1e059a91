@@ -308,7 +308,7 @@ export default function RelatoriosPage() {
       {/* Group breakdown + Extra income */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Group breakdown */}
-        <Card className="card-glass">
+        <Card className="card-glass animate-fade-up" style={{ animationDelay: '0.35s' }}>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
               <TrendingUp size={14} /> Distribuição por Grupo
