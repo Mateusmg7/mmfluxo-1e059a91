@@ -192,16 +192,19 @@ export default function RelatoriosPage() {
       </Card>
 
       {/* Export */}
-      <div className="flex gap-3">
+      <div className="flex flex-wrap gap-3">
+        <Button variant="secondary" onClick={handleExportPdf}>
+          <FileText size={16} className="mr-2" />Exportar PDF
+        </Button>
         <Button variant="secondary" onClick={() => exportCSV(transactions.map((t: any) => ({
           data: t.data, hora: t.hora, categoria: t.categories?.nome, descricao: t.descricao, valor: t.valor, status: t.status,
         })), 'despesas.csv')}>
-          <Download size={16} className="mr-2" />Exportar despesas CSV
+          <Download size={16} className="mr-2" />Despesas CSV
         </Button>
         <Button variant="secondary" onClick={() => exportCSV(extraIncome.map((r) => ({
           data: r.data, hora: r.hora, origem: r.origem, valor: r.valor, observacao: r.observacao ?? '',
         })), 'renda-extra.csv')}>
-          <Download size={16} className="mr-2" />Exportar renda extra CSV
+          <Download size={16} className="mr-2" />Renda Extra CSV
         </Button>
       </div>
     </div>
