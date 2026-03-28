@@ -40,18 +40,20 @@ export default function RendaExtraPage() {
   const { start, end } = getDateRange();
 
   const { data: records = [] } = useQuery({
-    queryKey: ['extra_income', start, end],
+    queryKey: ['extra_income', start, end, activeProfile?.id],
     queryFn: async () => {
-      const { data } = await supabase
+      let q = supabase
         .from('extra_income')
         .select('*')
         .gte('data', start)
         .lte('data', end)
         .order('data', { ascending: false })
         .order('hora', { ascending: false });
+      if (activeProfile) q = q.eq('profile_id', activeProfile.id);
+      const { data } = await q;
       return data ?? [];
     },
-    enabled: !!user,
+    enabled: !!user && !!activeProfile,
   });
 
   const total = records.reduce((s, r) => s + Number(r.valor), 0);
