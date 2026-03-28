@@ -17,7 +17,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Check, ChevronDown, Plus, Pencil, Trash2 } from 'lucide-react';
+import { Check, ChevronDown, Plus, Pencil, Trash2, Copy } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const ICONS = ['👤', '👨‍👩‍👧‍👦', '🏢', '🏠', '💼'];
