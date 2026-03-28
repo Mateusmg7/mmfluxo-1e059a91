@@ -298,7 +298,7 @@ export default function DashboardPage() {
 
       {/* Recent transactions */}
       {recentTransactions.length > 0 && (
-        <Card className="card-glass">
+        <Card className="card-glass animate-fade-up" style={{ animationDelay: '0.4s' }}>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Últimas despesas</CardTitle>
           </CardHeader>
