@@ -1,0 +1,1 @@
+ALTER TYPE public.category_group ADD VALUE 'besteiras';

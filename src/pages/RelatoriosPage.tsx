@@ -74,6 +74,7 @@ export default function RelatoriosPage() {
     { label: 'Essenciais', value: transactions.filter((t: any) => t.categories?.grupo === 'essenciais').reduce((s, t) => s + Number(t.valor), 0), color: 'hsl(var(--primary))' },
     { label: 'Lazer', value: transactions.filter((t: any) => t.categories?.grupo === 'lazer').reduce((s, t) => s + Number(t.valor), 0), color: 'hsl(var(--warning))' },
     { label: 'Imprevistos', value: transactions.filter((t: any) => t.categories?.grupo === 'imprevistos').reduce((s, t) => s + Number(t.valor), 0), color: 'hsl(var(--destructive))' },
+    { label: 'Besteiras', value: transactions.filter((t: any) => t.categories?.grupo === 'besteiras').reduce((s, t) => s + Number(t.valor), 0), color: '#A855F7' },
   ];
 
   // Extra income by origin

@@ -75,7 +75,7 @@ export default function TransacoesPage() {
 
   const filtered = transactions.filter((t: any) => {
     if (filtroCategoria !== 'todas') {
-      if (['essenciais', 'lazer', 'imprevistos'].includes(filtroCategoria)) {
+      if (['essenciais', 'lazer', 'imprevistos', 'besteiras'].includes(filtroCategoria)) {
         if (t.categories?.grupo !== filtroCategoria) return false;
       } else {
         if (t.category_id !== filtroCategoria) return false;
@@ -228,6 +228,7 @@ export default function TransacoesPage() {
             <SelectItem value="essenciais">Essenciais</SelectItem>
             <SelectItem value="lazer">Lazer</SelectItem>
             <SelectItem value="imprevistos">Imprevistos</SelectItem>
+            <SelectItem value="besteiras">Besteiras</SelectItem>
             {categories.map((c) => (
               <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>
             ))}

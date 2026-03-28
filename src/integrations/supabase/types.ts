@@ -281,7 +281,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      category_group: "essenciais" | "lazer" | "imprevistos"
+      category_group: "essenciais" | "lazer" | "imprevistos" | "besteiras"
       goal_type: "limite_despesas" | "meta_renda_extra" | "limite_categoria"
     }
     CompositeTypes: {
@@ -410,7 +410,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      category_group: ["essenciais", "lazer", "imprevistos"],
+      category_group: ["essenciais", "lazer", "imprevistos", "besteiras"],
       goal_type: ["limite_despesas", "meta_renda_extra", "limite_categoria"],
     },
   },

@@ -13,6 +13,7 @@ const COLORS_MAP: Record<string, string> = {
   essenciais: '#0C5BA8',
   lazer: '#F97316',
   imprevistos: '#EF4444',
+  besteiras: '#A855F7',
 };
 
 export default function DashboardPage() {
@@ -77,6 +78,9 @@ export default function DashboardPage() {
   const imprevistos = transactions
     .filter((t: any) => t.categories?.grupo === 'imprevistos')
     .reduce((s, t) => s + Number(t.valor), 0);
+  const besteiras = transactions
+    .filter((t: any) => t.categories?.grupo === 'besteiras')
+    .reduce((s, t) => s + Number(t.valor), 0);
 
   // Pie chart data by category
   const catMap = new Map<string, { nome: string; cor: string; total: number }>();
@@ -93,6 +97,7 @@ export default function DashboardPage() {
     { name: 'Essenciais', value: essenciais, color: COLORS_MAP.essenciais },
     { name: 'Lazer', value: lazer, color: COLORS_MAP.lazer },
     { name: 'Imprevistos', value: imprevistos, color: COLORS_MAP.imprevistos },
+    { name: 'Besteiras', value: besteiras, color: COLORS_MAP.besteiras },
   ].filter((d) => d.value > 0);
 
   const fmt = (v: number) =>

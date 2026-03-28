@@ -81,6 +81,9 @@ export default function ResumoGeralPage() {
   const imprevistos = allTransactions
     .filter((t: any) => t.categories?.grupo === 'imprevistos')
     .reduce((s, t) => s + Number(t.valor), 0);
+  const besteirasVal = allTransactions
+    .filter((t: any) => t.categories?.grupo === 'besteiras')
+    .reduce((s, t) => s + Number(t.valor), 0);
 
   return (
     <div className="space-y-6">
@@ -228,11 +231,12 @@ export default function ResumoGeralPage() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {[
               { label: 'Essenciais', value: essenciais, color: '#0C5BA8' },
               { label: 'Lazer', value: lazer, color: '#F97316' },
               { label: 'Imprevistos', value: imprevistos, color: '#EF4444' },
+              { label: 'Besteiras', value: besteirasVal, color: '#A855F7' },
             ].map((item) => (
               <div key={item.label} className="space-y-2">
                 <div className="flex items-center gap-2">
