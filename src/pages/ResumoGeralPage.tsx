@@ -224,7 +224,7 @@ export default function ResumoGeralPage() {
       </div>
 
       {/* Group breakdown */}
-      <Card className="card-glass">
+      <Card className="card-glass animate-scale-up" style={{ animationDelay: '0.35s' }}>
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
             Distribuição consolidada por grupo
