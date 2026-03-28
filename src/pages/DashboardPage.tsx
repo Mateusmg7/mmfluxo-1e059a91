@@ -323,7 +323,7 @@ export default function DashboardPage() {
 
       {/* Goals progress */}
       {goals.length > 0 && (
-        <Card className="card-glass">
+        <Card className="card-glass animate-fade-up" style={{ animationDelay: '0.45s' }}>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Progresso das Metas</CardTitle>
           </CardHeader>
