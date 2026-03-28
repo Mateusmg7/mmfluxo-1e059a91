@@ -7,21 +7,10 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
-import type { Database } from '@/integrations/supabase/types';
-
-type CategoryGroup = Database['public']['Enums']['category_group'];
-
-const groupLabels: Record<CategoryGroup, string> = {
-  essenciais: 'Essenciais',
-  lazer: 'Lazer',
-  imprevistos: 'Imprevistos',
-  besteiras: 'Besteiras',
-};
 
 export default function CategoriasPage() {
   const { user } = useAuth();
@@ -31,12 +20,11 @@ export default function CategoriasPage() {
   const [editId, setEditId] = useState<string | null>(null);
   const [nome, setNome] = useState('');
   const [corHex, setCorHex] = useState('#0C5BA8');
-  const [grupo, setGrupo] = useState<CategoryGroup>('essenciais');
 
   const { data: categories = [] } = useQuery({
     queryKey: ['categories', activeProfile?.id],
     queryFn: async () => {
-      let q = supabase.from('categories').select('*').order('grupo').order('nome');
+      let q = supabase.from('categories').select('*').eq('grupo', 'essenciais').order('nome');
       if (activeProfile) q = q.eq('profile_id', activeProfile.id);
       const { data } = await q;
       return data ?? [];
@@ -44,11 +32,11 @@ export default function CategoriasPage() {
     enabled: !!user && !!activeProfile,
   });
 
-  const resetForm = () => { setNome(''); setCorHex('#0C5BA8'); setGrupo('essenciais'); setEditId(null); };
+  const resetForm = () => { setNome(''); setCorHex('#0C5BA8'); setEditId(null); };
 
   const handleSave = async () => {
     if (!nome) { toast.error('Informe o nome'); return; }
-    const payload = { user_id: user!.id, nome, cor_hex: corHex, grupo, profile_id: activeProfile?.id };
+    const payload = { user_id: user!.id, nome, cor_hex: corHex, grupo: 'essenciais' as const, profile_id: activeProfile?.id };
 
     if (editId) {
       const { error } = await supabase.from('categories').update(payload).eq('id', editId);
@@ -65,7 +53,7 @@ export default function CategoriasPage() {
   };
 
   const handleEdit = (c: any) => {
-    setEditId(c.id); setNome(c.nome); setCorHex(c.cor_hex); setGrupo(c.grupo);
+    setEditId(c.id); setNome(c.nome); setCorHex(c.cor_hex);
     setDialogOpen(true);
   };
 
@@ -77,18 +65,12 @@ export default function CategoriasPage() {
     qc.invalidateQueries({ queryKey: ['categories'] });
   };
 
-  const grouped = (['essenciais', 'lazer', 'imprevistos', 'besteiras'] as CategoryGroup[]).map((g) => ({
-    grupo: g,
-    label: groupLabels[g],
-    items: categories.filter((c) => c.grupo === g),
-  }));
-
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold">Categorias</h2>
-          <p className="text-muted-foreground text-sm">Gerencie categorias de despesas</p>
+          <h2 className="text-2xl font-bold">Categorias Essenciais</h2>
+          <p className="text-muted-foreground text-sm">Gerencie categorias de despesas essenciais</p>
         </div>
         <Dialog open={dialogOpen} onOpenChange={(o) => { setDialogOpen(o); if (!o) resetForm(); }}>
           <DialogTrigger asChild>
@@ -103,23 +85,9 @@ export default function CategoriasPage() {
                 <Label>Nome</Label>
                 <Input value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Ex: Alimentação" />
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Grupo</Label>
-                  <Select value={grupo} onValueChange={(v) => setGrupo(v as CategoryGroup)}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="essenciais">Essenciais</SelectItem>
-                      <SelectItem value="lazer">Lazer</SelectItem>
-                      <SelectItem value="imprevistos">Imprevistos</SelectItem>
-                      <SelectItem value="besteiras">Besteiras</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label>Cor</Label>
-                  <Input type="color" value={corHex} onChange={(e) => setCorHex(e.target.value)} className="h-10 p-1" />
-                </div>
+              <div className="space-y-2">
+                <Label>Cor</Label>
+                <Input type="color" value={corHex} onChange={(e) => setCorHex(e.target.value)} className="h-10 p-1" />
               </div>
               <Button onClick={handleSave} className="w-full">Salvar</Button>
             </div>
@@ -127,30 +95,25 @@ export default function CategoriasPage() {
         </Dialog>
       </div>
 
-      {grouped.map(({ grupo, label, items }) => (
-        <div key={grupo}>
-          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">{label}</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {items.map((c) => (
-              <Card key={c.id} className="card-glass">
-                <CardContent className="py-3 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-4 h-4 rounded-full" style={{ backgroundColor: c.cor_hex }} />
-                    <span className="font-medium">{c.nome}</span>
-                    {c.is_default && <Badge variant="secondary" className="text-xs">padrão</Badge>}
-                  </div>
-                  <div className="flex gap-1">
-                    <button onClick={() => handleEdit(c)} className="p-1.5 rounded hover:bg-secondary text-muted-foreground"><Pencil size={14} /></button>
-                    {!c.is_default && (
-                      <button onClick={() => handleDelete(c)} className="p-1.5 rounded hover:bg-secondary text-muted-foreground hover:text-destructive"><Trash2 size={14} /></button>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      ))}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        {categories.map((c) => (
+          <Card key={c.id} className="card-glass">
+            <CardContent className="py-3 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-4 h-4 rounded-full" style={{ backgroundColor: c.cor_hex }} />
+                <span className="font-medium">{c.nome}</span>
+                {c.is_default && <Badge variant="secondary" className="text-xs">padrão</Badge>}
+              </div>
+              <div className="flex gap-1">
+                <button onClick={() => handleEdit(c)} className="p-1.5 rounded hover:bg-secondary text-muted-foreground"><Pencil size={14} /></button>
+                {!c.is_default && (
+                  <button onClick={() => handleDelete(c)} className="p-1.5 rounded hover:bg-secondary text-muted-foreground hover:text-destructive"><Trash2 size={14} /></button>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
     </div>
   );
 }

@@ -5,7 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { format, startOfMonth, endOfMonth, subMonths } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -15,6 +15,20 @@ import { Badge } from '@/components/ui/badge';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 
+const TIPO_LABELS: Record<string, string> = {
+  essencial: 'Essencial',
+  lazer: 'Lazer',
+  imprevisto: 'Imprevisto',
+  besteira: 'Besteira',
+};
+
+const TIPO_COLORS: Record<string, string> = {
+  essencial: '#0C5BA8',
+  lazer: '#F97316',
+  imprevisto: '#EF4444',
+  besteira: '#A855F7',
+};
+
 export default function TransacoesPage() {
   const { user } = useAuth();
   const { activeProfile } = useProfile();
@@ -22,17 +36,18 @@ export default function TransacoesPage() {
   const now = new Date();
 
   const [periodo, setPeriodo] = useState('atual');
-  const [filtroCategoria, setFiltroCategoria] = useState('todas');
+  const [filtroTipo, setFiltroTipo] = useState('todos');
   const [filtroStatus, setFiltroStatus] = useState('todos');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
 
   // Form state
+  const [tipoDespesa, setTipoDespesa] = useState('essencial');
   const [categoryId, setCategoryId] = useState('');
+  const [motivo, setMotivo] = useState('');
   const [valor, setValor] = useState('');
   const [data, setData] = useState(format(now, 'yyyy-MM-dd'));
   const [hora, setHora] = useState(format(now, 'HH:mm'));
-  const [descricao, setDescricao] = useState('');
   const [status, setStatus] = useState('pago');
 
   const getDateRange = () => {
@@ -48,7 +63,7 @@ export default function TransacoesPage() {
   const { data: categories = [] } = useQuery({
     queryKey: ['categories', activeProfile?.id],
     queryFn: async () => {
-      let q = supabase.from('categories').select('*').order('nome');
+      let q = supabase.from('categories').select('*').eq('grupo', 'essenciais').order('nome');
       if (activeProfile) q = q.eq('profile_id', activeProfile.id);
       const { data } = await q;
       return data ?? [];
@@ -61,7 +76,7 @@ export default function TransacoesPage() {
     queryFn: async () => {
       let q = supabase
         .from('transactions')
-        .select('*, categories(nome, grupo, cor_hex)')
+        .select('*, categories(nome, cor_hex)')
         .gte('data', start)
         .lte('data', end)
         .order('data', { ascending: false })
@@ -74,13 +89,7 @@ export default function TransacoesPage() {
   });
 
   const filtered = transactions.filter((t: any) => {
-    if (filtroCategoria !== 'todas') {
-      if (['essenciais', 'lazer', 'imprevistos', 'besteiras'].includes(filtroCategoria)) {
-        if (t.categories?.grupo !== filtroCategoria) return false;
-      } else {
-        if (t.category_id !== filtroCategoria) return false;
-      }
-    }
+    if (filtroTipo !== 'todos' && t.tipo_despesa !== filtroTipo) return false;
     if (filtroStatus !== 'todos' && t.status !== filtroStatus) return false;
     return true;
   });
@@ -88,30 +97,31 @@ export default function TransacoesPage() {
   const total = filtered.reduce((s, t) => s + Number(t.valor), 0);
 
   const resetForm = () => {
+    setTipoDespesa('essencial');
     setCategoryId('');
+    setMotivo('');
     setValor('');
     setData(format(now, 'yyyy-MM-dd'));
     setHora(format(now, 'HH:mm'));
-    setDescricao('');
     setStatus('pago');
     setEditId(null);
   };
 
   const handleSave = async () => {
-    if (!categoryId || !valor) {
-      toast.error('Preencha categoria e valor');
-      return;
-    }
+    if (!valor) { toast.error('Preencha o valor'); return; }
+    if (tipoDespesa === 'essencial' && !categoryId) { toast.error('Selecione a categoria'); return; }
 
-    const payload = {
+    const payload: any = {
       user_id: user!.id,
-      category_id: categoryId,
+      tipo_despesa: tipoDespesa,
+      motivo,
       valor: parseFloat(valor),
       data,
       hora,
-      descricao,
+      descricao: motivo,
       status,
       profile_id: activeProfile?.id,
+      category_id: tipoDespesa === 'essencial' ? categoryId : null,
     };
 
     if (editId) {
@@ -131,11 +141,12 @@ export default function TransacoesPage() {
 
   const handleEdit = (t: any) => {
     setEditId(t.id);
-    setCategoryId(t.category_id);
+    setTipoDespesa(t.tipo_despesa ?? 'essencial');
+    setCategoryId(t.category_id ?? '');
+    setMotivo(t.motivo ?? '');
     setValor(String(t.valor));
     setData(t.data);
     setHora(t.hora);
-    setDescricao(t.descricao);
     setStatus(t.status);
     setDialogOpen(true);
   };
@@ -148,6 +159,12 @@ export default function TransacoesPage() {
   };
 
   const fmt = (v: number) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+  const getLabel = (t: any) => {
+    if (t.motivo) return t.motivo;
+    if (t.categories?.nome) return t.categories.nome;
+    return TIPO_LABELS[t.tipo_despesa] ?? 'Despesa';
+  };
 
   return (
     <div className="space-y-6">
@@ -166,15 +183,33 @@ export default function TransacoesPage() {
             </DialogHeader>
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label>Categoria</Label>
-                <Select value={categoryId} onValueChange={setCategoryId}>
-                  <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
+                <Label>Tipo de despesa</Label>
+                <Select value={tipoDespesa} onValueChange={(v) => { setTipoDespesa(v); if (v !== 'essencial') setCategoryId(''); }}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    {categories.map((c) => (
-                      <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>
-                    ))}
+                    <SelectItem value="essencial">Essencial</SelectItem>
+                    <SelectItem value="lazer">Lazer</SelectItem>
+                    <SelectItem value="imprevisto">Imprevisto</SelectItem>
+                    <SelectItem value="besteira">Besteira</SelectItem>
                   </SelectContent>
                 </Select>
+              </div>
+              {tipoDespesa === 'essencial' && (
+                <div className="space-y-2">
+                  <Label>Categoria Essencial</Label>
+                  <Select value={categoryId} onValueChange={setCategoryId}>
+                    <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
+                    <SelectContent>
+                      {categories.map((c) => (
+                        <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+              <div className="space-y-2">
+                <Label>Motivo</Label>
+                <Input value={motivo} onChange={(e) => setMotivo(e.target.value)} placeholder="Ex: conserto da moto, hambúrguer iFood" />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
@@ -202,10 +237,6 @@ export default function TransacoesPage() {
                   <Input type="time" value={hora} onChange={(e) => setHora(e.target.value)} />
                 </div>
               </div>
-              <div className="space-y-2">
-                <Label>Descrição</Label>
-                <Input value={descricao} onChange={(e) => setDescricao(e.target.value)} placeholder="Ex: Supermercado" />
-              </div>
               <Button onClick={handleSave} className="w-full">Salvar</Button>
             </div>
           </DialogContent>
@@ -221,17 +252,14 @@ export default function TransacoesPage() {
             <SelectItem value="anterior">Mês anterior</SelectItem>
           </SelectContent>
         </Select>
-        <Select value={filtroCategoria} onValueChange={setFiltroCategoria}>
+        <Select value={filtroTipo} onValueChange={setFiltroTipo}>
           <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="todas">Todas</SelectItem>
-            <SelectItem value="essenciais">Essenciais</SelectItem>
+            <SelectItem value="todos">Todos os tipos</SelectItem>
+            <SelectItem value="essencial">Essencial</SelectItem>
             <SelectItem value="lazer">Lazer</SelectItem>
-            <SelectItem value="imprevistos">Imprevistos</SelectItem>
-            <SelectItem value="besteiras">Besteiras</SelectItem>
-            {categories.map((c) => (
-              <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>
-            ))}
+            <SelectItem value="imprevisto">Imprevisto</SelectItem>
+            <SelectItem value="besteira">Besteira</SelectItem>
           </SelectContent>
         </Select>
         <Select value={filtroStatus} onValueChange={setFiltroStatus}>
@@ -265,12 +293,13 @@ export default function TransacoesPage() {
               <div className="flex items-center gap-3 min-w-0">
                 <div
                   className="w-3 h-3 rounded-full flex-shrink-0"
-                  style={{ backgroundColor: t.categories?.cor_hex ?? '#0C5BA8' }}
+                  style={{ backgroundColor: TIPO_COLORS[t.tipo_despesa] ?? '#0C5BA8' }}
                 />
                 <div className="min-w-0">
-                  <p className="font-medium truncate">{t.descricao || t.categories?.nome}</p>
+                  <p className="font-medium truncate">{getLabel(t)}</p>
                   <p className="text-xs text-muted-foreground">
-                    {format(new Date(t.data + 'T00:00'), 'dd/MM', { locale: ptBR })} · {t.hora} · {t.categories?.nome}
+                    {format(new Date(t.data + 'T00:00'), 'dd/MM', { locale: ptBR })} · {t.hora} · {TIPO_LABELS[t.tipo_despesa] ?? 'Essencial'}
+                    {t.categories?.nome ? ` · ${t.categories.nome}` : ''}
                   </p>
                 </div>
               </div>

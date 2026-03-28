@@ -10,10 +10,17 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recha
 import { Progress } from '@/components/ui/progress';
 
 const COLORS_MAP: Record<string, string> = {
-  essenciais: '#0C5BA8',
+  essencial: '#0C5BA8',
   lazer: '#F97316',
-  imprevistos: '#EF4444',
-  besteiras: '#A855F7',
+  imprevisto: '#EF4444',
+  besteira: '#A855F7',
+};
+
+const TIPO_LABELS: Record<string, string> = {
+  essencial: 'Essenciais',
+  lazer: 'Lazer',
+  imprevisto: 'Imprevistos',
+  besteira: 'Besteiras',
 };
 
 export default function DashboardPage() {
@@ -28,7 +35,7 @@ export default function DashboardPage() {
     queryFn: async () => {
       let q = supabase
         .from('transactions')
-        .select('*, categories(nome, grupo, cor_hex)')
+        .select('*, categories(nome, cor_hex)')
         .gte('data', monthStart)
         .lte('data', monthEnd)
         .order('data', { ascending: false });
@@ -42,11 +49,7 @@ export default function DashboardPage() {
   const { data: extraIncome = [] } = useQuery({
     queryKey: ['extra_income', monthStart, monthEnd, activeProfile?.id],
     queryFn: async () => {
-      let q = supabase
-        .from('extra_income')
-        .select('*')
-        .gte('data', monthStart)
-        .lte('data', monthEnd);
+      let q = supabase.from('extra_income').select('*').gte('data', monthStart).lte('data', monthEnd);
       if (activeProfile) q = q.eq('profile_id', activeProfile.id);
       const { data } = await q;
       return data ?? [];
@@ -69,22 +72,20 @@ export default function DashboardPage() {
   const totalRendaExtra = extraIncome.reduce((s, t) => s + Number(t.valor), 0);
   const saldo = totalRendaExtra - totalDespesas;
 
-  const essenciais = transactions
-    .filter((t: any) => t.categories?.grupo === 'essenciais')
-    .reduce((s, t) => s + Number(t.valor), 0);
-  const lazer = transactions
-    .filter((t: any) => t.categories?.grupo === 'lazer')
-    .reduce((s, t) => s + Number(t.valor), 0);
-  const imprevistos = transactions
-    .filter((t: any) => t.categories?.grupo === 'imprevistos')
-    .reduce((s, t) => s + Number(t.valor), 0);
-  const besteiras = transactions
-    .filter((t: any) => t.categories?.grupo === 'besteiras')
-    .reduce((s, t) => s + Number(t.valor), 0);
+  // Group by tipo_despesa
+  const tipoTotals = transactions.reduce((acc: Record<string, number>, t: any) => {
+    const tipo = t.tipo_despesa ?? 'essencial';
+    acc[tipo] = (acc[tipo] ?? 0) + Number(t.valor);
+    return acc;
+  }, {});
 
-  // Pie chart data by category
+  const groupPieData = Object.entries(TIPO_LABELS)
+    .map(([key, name]) => ({ name, value: tipoTotals[key] ?? 0, color: COLORS_MAP[key] }))
+    .filter((d) => d.value > 0);
+
+  // Pie by category (essenciais only)
   const catMap = new Map<string, { nome: string; cor: string; total: number }>();
-  transactions.forEach((t: any) => {
+  transactions.filter((t: any) => t.tipo_despesa === 'essencial' && t.categories).forEach((t: any) => {
     const name = t.categories?.nome ?? 'Outros';
     const existing = catMap.get(name);
     if (existing) existing.total += Number(t.valor);
@@ -92,16 +93,7 @@ export default function DashboardPage() {
   });
   const pieData = Array.from(catMap.values()).sort((a, b) => b.total - a.total);
 
-  // Pie data for groups
-  const groupPieData = [
-    { name: 'Essenciais', value: essenciais, color: COLORS_MAP.essenciais },
-    { name: 'Lazer', value: lazer, color: COLORS_MAP.lazer },
-    { name: 'Imprevistos', value: imprevistos, color: COLORS_MAP.imprevistos },
-    { name: 'Besteiras', value: besteiras, color: COLORS_MAP.besteiras },
-  ].filter((d) => d.value > 0);
-
-  const fmt = (v: number) =>
-    v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  const fmt = (v: number) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
   const recentTransactions = transactions.slice(0, 5);
 
@@ -119,65 +111,42 @@ export default function DashboardPage() {
         <Card className="card-glass animate-fade-up" style={{ animationDelay: '0.05s' }}>
           <CardContent className="pt-5 pb-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-destructive/10">
-                <ArrowDownCircle className="text-destructive" size={20} />
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Despesas</p>
-                <p className="text-lg font-bold text-destructive">{fmt(totalDespesas)}</p>
-              </div>
+              <div className="p-2 rounded-lg bg-destructive/10"><ArrowDownCircle className="text-destructive" size={20} /></div>
+              <div><p className="text-xs text-muted-foreground">Despesas</p><p className="text-lg font-bold text-destructive">{fmt(totalDespesas)}</p></div>
             </div>
           </CardContent>
         </Card>
         <Card className="card-glass animate-fade-up" style={{ animationDelay: '0.1s' }}>
           <CardContent className="pt-5 pb-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-accent/10">
-                <ArrowUpCircle className="text-accent" size={20} />
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Renda Extra</p>
-                <p className="text-lg font-bold text-accent">{fmt(totalRendaExtra)}</p>
-              </div>
+              <div className="p-2 rounded-lg bg-accent/10"><ArrowUpCircle className="text-accent" size={20} /></div>
+              <div><p className="text-xs text-muted-foreground">Renda Extra</p><p className="text-lg font-bold text-accent">{fmt(totalRendaExtra)}</p></div>
             </div>
           </CardContent>
         </Card>
         <Card className="card-glass animate-fade-up" style={{ animationDelay: '0.15s' }}>
           <CardContent className="pt-5 pb-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-primary/10">
-                <Wallet className="text-primary" size={20} />
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Saldo</p>
-                <p className={`text-lg font-bold ${saldo >= 0 ? 'text-accent' : 'text-destructive'}`}>
-                  {fmt(saldo)}
-                </p>
-              </div>
+              <div className="p-2 rounded-lg bg-primary/10"><Wallet className="text-primary" size={20} /></div>
+              <div><p className="text-xs text-muted-foreground">Saldo</p><p className={`text-lg font-bold ${saldo >= 0 ? 'text-accent' : 'text-destructive'}`}>{fmt(saldo)}</p></div>
             </div>
           </CardContent>
         </Card>
         <Card className="card-glass animate-fade-up" style={{ animationDelay: '0.2s' }}>
           <CardContent className="pt-5 pb-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg" style={{ background: 'hsl(187 82% 54% / 0.1)' }}>
-                <TrendingUp className="text-cyan" size={20} />
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Metas</p>
-                <p className="text-lg font-bold">{goals.length}</p>
-              </div>
+              <div className="p-2 rounded-lg" style={{ background: 'hsl(187 82% 54% / 0.1)' }}><TrendingUp className="text-cyan" size={20} /></div>
+              <div><p className="text-xs text-muted-foreground">Metas</p><p className="text-lg font-bold">{goals.length}</p></div>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Charts + Breakdown row */}
+      {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* Pie by group */}
         <Card className="card-glass animate-scale-up" style={{ animationDelay: '0.25s' }}>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Distribuição por grupo</CardTitle>
+            <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Distribuição por tipo</CardTitle>
           </CardHeader>
           <CardContent>
             {groupPieData.length === 0 ? (
@@ -186,34 +155,11 @@ export default function DashboardPage() {
               <div className="h-56">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
-                    <Pie
-                      data={groupPieData}
-                      dataKey="value"
-                      nameKey="name"
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={50}
-                      outerRadius={85}
-                      paddingAngle={3}
-                      strokeWidth={0}
-                    >
-                      {groupPieData.map((entry, i) => (
-                        <Cell key={i} fill={entry.color} />
-                      ))}
+                    <Pie data={groupPieData} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={50} outerRadius={85} paddingAngle={3} strokeWidth={0}>
+                      {groupPieData.map((entry, i) => (<Cell key={i} fill={entry.color} />))}
                     </Pie>
-                    <Tooltip
-                      formatter={(value: number) => fmt(value)}
-                      contentStyle={{
-                        backgroundColor: 'hsl(var(--popover))',
-                        border: '1px solid hsl(var(--border))',
-                        borderRadius: '8px',
-                        color: 'hsl(var(--popover-foreground))',
-                        fontSize: '13px',
-                      }}
-                    />
-                    <Legend
-                      formatter={(value) => <span className="text-sm text-foreground">{value}</span>}
-                    />
+                    <Tooltip formatter={(value: number) => fmt(value)} contentStyle={{ backgroundColor: 'hsl(var(--popover))', border: '1px solid hsl(var(--border))', borderRadius: '8px', color: 'hsl(var(--popover-foreground))', fontSize: '13px' }} />
+                    <Legend formatter={(value) => <span className="text-sm text-foreground">{value}</span>} />
                   </PieChart>
                 </ResponsiveContainer>
               </div>
@@ -221,46 +167,22 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        {/* Pie by category */}
         <Card className="card-glass animate-scale-up" style={{ animationDelay: '0.3s' }}>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Despesas por categoria</CardTitle>
+            <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Essenciais por categoria</CardTitle>
           </CardHeader>
           <CardContent>
             {pieData.length === 0 ? (
-              <p className="text-muted-foreground text-center py-12 text-sm">Sem despesas no mês</p>
+              <p className="text-muted-foreground text-center py-12 text-sm">Sem despesas essenciais no mês</p>
             ) : (
               <div className="h-56">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
-                    <Pie
-                      data={pieData}
-                      dataKey="total"
-                      nameKey="nome"
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={50}
-                      outerRadius={85}
-                      paddingAngle={2}
-                      strokeWidth={0}
-                    >
-                      {pieData.map((entry, i) => (
-                        <Cell key={i} fill={entry.cor} />
-                      ))}
+                    <Pie data={pieData} dataKey="total" nameKey="nome" cx="50%" cy="50%" innerRadius={50} outerRadius={85} paddingAngle={2} strokeWidth={0}>
+                      {pieData.map((entry, i) => (<Cell key={i} fill={entry.cor} />))}
                     </Pie>
-                    <Tooltip
-                      formatter={(value: number) => fmt(value)}
-                      contentStyle={{
-                        backgroundColor: 'hsl(var(--popover))',
-                        border: '1px solid hsl(var(--border))',
-                        borderRadius: '8px',
-                        color: 'hsl(var(--popover-foreground))',
-                        fontSize: '13px',
-                      }}
-                    />
-                    <Legend
-                      formatter={(value) => <span className="text-sm text-foreground">{value}</span>}
-                    />
+                    <Tooltip formatter={(value: number) => fmt(value)} contentStyle={{ backgroundColor: 'hsl(var(--popover))', border: '1px solid hsl(var(--border))', borderRadius: '8px', color: 'hsl(var(--popover-foreground))', fontSize: '13px' }} />
+                    <Legend formatter={(value) => <span className="text-sm text-foreground">{value}</span>} />
                   </PieChart>
                 </ResponsiveContainer>
               </div>
@@ -271,30 +193,26 @@ export default function DashboardPage() {
 
       {/* Breakdown cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 animate-fade-up" style={{ animationDelay: '0.35s' }}>
-        {[
-          { label: 'Essenciais', value: essenciais, color: COLORS_MAP.essenciais },
-          { label: 'Lazer', value: lazer, color: COLORS_MAP.lazer },
-          { label: 'Imprevistos', value: imprevistos, color: COLORS_MAP.imprevistos },
-          { label: 'Besteiras', value: besteiras, color: COLORS_MAP.besteiras },
-        ].map((item) => (
-          <Card key={item.label} className="card-glass">
-            <CardContent className="pt-5 pb-4">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
-                <p className="text-sm text-muted-foreground">{item.label}</p>
-              </div>
-              <p className="text-xl font-bold" style={{ color: item.color }}>{fmt(item.value)}</p>
-              {totalDespesas > 0 && (
-                <div className="mt-2">
-                  <Progress value={(item.value / totalDespesas) * 100} className="h-1.5" />
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {((item.value / totalDespesas) * 100).toFixed(0)}% do total
-                  </p>
+        {Object.entries(TIPO_LABELS).map(([key, label]) => {
+          const value = tipoTotals[key] ?? 0;
+          return (
+            <Card key={key} className="card-glass">
+              <CardContent className="pt-5 pb-4">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS_MAP[key] }} />
+                  <p className="text-sm text-muted-foreground">{label}</p>
                 </div>
-              )}
-            </CardContent>
-          </Card>
-        ))}
+                <p className="text-xl font-bold" style={{ color: COLORS_MAP[key] }}>{fmt(value)}</p>
+                {totalDespesas > 0 && (
+                  <div className="mt-2">
+                    <Progress value={(value / totalDespesas) * 100} className="h-1.5" />
+                    <p className="text-xs text-muted-foreground mt-1">{((value / totalDespesas) * 100).toFixed(0)}% do total</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
 
       {/* Recent transactions */}
@@ -307,11 +225,11 @@ export default function DashboardPage() {
             {recentTransactions.map((t: any) => (
               <div key={t.id} className="flex items-center justify-between py-2.5 border-b border-border last:border-0">
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: t.categories?.cor_hex ?? '#666' }} />
+                  <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: COLORS_MAP[t.tipo_despesa] ?? '#666' }} />
                   <div className="min-w-0">
-                    <p className="text-sm font-medium truncate">{t.descricao || t.categories?.nome}</p>
+                    <p className="text-sm font-medium truncate">{t.motivo || t.categories?.nome || TIPO_LABELS[t.tipo_despesa]}</p>
                     <p className="text-xs text-muted-foreground">
-                      {format(new Date(t.data + 'T00:00'), 'dd/MM', { locale: ptBR })} · {t.categories?.nome}
+                      {format(new Date(t.data + 'T00:00'), 'dd/MM', { locale: ptBR })} · {TIPO_LABELS[t.tipo_despesa] ?? 'Essencial'}
                     </p>
                   </div>
                 </div>
@@ -322,7 +240,7 @@ export default function DashboardPage() {
         </Card>
       )}
 
-      {/* Goals progress */}
+      {/* Goals */}
       {goals.length > 0 && (
         <Card className="card-glass animate-fade-up" style={{ animationDelay: '0.45s' }}>
           <CardHeader className="pb-2">
@@ -334,21 +252,16 @@ export default function DashboardPage() {
               if (goal.tipo_meta === 'limite_despesas') current = totalDespesas;
               else if (goal.tipo_meta === 'meta_renda_extra') current = totalRendaExtra;
               else if (goal.tipo_meta === 'limite_categoria') {
-                current = transactions
-                  .filter((t) => t.category_id === goal.category_id)
-                  .reduce((s, t) => s + Number(t.valor), 0);
+                current = transactions.filter((t) => t.category_id === goal.category_id).reduce((s, t) => s + Number(t.valor), 0);
               }
               const pct = Math.min((current / Number(goal.valor_alvo)) * 100, 100);
               const isOver = current > Number(goal.valor_alvo);
               const isLimit = goal.tipo_meta !== 'meta_renda_extra';
-
               return (
                 <div key={goal.id}>
                   <div className="flex justify-between text-sm mb-1">
                     <span>{goal.nome_meta}</span>
-                    <span className={isLimit && isOver ? 'text-destructive' : 'text-muted-foreground'}>
-                      {fmt(current)} / {fmt(Number(goal.valor_alvo))}
-                    </span>
+                    <span className={isLimit && isOver ? 'text-destructive' : 'text-muted-foreground'}>{fmt(current)} / {fmt(Number(goal.valor_alvo))}</span>
                   </div>
                   <Progress value={pct} className="h-2" />
                 </div>
