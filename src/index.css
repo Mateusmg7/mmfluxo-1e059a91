@@ -111,7 +111,10 @@
 
 @layer utilities {
   .gradient-brand {
-    @apply bg-gradient-to-r from-primary to-[hsl(var(--cyan))] bg-clip-text text-transparent;
+    background: linear-gradient(90deg, #0C5BA8, #22D3EE);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
 
   .glass-header {
