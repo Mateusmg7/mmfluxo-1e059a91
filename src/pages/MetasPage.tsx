@@ -40,12 +40,14 @@ export default function MetasPage() {
   const [periodoTipo, setPeriodoTipo] = useState('mensal');
 
   const { data: goals = [] } = useQuery({
-    queryKey: ['goals'],
+    queryKey: ['goals', activeProfile?.id],
     queryFn: async () => {
-      const { data } = await supabase.from('goals').select('*, categories(nome)');
+      let q = supabase.from('goals').select('*, categories(nome)');
+      if (activeProfile) q = q.eq('profile_id', activeProfile.id);
+      const { data } = await q;
       return data ?? [];
     },
-    enabled: !!user,
+    enabled: !!user && !!activeProfile,
   });
 
   const { data: categories = [] } = useQuery({
