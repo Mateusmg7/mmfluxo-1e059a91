@@ -270,7 +270,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Breakdown cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 animate-fade-up" style={{ animationDelay: '0.35s' }}>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 animate-fade-up" style={{ animationDelay: '0.35s' }}>
         {[
           { label: 'Essenciais', value: essenciais, color: COLORS_MAP.essenciais },
           { label: 'Lazer', value: lazer, color: COLORS_MAP.lazer },
