@@ -7,7 +7,8 @@ import { ptBR } from 'date-fns/locale';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
-import { Download } from 'lucide-react';
+import { Download, FileText } from 'lucide-react';
+import { exportPdf } from '@/lib/exportPdf';
 
 export default function RelatoriosPage() {
   const { user } = useAuth();
@@ -82,6 +83,31 @@ export default function RelatoriosPage() {
     const a = document.createElement('a');
     a.href = url; a.download = filename; a.click();
     URL.revokeObjectURL(url);
+  };
+
+  const handleExportPdf = () => {
+    const mesLabel = format(now, "MMMM 'de' yyyy", { locale: ptBR });
+    exportPdf({
+      title: 'MM Fluxo — Relatório Mensal',
+      subtitle: `${activeProfile?.name ?? 'Perfil'} · ${mesLabel}`,
+      sections: [
+        {
+          heading: 'Despesas',
+          columns: ['Data', 'Hora', 'Categoria', 'Descrição', 'Valor', 'Status'],
+          rows: transactions.map((t: any) => [
+            t.data, t.hora, t.categories?.nome ?? '', t.descricao, fmt(Number(t.valor)), t.status,
+          ]),
+        },
+        {
+          heading: 'Renda Extra',
+          columns: ['Data', 'Hora', 'Origem', 'Valor', 'Observação'],
+          rows: extraIncome.map((r) => [
+            r.data, r.hora, r.origem, fmt(Number(r.valor)), r.observacao ?? '',
+          ]),
+        },
+      ],
+      filename: `relatorio-${format(now, 'yyyy-MM')}.pdf`,
+    });
   };
 
   return (
@@ -166,16 +192,19 @@ export default function RelatoriosPage() {
       </Card>
 
       {/* Export */}
-      <div className="flex gap-3">
+      <div className="flex flex-wrap gap-3">
+        <Button variant="secondary" onClick={handleExportPdf}>
+          <FileText size={16} className="mr-2" />Exportar PDF
+        </Button>
         <Button variant="secondary" onClick={() => exportCSV(transactions.map((t: any) => ({
           data: t.data, hora: t.hora, categoria: t.categories?.nome, descricao: t.descricao, valor: t.valor, status: t.status,
         })), 'despesas.csv')}>
-          <Download size={16} className="mr-2" />Exportar despesas CSV
+          <Download size={16} className="mr-2" />Despesas CSV
         </Button>
         <Button variant="secondary" onClick={() => exportCSV(extraIncome.map((r) => ({
           data: r.data, hora: r.hora, origem: r.origem, valor: r.valor, observacao: r.observacao ?? '',
         })), 'renda-extra.csv')}>
-          <Download size={16} className="mr-2" />Exportar renda extra CSV
+          <Download size={16} className="mr-2" />Renda Extra CSV
         </Button>
       </div>
     </div>
