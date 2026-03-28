@@ -169,6 +169,8 @@ export default function ProfileSwitcher() {
           </div>
         </DialogContent>
       </Dialog>
+
+      <DuplicateDataDialog open={duplicateOpen} onOpenChange={setDuplicateOpen} />
     </>
   );
 }
