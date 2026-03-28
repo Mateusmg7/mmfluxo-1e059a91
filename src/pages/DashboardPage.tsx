@@ -97,6 +97,7 @@ export default function DashboardPage() {
     { name: 'Essenciais', value: essenciais, color: COLORS_MAP.essenciais },
     { name: 'Lazer', value: lazer, color: COLORS_MAP.lazer },
     { name: 'Imprevistos', value: imprevistos, color: COLORS_MAP.imprevistos },
+    { name: 'Besteiras', value: besteiras, color: COLORS_MAP.besteiras },
   ].filter((d) => d.value > 0);
 
   const fmt = (v: number) =>

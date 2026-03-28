@@ -75,7 +75,7 @@ export default function TransacoesPage() {
 
   const filtered = transactions.filter((t: any) => {
     if (filtroCategoria !== 'todas') {
-      if (['essenciais', 'lazer', 'imprevistos'].includes(filtroCategoria)) {
+      if (['essenciais', 'lazer', 'imprevistos', 'besteiras'].includes(filtroCategoria)) {
         if (t.categories?.grupo !== filtroCategoria) return false;
       } else {
         if (t.category_id !== filtroCategoria) return false;

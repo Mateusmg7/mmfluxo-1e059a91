@@ -112,6 +112,7 @@ export default function CategoriasPage() {
                       <SelectItem value="essenciais">Essenciais</SelectItem>
                       <SelectItem value="lazer">Lazer</SelectItem>
                       <SelectItem value="imprevistos">Imprevistos</SelectItem>
+                      <SelectItem value="besteiras">Besteiras</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
