@@ -222,7 +222,7 @@ export default function DashboardPage() {
         </Card>
 
         {/* Pie by category */}
-        <Card className="card-glass">
+        <Card className="card-glass animate-scale-up" style={{ animationDelay: '0.3s' }}>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Despesas por categoria</CardTitle>
           </CardHeader>
