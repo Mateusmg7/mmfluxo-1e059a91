@@ -1,20 +1,22 @@
+import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/contexts/ProfileContext';
 import { useQuery } from '@tanstack/react-query';
-import { format, startOfMonth, endOfMonth } from 'date-fns';
+import { format, startOfMonth, endOfMonth, subMonths, addMonths } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowDownCircle, ArrowUpCircle, Wallet, Layers } from 'lucide-react';
+import { ArrowDownCircle, ArrowUpCircle, Wallet, Layers, ChevronLeft, ChevronRight } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { Progress } from '@/components/ui/progress';
+import { Button } from '@/components/ui/button';
 
 export default function ResumoGeralPage() {
   const { user } = useAuth();
   const { profiles } = useProfile();
-  const now = new Date();
-  const monthStart = format(startOfMonth(now), 'yyyy-MM-dd');
-  const monthEnd = format(endOfMonth(now), 'yyyy-MM-dd');
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+  const monthStart = format(startOfMonth(currentMonth), 'yyyy-MM-dd');
+  const monthEnd = format(endOfMonth(currentMonth), 'yyyy-MM-dd');
 
   // Fetch ALL transactions (no profile filter)
   const { data: allTransactions = [] } = useQuery({
@@ -87,9 +89,17 @@ export default function ResumoGeralPage() {
           <Layers size={24} className="text-primary" />
           Resumo Geral
         </h2>
-        <p className="text-muted-foreground text-sm capitalize">
-          Consolidado de todos os perfis · {format(now, "MMMM 'de' yyyy", { locale: ptBR })}
-        </p>
+        <div className="flex items-center gap-2 mt-1">
+          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setCurrentMonth(m => subMonths(m, 1))}>
+            <ChevronLeft size={16} />
+          </Button>
+          <span className="text-sm text-muted-foreground capitalize min-w-[140px] text-center">
+            {format(currentMonth, "MMMM 'de' yyyy", { locale: ptBR })}
+          </span>
+          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setCurrentMonth(m => addMonths(m, 1))}>
+            <ChevronRight size={16} />
+          </Button>
+        </div>
       </div>
 
       {/* Totals */}
