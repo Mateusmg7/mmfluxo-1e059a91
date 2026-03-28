@@ -27,6 +27,7 @@ export default function ProfileSwitcher() {
   const { profiles, activeProfile, setActiveProfileId, createProfile, updateProfile, deleteProfile } = useProfile();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [duplicateOpen, setDuplicateOpen] = useState(false);
+  const [editId, setEditId] = useState<string | null>(null);
   const [name, setName] = useState('');
   const [icon, setIcon] = useState('👤');
   const [color, setColor] = useState('#0C5BA8');
