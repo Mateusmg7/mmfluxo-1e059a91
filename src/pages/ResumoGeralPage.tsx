@@ -89,9 +89,17 @@ export default function ResumoGeralPage() {
           <Layers size={24} className="text-primary" />
           Resumo Geral
         </h2>
-        <p className="text-muted-foreground text-sm capitalize">
-          Consolidado de todos os perfis · {format(now, "MMMM 'de' yyyy", { locale: ptBR })}
-        </p>
+        <div className="flex items-center gap-2 mt-1">
+          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setCurrentMonth(m => subMonths(m, 1))}>
+            <ChevronLeft size={16} />
+          </Button>
+          <span className="text-sm text-muted-foreground capitalize min-w-[140px] text-center">
+            {format(currentMonth, "MMMM 'de' yyyy", { locale: ptBR })}
+          </span>
+          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setCurrentMonth(m => addMonths(m, 1))}>
+            <ChevronRight size={16} />
+          </Button>
+        </div>
       </div>
 
       {/* Totals */}
