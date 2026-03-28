@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useProfile } from '@/contexts/ProfileContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { format, startOfMonth, endOfMonth, subMonths } from 'date-fns';
@@ -15,6 +16,7 @@ import { toast } from 'sonner';
 
 export default function RendaExtraPage() {
   const { user } = useAuth();
+  const { activeProfile } = useProfile();
   const qc = useQueryClient();
   const now = new Date();
 
@@ -38,18 +40,20 @@ export default function RendaExtraPage() {
   const { start, end } = getDateRange();
 
   const { data: records = [] } = useQuery({
-    queryKey: ['extra_income', start, end],
+    queryKey: ['extra_income', start, end, activeProfile?.id],
     queryFn: async () => {
-      const { data } = await supabase
+      let q = supabase
         .from('extra_income')
         .select('*')
         .gte('data', start)
         .lte('data', end)
         .order('data', { ascending: false })
         .order('hora', { ascending: false });
+      if (activeProfile) q = q.eq('profile_id', activeProfile.id);
+      const { data } = await q;
       return data ?? [];
     },
-    enabled: !!user,
+    enabled: !!user && !!activeProfile,
   });
 
   const total = records.reduce((s, r) => s + Number(r.valor), 0);
@@ -62,7 +66,7 @@ export default function RendaExtraPage() {
 
   const handleSave = async () => {
     if (!origem || !valor) { toast.error('Preencha origem e valor'); return; }
-    const payload = { user_id: user!.id, origem, valor: parseFloat(valor), data, hora, observacao: observacao || null };
+    const payload = { user_id: user!.id, origem, valor: parseFloat(valor), data, hora, observacao: observacao || null, profile_id: activeProfile?.id };
 
     if (editId) {
       const { error } = await supabase.from('extra_income').update(payload).eq('id', editId);

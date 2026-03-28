@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useProfile } from '@/contexts/ProfileContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { format, startOfMonth, endOfMonth } from 'date-fns';
@@ -25,6 +26,7 @@ const goalTypeLabels: Record<GoalType, string> = {
 
 export default function MetasPage() {
   const { user } = useAuth();
+  const { activeProfile } = useProfile();
   const qc = useQueryClient();
   const now = new Date();
   const monthStart = format(startOfMonth(now), 'yyyy-MM-dd');
@@ -38,39 +40,47 @@ export default function MetasPage() {
   const [periodoTipo, setPeriodoTipo] = useState('mensal');
 
   const { data: goals = [] } = useQuery({
-    queryKey: ['goals'],
+    queryKey: ['goals', activeProfile?.id],
     queryFn: async () => {
-      const { data } = await supabase.from('goals').select('*, categories(nome)');
+      let q = supabase.from('goals').select('*, categories(nome)');
+      if (activeProfile) q = q.eq('profile_id', activeProfile.id);
+      const { data } = await q;
       return data ?? [];
     },
-    enabled: !!user,
+    enabled: !!user && !!activeProfile,
   });
 
   const { data: categories = [] } = useQuery({
-    queryKey: ['categories'],
+    queryKey: ['categories', activeProfile?.id],
     queryFn: async () => {
-      const { data } = await supabase.from('categories').select('*').order('nome');
+      let q = supabase.from('categories').select('*').order('nome');
+      if (activeProfile) q = q.eq('profile_id', activeProfile.id);
+      const { data } = await q;
       return data ?? [];
     },
-    enabled: !!user,
+    enabled: !!user && !!activeProfile,
   });
 
   const { data: transactions = [] } = useQuery({
-    queryKey: ['transactions', monthStart, monthEnd],
+    queryKey: ['transactions', monthStart, monthEnd, activeProfile?.id],
     queryFn: async () => {
-      const { data } = await supabase.from('transactions').select('*').gte('data', monthStart).lte('data', monthEnd);
+      let q = supabase.from('transactions').select('*').gte('data', monthStart).lte('data', monthEnd);
+      if (activeProfile) q = q.eq('profile_id', activeProfile.id);
+      const { data } = await q;
       return data ?? [];
     },
-    enabled: !!user,
+    enabled: !!user && !!activeProfile,
   });
 
   const { data: extraIncome = [] } = useQuery({
-    queryKey: ['extra_income', monthStart, monthEnd],
+    queryKey: ['extra_income', monthStart, monthEnd, activeProfile?.id],
     queryFn: async () => {
-      const { data } = await supabase.from('extra_income').select('*').gte('data', monthStart).lte('data', monthEnd);
+      let q = supabase.from('extra_income').select('*').gte('data', monthStart).lte('data', monthEnd);
+      if (activeProfile) q = q.eq('profile_id', activeProfile.id);
+      const { data } = await q;
       return data ?? [];
     },
-    enabled: !!user,
+    enabled: !!user && !!activeProfile,
   });
 
   const totalDespesas = transactions.reduce((s, t) => s + Number(t.valor), 0);
@@ -92,6 +102,7 @@ export default function MetasPage() {
       valor_alvo: parseFloat(valorAlvo),
       category_id: tipoMeta === 'limite_categoria' ? categoryId || null : null,
       periodo_tipo: periodoTipo,
+      profile_id: activeProfile?.id,
     });
     if (error) { toast.error(error.message); return; }
     toast.success('Meta criada');

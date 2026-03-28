@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useProfile } from '@/contexts/ProfileContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
@@ -23,6 +24,7 @@ const groupLabels: Record<CategoryGroup, string> = {
 
 export default function CategoriasPage() {
   const { user } = useAuth();
+  const { activeProfile } = useProfile();
   const qc = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
@@ -31,19 +33,21 @@ export default function CategoriasPage() {
   const [grupo, setGrupo] = useState<CategoryGroup>('essenciais');
 
   const { data: categories = [] } = useQuery({
-    queryKey: ['categories'],
+    queryKey: ['categories', activeProfile?.id],
     queryFn: async () => {
-      const { data } = await supabase.from('categories').select('*').order('grupo').order('nome');
+      let q = supabase.from('categories').select('*').order('grupo').order('nome');
+      if (activeProfile) q = q.eq('profile_id', activeProfile.id);
+      const { data } = await q;
       return data ?? [];
     },
-    enabled: !!user,
+    enabled: !!user && !!activeProfile,
   });
 
   const resetForm = () => { setNome(''); setCorHex('#0C5BA8'); setGrupo('essenciais'); setEditId(null); };
 
   const handleSave = async () => {
     if (!nome) { toast.error('Informe o nome'); return; }
-    const payload = { user_id: user!.id, nome, cor_hex: corHex, grupo };
+    const payload = { user_id: user!.id, nome, cor_hex: corHex, grupo, profile_id: activeProfile?.id };
 
     if (editId) {
       const { error } = await supabase.from('categories').update(payload).eq('id', editId);

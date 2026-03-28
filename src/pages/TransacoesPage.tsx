@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useProfile } from '@/contexts/ProfileContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { format, startOfMonth, endOfMonth, subMonths } from 'date-fns';
@@ -16,6 +17,7 @@ import { toast } from 'sonner';
 
 export default function TransacoesPage() {
   const { user } = useAuth();
+  const { activeProfile } = useProfile();
   const qc = useQueryClient();
   const now = new Date();
 
@@ -44,27 +46,31 @@ export default function TransacoesPage() {
   const { start, end } = getDateRange();
 
   const { data: categories = [] } = useQuery({
-    queryKey: ['categories'],
+    queryKey: ['categories', activeProfile?.id],
     queryFn: async () => {
-      const { data } = await supabase.from('categories').select('*').order('nome');
+      let q = supabase.from('categories').select('*').order('nome');
+      if (activeProfile) q = q.eq('profile_id', activeProfile.id);
+      const { data } = await q;
       return data ?? [];
     },
-    enabled: !!user,
+    enabled: !!user && !!activeProfile,
   });
 
   const { data: transactions = [] } = useQuery({
-    queryKey: ['transactions', start, end],
+    queryKey: ['transactions', start, end, activeProfile?.id],
     queryFn: async () => {
-      const { data } = await supabase
+      let q = supabase
         .from('transactions')
         .select('*, categories(nome, grupo, cor_hex)')
         .gte('data', start)
         .lte('data', end)
         .order('data', { ascending: false })
         .order('hora', { ascending: false });
+      if (activeProfile) q = q.eq('profile_id', activeProfile.id);
+      const { data } = await q;
       return data ?? [];
     },
-    enabled: !!user,
+    enabled: !!user && !!activeProfile,
   });
 
   const filtered = transactions.filter((t: any) => {
@@ -105,6 +111,7 @@ export default function TransacoesPage() {
       hora,
       descricao,
       status,
+      profile_id: activeProfile?.id,
     };
 
     if (editId) {

@@ -1,4 +1,5 @@
 import { useAuth } from '@/contexts/AuthContext';
+import { useProfile } from '@/contexts/ProfileContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
 import { format, startOfMonth, endOfMonth } from 'date-fns';
@@ -10,30 +11,35 @@ import { Download } from 'lucide-react';
 
 export default function RelatoriosPage() {
   const { user } = useAuth();
+  const { activeProfile } = useProfile();
   const now = new Date();
   const monthStart = format(startOfMonth(now), 'yyyy-MM-dd');
   const monthEnd = format(endOfMonth(now), 'yyyy-MM-dd');
 
   const { data: transactions = [] } = useQuery({
-    queryKey: ['transactions', monthStart, monthEnd],
+    queryKey: ['transactions', monthStart, monthEnd, activeProfile?.id],
     queryFn: async () => {
-      const { data } = await supabase
+      let q = supabase
         .from('transactions')
         .select('*, categories(nome, cor_hex, grupo)')
         .gte('data', monthStart)
         .lte('data', monthEnd);
+      if (activeProfile) q = q.eq('profile_id', activeProfile.id);
+      const { data } = await q;
       return data ?? [];
     },
-    enabled: !!user,
+    enabled: !!user && !!activeProfile,
   });
 
   const { data: extraIncome = [] } = useQuery({
-    queryKey: ['extra_income', monthStart, monthEnd],
+    queryKey: ['extra_income', monthStart, monthEnd, activeProfile?.id],
     queryFn: async () => {
-      const { data } = await supabase.from('extra_income').select('*').gte('data', monthStart).lte('data', monthEnd);
+      let q = supabase.from('extra_income').select('*').gte('data', monthStart).lte('data', monthEnd);
+      if (activeProfile) q = q.eq('profile_id', activeProfile.id);
+      const { data } = await q;
       return data ?? [];
     },
-    enabled: !!user,
+    enabled: !!user && !!activeProfile,
   });
 
   // Pie chart: by category

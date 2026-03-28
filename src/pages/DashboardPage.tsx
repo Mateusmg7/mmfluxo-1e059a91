@@ -1,5 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { useProfile } from '@/contexts/ProfileContext';
 import { useQuery } from '@tanstack/react-query';
 import { format, startOfMonth, endOfMonth } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -16,44 +17,51 @@ const COLORS_MAP: Record<string, string> = {
 
 export default function DashboardPage() {
   const { user } = useAuth();
+  const { activeProfile } = useProfile();
   const now = new Date();
   const monthStart = format(startOfMonth(now), 'yyyy-MM-dd');
   const monthEnd = format(endOfMonth(now), 'yyyy-MM-dd');
 
   const { data: transactions = [] } = useQuery({
-    queryKey: ['transactions', monthStart, monthEnd],
+    queryKey: ['transactions', monthStart, monthEnd, activeProfile?.id],
     queryFn: async () => {
-      const { data } = await supabase
+      let q = supabase
         .from('transactions')
         .select('*, categories(nome, grupo, cor_hex)')
         .gte('data', monthStart)
         .lte('data', monthEnd)
         .order('data', { ascending: false });
+      if (activeProfile) q = q.eq('profile_id', activeProfile.id);
+      const { data } = await q;
       return data ?? [];
     },
-    enabled: !!user,
+    enabled: !!user && !!activeProfile,
   });
 
   const { data: extraIncome = [] } = useQuery({
-    queryKey: ['extra_income', monthStart, monthEnd],
+    queryKey: ['extra_income', monthStart, monthEnd, activeProfile?.id],
     queryFn: async () => {
-      const { data } = await supabase
+      let q = supabase
         .from('extra_income')
         .select('*')
         .gte('data', monthStart)
         .lte('data', monthEnd);
+      if (activeProfile) q = q.eq('profile_id', activeProfile.id);
+      const { data } = await q;
       return data ?? [];
     },
-    enabled: !!user,
+    enabled: !!user && !!activeProfile,
   });
 
   const { data: goals = [] } = useQuery({
-    queryKey: ['goals'],
+    queryKey: ['goals', activeProfile?.id],
     queryFn: async () => {
-      const { data } = await supabase.from('goals').select('*, categories(nome)');
+      let q = supabase.from('goals').select('*, categories(nome)');
+      if (activeProfile) q = q.eq('profile_id', activeProfile.id);
+      const { data } = await q;
       return data ?? [];
     },
-    enabled: !!user,
+    enabled: !!user && !!activeProfile,
   });
 
   const totalDespesas = transactions.reduce((s, t) => s + Number(t.valor), 0);
