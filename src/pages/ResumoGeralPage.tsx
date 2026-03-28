@@ -172,10 +172,10 @@ export default function ResumoGeralPage() {
                   <Tooltip
                     formatter={(value: number) => fmt(value)}
                     contentStyle={{
-                      backgroundColor: 'hsl(216 30% 8%)',
-                      border: '1px solid hsl(216 20% 16%)',
+                      backgroundColor: 'hsl(var(--popover))',
+                      border: '1px solid hsl(var(--border))',
                       borderRadius: '8px',
-                      color: '#fff',
+                      color: 'hsl(var(--popover-foreground))',
                       fontSize: '13px',
                     }}
                   />
