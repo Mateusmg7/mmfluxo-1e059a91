@@ -14,6 +14,7 @@ import { toast } from 'sonner';
 
 export default function ConfiguracoesPage() {
   const { user } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const qc = useQueryClient();
 
   const { data: profile } = useQuery({
