@@ -99,6 +99,11 @@ export default function ResumoGeralPage() {
           <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setCurrentMonth(m => addMonths(m, 1))}>
             <ChevronRight size={16} />
           </Button>
+          {format(currentMonth, 'yyyy-MM') !== format(new Date(), 'yyyy-MM') && (
+            <Button variant="outline" size="sm" className="h-7 text-xs ml-1" onClick={() => setCurrentMonth(new Date())}>
+              Mês atual
+            </Button>
+          )}
         </div>
       </div>
 
