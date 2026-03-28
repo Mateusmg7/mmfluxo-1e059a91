@@ -26,7 +26,7 @@ const COLORS = ['#0C5BA8', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'];
 export default function ProfileSwitcher() {
   const { profiles, activeProfile, setActiveProfileId, createProfile, updateProfile, deleteProfile } = useProfile();
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [editId, setEditId] = useState<string | null>(null);
+  const [duplicateOpen, setDuplicateOpen] = useState(false);
   const [name, setName] = useState('');
   const [icon, setIcon] = useState('👤');
   const [color, setColor] = useState('#0C5BA8');
