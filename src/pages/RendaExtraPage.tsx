@@ -16,6 +16,7 @@ import { toast } from 'sonner';
 
 export default function RendaExtraPage() {
   const { user } = useAuth();
+  const { activeProfile } = useProfile();
   const qc = useQueryClient();
   const now = new Date();
 
