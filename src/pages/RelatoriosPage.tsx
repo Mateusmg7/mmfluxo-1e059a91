@@ -263,7 +263,7 @@ export default function RelatoriosPage() {
         </Card>
 
         {/* Bar */}
-        <Card className="card-glass">
+        <Card className="card-glass animate-scale-up" style={{ animationDelay: '0.3s' }}>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
               <BarChart3 size={14} /> Despesas por Semana
