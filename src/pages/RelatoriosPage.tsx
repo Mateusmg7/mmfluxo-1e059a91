@@ -334,7 +334,7 @@ export default function RelatoriosPage() {
         </Card>
 
         {/* Extra income by origin */}
-        <Card className="card-glass">
+        <Card className="card-glass animate-fade-up" style={{ animationDelay: '0.4s' }}>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
               <ArrowUpCircle size={14} /> Renda Extra por Origem
