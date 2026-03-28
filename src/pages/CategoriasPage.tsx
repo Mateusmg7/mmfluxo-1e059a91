@@ -77,7 +77,7 @@ export default function CategoriasPage() {
     qc.invalidateQueries({ queryKey: ['categories'] });
   };
 
-  const grouped = (['essenciais', 'lazer', 'imprevistos'] as CategoryGroup[]).map((g) => ({
+  const grouped = (['essenciais', 'lazer', 'imprevistos', 'besteiras'] as CategoryGroup[]).map((g) => ({
     grupo: g,
     label: groupLabels[g],
     items: categories.filter((c) => c.grupo === g),
