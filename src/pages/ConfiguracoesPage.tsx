@@ -108,6 +108,24 @@ export default function ConfiguracoesPage() {
         </CardContent>
       </Card>
 
+      <Card className="card-glass">
+        <CardHeader>
+          <CardTitle className="text-base">Aparência</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              {theme === 'dark' ? <Moon className="h-5 w-5 text-muted-foreground" /> : <Sun className="h-5 w-5 text-warning" />}
+              <div>
+                <p className="text-sm font-medium">Modo escuro</p>
+                <p className="text-xs text-muted-foreground">Alternar entre tema claro e escuro</p>
+              </div>
+            </div>
+            <Switch checked={theme === 'dark'} onCheckedChange={toggleTheme} />
+          </div>
+        </CardContent>
+      </Card>
+
       <Button onClick={handleSave}>Salvar configurações</Button>
     </div>
   );
