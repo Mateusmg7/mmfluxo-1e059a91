@@ -24,6 +24,7 @@ const groupLabels: Record<CategoryGroup, string> = {
 
 export default function CategoriasPage() {
   const { user } = useAuth();
+  const { activeProfile } = useProfile();
   const qc = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
