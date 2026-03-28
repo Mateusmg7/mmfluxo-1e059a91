@@ -107,7 +107,7 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <div>
+      <div className="animate-fade-up">
         <h2 className="text-2xl font-bold">Dashboard</h2>
         <p className="text-muted-foreground text-sm capitalize">
           {format(now, "MMMM 'de' yyyy", { locale: ptBR })}
