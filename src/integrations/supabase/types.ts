@@ -22,6 +22,7 @@ export type Database = {
           id: string
           is_default: boolean
           nome: string
+          profile_id: string | null
           user_id: string
         }
         Insert: {
@@ -31,6 +32,7 @@ export type Database = {
           id?: string
           is_default?: boolean
           nome: string
+          profile_id?: string | null
           user_id: string
         }
         Update: {
@@ -40,9 +42,18 @@ export type Database = {
           id?: string
           is_default?: boolean
           nome?: string
+          profile_id?: string | null
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "categories_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "financial_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       extra_income: {
         Row: {
@@ -52,6 +63,7 @@ export type Database = {
           id: string
           observacao: string | null
           origem: string
+          profile_id: string | null
           user_id: string
           valor: number
         }
@@ -62,6 +74,7 @@ export type Database = {
           id?: string
           observacao?: string | null
           origem: string
+          profile_id?: string | null
           user_id: string
           valor: number
         }
@@ -72,8 +85,47 @@ export type Database = {
           id?: string
           observacao?: string | null
           origem?: string
+          profile_id?: string | null
           user_id?: string
           valor?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "extra_income_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "financial_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      financial_profiles: {
+        Row: {
+          color: string
+          created_at: string
+          icon: string
+          id: string
+          is_default: boolean
+          name: string
+          user_id: string
+        }
+        Insert: {
+          color?: string
+          created_at?: string
+          icon?: string
+          id?: string
+          is_default?: boolean
+          name?: string
+          user_id: string
+        }
+        Update: {
+          color?: string
+          created_at?: string
+          icon?: string
+          id?: string
+          is_default?: boolean
+          name?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -86,6 +138,7 @@ export type Database = {
           id: string
           nome_meta: string
           periodo_tipo: string
+          profile_id: string | null
           tipo_meta: Database["public"]["Enums"]["goal_type"]
           user_id: string
           valor_alvo: number
@@ -98,6 +151,7 @@ export type Database = {
           id?: string
           nome_meta: string
           periodo_tipo?: string
+          profile_id?: string | null
           tipo_meta: Database["public"]["Enums"]["goal_type"]
           user_id: string
           valor_alvo: number
@@ -110,6 +164,7 @@ export type Database = {
           id?: string
           nome_meta?: string
           periodo_tipo?: string
+          profile_id?: string | null
           tipo_meta?: Database["public"]["Enums"]["goal_type"]
           user_id?: string
           valor_alvo?: number
@@ -120,6 +175,13 @@ export type Database = {
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "goals_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "financial_profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -165,6 +227,7 @@ export type Database = {
           descricao: string
           hora: string
           id: string
+          profile_id: string | null
           status: string
           user_id: string
           valor: number
@@ -176,6 +239,7 @@ export type Database = {
           descricao?: string
           hora?: string
           id?: string
+          profile_id?: string | null
           status?: string
           user_id: string
           valor: number
@@ -187,6 +251,7 @@ export type Database = {
           descricao?: string
           hora?: string
           id?: string
+          profile_id?: string | null
           status?: string
           user_id?: string
           valor?: number
@@ -197,6 +262,13 @@ export type Database = {
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "financial_profiles"
             referencedColumns: ["id"]
           },
         ]
