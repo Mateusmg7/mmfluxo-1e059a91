@@ -33,12 +33,14 @@ export default function CategoriasPage() {
   const [grupo, setGrupo] = useState<CategoryGroup>('essenciais');
 
   const { data: categories = [] } = useQuery({
-    queryKey: ['categories'],
+    queryKey: ['categories', activeProfile?.id],
     queryFn: async () => {
-      const { data } = await supabase.from('categories').select('*').order('grupo').order('nome');
+      let q = supabase.from('categories').select('*').order('grupo').order('nome');
+      if (activeProfile) q = q.eq('profile_id', activeProfile.id);
+      const { data } = await q;
       return data ?? [];
     },
-    enabled: !!user,
+    enabled: !!user && !!activeProfile,
   });
 
   const resetForm = () => { setNome(''); setCorHex('#0C5BA8'); setGrupo('essenciais'); setEditId(null); };
