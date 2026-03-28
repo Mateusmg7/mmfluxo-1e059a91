@@ -215,7 +215,7 @@ export default function RelatoriosPage() {
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Pie */}
-        <Card className="card-glass">
+        <Card className="card-glass animate-scale-up" style={{ animationDelay: '0.2s' }}>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
               <PieChartIcon size={14} /> Despesas por Categoria
