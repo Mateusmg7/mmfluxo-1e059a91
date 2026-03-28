@@ -111,10 +111,11 @@
 
 @layer utilities {
   .gradient-brand {
-    background: linear-gradient(90deg, #0C5BA8, #22D3EE);
+    background: linear-gradient(90deg, #3B82F6, #06B6D4, #22D3EE);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+    filter: drop-shadow(0 0 8px rgba(34, 211, 238, 0.5));
   }
 
   .glass-header {
