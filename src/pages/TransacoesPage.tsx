@@ -46,12 +46,14 @@ export default function TransacoesPage() {
   const { start, end } = getDateRange();
 
   const { data: categories = [] } = useQuery({
-    queryKey: ['categories'],
+    queryKey: ['categories', activeProfile?.id],
     queryFn: async () => {
-      const { data } = await supabase.from('categories').select('*').order('nome');
+      let q = supabase.from('categories').select('*').order('nome');
+      if (activeProfile) q = q.eq('profile_id', activeProfile.id);
+      const { data } = await q;
       return data ?? [];
     },
-    enabled: !!user,
+    enabled: !!user && !!activeProfile,
   });
 
   const { data: transactions = [] } = useQuery({
