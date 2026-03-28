@@ -190,8 +190,8 @@ export default function ResumoGeralPage() {
 
       {/* Per-profile cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {profileData.map((p) => (
-          <Card key={p.id} className="card-glass border-l-4" style={{ borderLeftColor: p.color }}>
+        {profileData.map((p, index) => (
+          <Card key={p.id} className="card-glass border-l-4 animate-fade-up" style={{ borderLeftColor: p.color, animationDelay: `${0.25 + index * 0.05}s` }}>
             <CardHeader className="pb-2">
               <CardTitle className="text-base font-semibold flex items-center gap-2">
                 <span className="text-lg">{p.icon}</span> {p.name}
