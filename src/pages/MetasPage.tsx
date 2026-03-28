@@ -62,12 +62,14 @@ export default function MetasPage() {
   });
 
   const { data: transactions = [] } = useQuery({
-    queryKey: ['transactions', monthStart, monthEnd],
+    queryKey: ['transactions', monthStart, monthEnd, activeProfile?.id],
     queryFn: async () => {
-      const { data } = await supabase.from('transactions').select('*').gte('data', monthStart).lte('data', monthEnd);
+      let q = supabase.from('transactions').select('*').gte('data', monthStart).lte('data', monthEnd);
+      if (activeProfile) q = q.eq('profile_id', activeProfile.id);
+      const { data } = await q;
       return data ?? [];
     },
-    enabled: !!user,
+    enabled: !!user && !!activeProfile,
   });
 
   const { data: extraIncome = [] } = useQuery({
