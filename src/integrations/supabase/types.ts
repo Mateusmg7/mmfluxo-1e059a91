@@ -221,38 +221,44 @@ export type Database = {
       }
       transactions: {
         Row: {
-          category_id: string
+          category_id: string | null
           created_at: string
           data: string
           descricao: string
           hora: string
           id: string
+          motivo: string
           profile_id: string | null
           status: string
+          tipo_despesa: string
           user_id: string
           valor: number
         }
         Insert: {
-          category_id: string
+          category_id?: string | null
           created_at?: string
           data?: string
           descricao?: string
           hora?: string
           id?: string
+          motivo?: string
           profile_id?: string | null
           status?: string
+          tipo_despesa?: string
           user_id: string
           valor: number
         }
         Update: {
-          category_id?: string
+          category_id?: string | null
           created_at?: string
           data?: string
           descricao?: string
           hora?: string
           id?: string
+          motivo?: string
           profile_id?: string | null
           status?: string
+          tipo_despesa?: string
           user_id?: string
           valor?: number
         }
