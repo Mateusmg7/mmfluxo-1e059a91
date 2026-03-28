@@ -81,6 +81,9 @@ export default function ResumoGeralPage() {
   const imprevistos = allTransactions
     .filter((t: any) => t.categories?.grupo === 'imprevistos')
     .reduce((s, t) => s + Number(t.valor), 0);
+  const besteirasVal = allTransactions
+    .filter((t: any) => t.categories?.grupo === 'besteiras')
+    .reduce((s, t) => s + Number(t.valor), 0);
 
   return (
     <div className="space-y-6">
