@@ -289,12 +289,12 @@ export default function RelatoriosPage() {
                     <Tooltip
                       formatter={(v: number) => [fmt(v), 'Total']}
                       contentStyle={{
-                        backgroundColor: 'hsl(216 30% 8%)',
-                        border: '1px solid hsl(216 20% 20%)',
+                        backgroundColor: 'hsl(var(--popover))',
+                        border: '1px solid hsl(var(--border))',
                         borderRadius: '10px',
-                        color: '#fff',
+                        color: 'hsl(var(--popover-foreground))',
                         fontSize: '12px',
-                        boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
+                        boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
                       }}
                     />
                     <Bar dataKey="total" fill="url(#barGradient)" radius={[6, 6, 0, 0]} />
