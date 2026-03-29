@@ -5,7 +5,7 @@ import {
   LayoutDashboard,
   ArrowDownCircle,
   ArrowUpCircle,
-  Tag,
+  Bell,
   Target,
   BarChart3,
   Layers,
@@ -17,12 +17,13 @@ import {
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import ProfileSwitcher from '@/components/ProfileSwitcher';
+import AlertBadge from '@/components/AlertBadge';
 
 const navItems = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/transacoes', label: 'Despesas', icon: ArrowDownCircle },
   { to: '/renda-extra', label: 'Renda Extra', icon: ArrowUpCircle },
-  
+  { to: '/alertas', label: 'Alertas', icon: Bell, hasBadge: true },
   { to: '/metas', label: 'Metas', icon: Target },
   { to: '/relatorios', label: 'Relatórios', icon: BarChart3 },
   { to: '/resumo-geral', label: 'Resumo Geral', icon: Layers },
@@ -65,10 +66,13 @@ export default function AppLayout({ children }: { children: ReactNode }) {
                     isActive
                       ? 'bg-primary/15 text-primary'
                       : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
-                  )
+                )
                 }
               >
-                <item.icon size={18} />
+                <span className="relative">
+                  <item.icon size={18} />
+                  {item.hasBadge && <AlertBadge />}
+                </span>
                 {item.label}
               </NavLink>
             ))}
@@ -108,7 +112,10 @@ export default function AppLayout({ children }: { children: ReactNode }) {
                       )
                     }
                   >
-                    <item.icon size={18} />
+                    <span className="relative">
+                      <item.icon size={18} />
+                      {item.hasBadge && <AlertBadge />}
+                    </span>
                     {item.label}
                   </NavLink>
                 ))}

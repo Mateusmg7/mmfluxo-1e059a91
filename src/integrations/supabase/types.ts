@@ -14,6 +14,47 @@ export type Database = {
   }
   public: {
     Tables: {
+      bill_reminders: {
+        Row: {
+          ativo: boolean
+          created_at: string
+          dia_vencimento: number
+          id: string
+          nome: string
+          profile_id: string | null
+          user_id: string
+          valor: number | null
+        }
+        Insert: {
+          ativo?: boolean
+          created_at?: string
+          dia_vencimento: number
+          id?: string
+          nome: string
+          profile_id?: string | null
+          user_id: string
+          valor?: number | null
+        }
+        Update: {
+          ativo?: boolean
+          created_at?: string
+          dia_vencimento?: number
+          id?: string
+          nome?: string
+          profile_id?: string | null
+          user_id?: string
+          valor?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bill_reminders_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "financial_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       categories: {
         Row: {
           cor_hex: string
