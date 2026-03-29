@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { ConfirmDeleteDialog } from '@/components/ConfirmDeleteDialog';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/contexts/ProfileContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -43,6 +44,8 @@ export default function TransacoesPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [ordem, setOrdem] = useState('');
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   const goToPrevMonth = () => setCurrentMonth(prev => subMonths(prev, 1));
   const goToNextMonth = () => setCurrentMonth(prev => addMonths(prev, 1));
@@ -170,11 +173,19 @@ export default function TransacoesPage() {
     setDialogOpen(true);
   };
 
-  const handleDelete = async (id: string) => {
-    const { error } = await supabase.from('transactions').delete().eq('id', id);
+  const confirmDelete = (id: string) => {
+    setDeleteId(id);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDelete = async () => {
+    if (!deleteId) return;
+    const { error } = await supabase.from('transactions').delete().eq('id', deleteId);
     if (error) { toast.error(error.message); return; }
     toast.success('Despesa removida');
     qc.invalidateQueries({ queryKey: ['transactions'] });
+    setDeleteDialogOpen(false);
+    setDeleteId(null);
   };
 
   const fmt = (v: number) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -372,7 +383,7 @@ export default function TransacoesPage() {
                   <button onClick={() => handleEdit(t)} className="p-1.5 rounded hover:bg-secondary text-muted-foreground">
                     <Pencil size={14} />
                   </button>
-                  <button onClick={() => handleDelete(t.id)} className="p-1.5 rounded hover:bg-secondary text-muted-foreground hover:text-destructive">
+                  <button onClick={() => confirmDelete(t.id)} className="p-1.5 rounded hover:bg-secondary text-muted-foreground hover:text-destructive">
                     <Trash2 size={14} />
                   </button>
                 </div>
@@ -381,6 +392,12 @@ export default function TransacoesPage() {
           </Card>
         ))}
       </div>
+      <ConfirmDeleteDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        onConfirm={handleDelete}
+        description="Tem certeza que deseja excluir esta despesa? Esta ação não pode ser desfeita."
+      />
     </div>
   );
 }

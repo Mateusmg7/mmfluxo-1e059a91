@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { ConfirmDeleteDialog } from '@/components/ConfirmDeleteDialog';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/contexts/ProfileContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -20,6 +21,8 @@ export default function CategoriasPage() {
   const [editId, setEditId] = useState<string | null>(null);
   const [nome, setNome] = useState('');
   const [corHex, setCorHex] = useState('#0C5BA8');
+  const [deleteItem, setDeleteItem] = useState<any>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   const { data: categories = [] } = useQuery({
     queryKey: ['categories', activeProfile?.id],
@@ -57,12 +60,20 @@ export default function CategoriasPage() {
     setDialogOpen(true);
   };
 
-  const handleDelete = async (c: any) => {
+  const confirmDelete = (c: any) => {
     if (c.is_default) { toast.error('Não é possível excluir categorias padrão'); return; }
-    const { error } = await supabase.from('categories').delete().eq('id', c.id);
-    if (error) { toast.error('Categoria em uso, não pode ser excluída'); return; }
+    setDeleteItem(c);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDelete = async () => {
+    if (!deleteItem) return;
+    const { error } = await supabase.from('categories').delete().eq('id', deleteItem.id);
+    if (error) { toast.error('Categoria em uso, não pode ser excluída'); setDeleteDialogOpen(false); setDeleteItem(null); return; }
     toast.success('Categoria removida');
     qc.invalidateQueries({ queryKey: ['categories'] });
+    setDeleteDialogOpen(false);
+    setDeleteItem(null);
   };
 
   return (
@@ -107,13 +118,19 @@ export default function CategoriasPage() {
               <div className="flex gap-1">
                 <button onClick={() => handleEdit(c)} className="p-1.5 rounded hover:bg-secondary text-muted-foreground"><Pencil size={14} /></button>
                 {!c.is_default && (
-                  <button onClick={() => handleDelete(c)} className="p-1.5 rounded hover:bg-secondary text-muted-foreground hover:text-destructive"><Trash2 size={14} /></button>
+                  <button onClick={() => confirmDelete(c)} className="p-1.5 rounded hover:bg-secondary text-muted-foreground hover:text-destructive"><Trash2 size={14} /></button>
                 )}
               </div>
             </CardContent>
           </Card>
         ))}
       </div>
+      <ConfirmDeleteDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        onConfirm={handleDelete}
+        description="Tem certeza que deseja excluir esta categoria? Esta ação não pode ser desfeita."
+      />
     </div>
   );
 }

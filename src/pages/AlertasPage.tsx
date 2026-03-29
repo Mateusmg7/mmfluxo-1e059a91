@@ -1,11 +1,13 @@
 import { useState } from 'react';
-import { useBillReminders } from '@/hooks/useBillReminders';
+import { useBillReminders, BillReminder } from '@/hooks/useBillReminders';
 import { requestNotificationPermission } from '@/hooks/useNotifications';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
-import { Bell, BellOff, Plus, Trash2, AlertTriangle } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { ConfirmDeleteDialog } from '@/components/ConfirmDeleteDialog';
+import { Bell, BellOff, Plus, Trash2, Pencil, AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function AlertasPage() {
@@ -14,6 +16,14 @@ export default function AlertasPage() {
   const [nome, setNome] = useState('');
   const [valor, setValor] = useState('');
   const [dia, setDia] = useState('');
+
+  // Edit state
+  const [editId, setEditId] = useState<string | null>(null);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+
+  // Delete confirmation state
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   const handleAdd = async () => {
     if (!nome.trim() || !dia) {
@@ -32,12 +42,52 @@ export default function AlertasPage() {
         dia_vencimento: diaNum,
       });
       toast.success('Lembrete adicionado!');
+      resetForm();
+    } catch {
+      toast.error('Erro ao adicionar lembrete');
+    }
+  };
+
+  const resetForm = () => {
+    setNome('');
+    setValor('');
+    setDia('');
+    setShowForm(false);
+  };
+
+  const handleEdit = (r: BillReminder) => {
+    setEditId(r.id);
+    setNome(r.nome);
+    setValor(r.valor ? String(r.valor) : '');
+    setDia(String(r.dia_vencimento));
+    setEditDialogOpen(true);
+  };
+
+  const handleEditSave = async () => {
+    if (!nome.trim() || !dia) {
+      toast.error('Preencha o nome e o dia de vencimento');
+      return;
+    }
+    const diaNum = parseInt(dia);
+    if (diaNum < 1 || diaNum > 31) {
+      toast.error('Dia deve ser entre 1 e 31');
+      return;
+    }
+    try {
+      await updateReminder.mutateAsync({
+        id: editId!,
+        nome: nome.trim(),
+        valor: valor ? parseFloat(valor) : null,
+        dia_vencimento: diaNum,
+      });
+      toast.success('Lembrete atualizado!');
+      setEditDialogOpen(false);
+      setEditId(null);
       setNome('');
       setValor('');
       setDia('');
-      setShowForm(false);
     } catch {
-      toast.error('Erro ao adicionar lembrete');
+      toast.error('Erro ao atualizar lembrete');
     }
   };
 
@@ -49,13 +99,21 @@ export default function AlertasPage() {
     }
   };
 
-  const handleDelete = async (id: string) => {
+  const confirmDelete = (id: string) => {
+    setDeleteId(id);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDelete = async () => {
+    if (!deleteId) return;
     try {
-      await deleteReminder.mutateAsync(id);
+      await deleteReminder.mutateAsync(deleteId);
       toast.success('Lembrete removido');
     } catch {
       toast.error('Erro ao remover');
     }
+    setDeleteDialogOpen(false);
+    setDeleteId(null);
   };
 
   const handleEnableNotifications = async () => {
@@ -79,7 +137,6 @@ export default function AlertasPage() {
         </Button>
       </div>
 
-      {/* Urgent alerts banner */}
       {urgentReminders.length > 0 && (
         <Card className="border-yellow-500/50 bg-yellow-500/10">
           <CardContent className="py-4">
@@ -102,7 +159,6 @@ export default function AlertasPage() {
         </Card>
       )}
 
-      {/* Add button */}
       {!showForm && (
         <Button onClick={() => setShowForm(true)} className="w-full sm:w-auto">
           <Plus size={16} />
@@ -110,7 +166,6 @@ export default function AlertasPage() {
         </Button>
       )}
 
-      {/* Add form */}
       {showForm && (
         <Card>
           <CardHeader>
@@ -133,13 +188,12 @@ export default function AlertasPage() {
             </div>
             <div className="flex gap-2">
               <Button onClick={handleAdd} disabled={addReminder.isPending}>Salvar</Button>
-              <Button variant="outline" onClick={() => setShowForm(false)}>Cancelar</Button>
+              <Button variant="outline" onClick={() => { resetForm(); }}>Cancelar</Button>
             </div>
           </CardContent>
         </Card>
       )}
 
-      {/* Reminders list */}
       <div className="space-y-2">
         {isLoading ? (
           <p className="text-muted-foreground text-sm">Carregando...</p>
@@ -172,7 +226,10 @@ export default function AlertasPage() {
                       {r.dia_vencimento === today ? 'HOJE' : 'AMANHÃ'}
                     </span>
                   )}
-                  <Button variant="ghost" size="icon" onClick={() => handleDelete(r.id)} className="shrink-0 text-muted-foreground hover:text-destructive">
+                  <Button variant="ghost" size="icon" onClick={() => handleEdit(r)} className="shrink-0 text-muted-foreground">
+                    <Pencil size={16} />
+                  </Button>
+                  <Button variant="ghost" size="icon" onClick={() => confirmDelete(r.id)} className="shrink-0 text-muted-foreground hover:text-destructive">
                     <Trash2 size={16} />
                   </Button>
                 </CardContent>
@@ -181,6 +238,43 @@ export default function AlertasPage() {
           })
         )}
       </div>
+
+      {/* Edit dialog */}
+      <Dialog open={editDialogOpen} onOpenChange={(open) => { setEditDialogOpen(open); if (!open) { setEditId(null); setNome(''); setValor(''); setDia(''); } }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Editar Lembrete</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <label className="text-sm font-medium text-muted-foreground">Nome da conta *</label>
+              <Input placeholder="Ex: Internet, Luz, Aluguel" value={nome} onChange={(e) => setNome(e.target.value)} />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm font-medium text-muted-foreground">Valor (opcional)</label>
+                <Input type="number" placeholder="0.00" min="0" step="0.01" value={valor} onChange={(e) => setValor(e.target.value)} />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-muted-foreground">Dia do vencimento *</label>
+                <Input type="number" placeholder="1-31" min="1" max="31" value={dia} onChange={(e) => setDia(e.target.value)} />
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <Button onClick={handleEditSave} disabled={updateReminder.isPending}>Salvar</Button>
+              <Button variant="outline" onClick={() => setEditDialogOpen(false)}>Cancelar</Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete confirmation */}
+      <ConfirmDeleteDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        onConfirm={handleDelete}
+        description="Tem certeza que deseja excluir este lembrete? Esta ação não pode ser desfeita."
+      />
     </div>
   );
 }

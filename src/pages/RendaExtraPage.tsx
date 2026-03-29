@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { ConfirmDeleteDialog } from '@/components/ConfirmDeleteDialog';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/contexts/ProfileContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -23,6 +24,8 @@ export default function RendaExtraPage() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [origem, setOrigem] = useState('');
   const [valor, setValor] = useState('');
   const [data, setData] = useState(format(now, 'yyyy-MM-dd'));
@@ -86,10 +89,18 @@ export default function RendaExtraPage() {
     setDialogOpen(true);
   };
 
-  const handleDelete = async (id: string) => {
-    await supabase.from('extra_income').delete().eq('id', id);
+  const confirmDelete = (id: string) => {
+    setDeleteId(id);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDelete = async () => {
+    if (!deleteId) return;
+    await supabase.from('extra_income').delete().eq('id', deleteId);
     toast.success('Removido');
     qc.invalidateQueries({ queryKey: ['extra_income'] });
+    setDeleteDialogOpen(false);
+    setDeleteId(null);
   };
 
   return (
@@ -179,12 +190,18 @@ export default function RendaExtraPage() {
               <div className="flex items-center gap-3 flex-shrink-0">
                 <span className="font-semibold text-accent">{fmt(Number(r.valor))}</span>
                 <button onClick={() => handleEdit(r)} className="p-1.5 rounded hover:bg-secondary text-muted-foreground"><Pencil size={14} /></button>
-                <button onClick={() => handleDelete(r.id)} className="p-1.5 rounded hover:bg-secondary text-muted-foreground hover:text-destructive"><Trash2 size={14} /></button>
+                <button onClick={() => confirmDelete(r.id)} className="p-1.5 rounded hover:bg-secondary text-muted-foreground hover:text-destructive"><Trash2 size={14} /></button>
               </div>
             </CardContent>
           </Card>
         ))}
       </div>
+      <ConfirmDeleteDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        onConfirm={handleDelete}
+        description="Tem certeza que deseja excluir esta renda extra? Esta ação não pode ser desfeita."
+      />
     </div>
   );
 }

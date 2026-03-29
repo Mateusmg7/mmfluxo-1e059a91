@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { ConfirmDeleteDialog } from '@/components/ConfirmDeleteDialog';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/contexts/ProfileContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -38,6 +39,8 @@ export default function MetasPage() {
   const [valorAlvo, setValorAlvo] = useState('');
   const [categoryId, setCategoryId] = useState('');
   const [periodoTipo, setPeriodoTipo] = useState('mensal');
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   const { data: goals = [] } = useQuery({
     queryKey: ['goals', activeProfile?.id],
@@ -111,10 +114,18 @@ export default function MetasPage() {
     resetForm();
   };
 
-  const handleDelete = async (id: string) => {
-    await supabase.from('goals').delete().eq('id', id);
+  const confirmDelete = (id: string) => {
+    setDeleteId(id);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDelete = async () => {
+    if (!deleteId) return;
+    await supabase.from('goals').delete().eq('id', deleteId);
     toast.success('Meta removida');
     qc.invalidateQueries({ queryKey: ['goals'] });
+    setDeleteDialogOpen(false);
+    setDeleteId(null);
   };
 
   const getProgress = (goal: any) => {
@@ -205,7 +216,7 @@ export default function MetasPage() {
                   </div>
                   <div className="flex items-center gap-2">
                     <Badge variant={isLimit && isOver ? 'destructive' : 'secondary'} className="text-xs">{statusLabel}</Badge>
-                    <button onClick={() => handleDelete(goal.id)} className="p-1 rounded hover:bg-secondary text-muted-foreground hover:text-destructive">
+                    <button onClick={() => confirmDelete(goal.id)} className="p-1 rounded hover:bg-secondary text-muted-foreground hover:text-destructive">
                       <Trash2 size={14} />
                     </button>
                   </div>
@@ -219,6 +230,12 @@ export default function MetasPage() {
           );
         })}
       </div>
+      <ConfirmDeleteDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        onConfirm={handleDelete}
+        description="Tem certeza que deseja excluir esta meta? Esta ação não pode ser desfeita."
+      />
     </div>
   );
 }
