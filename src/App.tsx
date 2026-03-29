@@ -16,6 +16,7 @@ import MetasPage from "@/pages/MetasPage";
 import RelatoriosPage from "@/pages/RelatoriosPage";
 import ConfiguracoesPage from "@/pages/ConfiguracoesPage";
 import ResumoGeralPage from "@/pages/ResumoGeralPage";
+import AlertasPage from "@/pages/AlertasPage";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
