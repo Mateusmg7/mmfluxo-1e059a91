@@ -14,7 +14,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Plus, Pencil, Trash2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, ArrowUpDown } from 'lucide-react';
 import { toast } from 'sonner';
 
 const TIPO_LABELS: Record<string, string> = {
@@ -42,6 +42,7 @@ export default function TransacoesPage() {
   const [filtroStatus, setFiltroStatus] = useState('todos');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
+  const [ordem, setOrdem] = useState('data-desc');
 
   // Form state
   const [tipoDespesa, setTipoDespesa] = useState('essencial');
@@ -95,6 +96,20 @@ export default function TransacoesPage() {
     if (filtroTipo !== 'todos' && t.tipo_despesa !== filtroTipo) return false;
     if (filtroStatus !== 'todos' && t.status !== filtroStatus) return false;
     return true;
+  }).sort((a: any, b: any) => {
+    const [campo, dir] = ordem.split('-');
+    const mult = dir === 'asc' ? 1 : -1;
+    if (campo === 'data') {
+      const cmp = a.data.localeCompare(b.data) || a.hora.localeCompare(b.hora);
+      return cmp * mult;
+    }
+    if (campo === 'valor') return (Number(a.valor) - Number(b.valor)) * mult;
+    if (campo === 'nome') {
+      const nA = (a.motivo || a.categories?.nome || '').toLowerCase();
+      const nB = (b.motivo || b.categories?.nome || '').toLowerCase();
+      return nA.localeCompare(nB) * mult;
+    }
+    return 0;
   });
 
   const total = filtered.reduce((s, t) => s + Number(t.valor), 0);
@@ -288,6 +303,20 @@ export default function TransacoesPage() {
             <SelectItem value="todos">Todos</SelectItem>
             <SelectItem value="pago">Pago</SelectItem>
             <SelectItem value="previsto">Previsto</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={ordem} onValueChange={setOrdem}>
+          <SelectTrigger className="w-48">
+            <ArrowUpDown size={14} className="mr-1 flex-shrink-0" />
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="data-desc">Data (recente → antiga)</SelectItem>
+            <SelectItem value="data-asc">Data (antiga → recente)</SelectItem>
+            <SelectItem value="valor-desc">Valor (maior → menor)</SelectItem>
+            <SelectItem value="valor-asc">Valor (menor → maior)</SelectItem>
+            <SelectItem value="nome-asc">Nome (A → Z)</SelectItem>
+            <SelectItem value="nome-desc">Nome (Z → A)</SelectItem>
           </SelectContent>
         </Select>
       </div>
