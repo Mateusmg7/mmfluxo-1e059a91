@@ -7,7 +7,7 @@ import { format, startOfMonth, endOfMonth, addMonths, subMonths, isSameMonth } f
 import { ptBR } from 'date-fns/locale';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowDownCircle, ArrowUpCircle, TrendingUp, ChevronLeft, ChevronRight } from 'lucide-react';
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend, Label as ReLabel } from 'recharts';
 import { PieTooltip } from '@/components/PieTooltip';
 import { renderActiveSlice } from '@/components/ActivePieSlice';
 import { Progress } from '@/components/ui/progress';
@@ -95,13 +95,26 @@ export default function DashboardPage() {
     .map(([key, name]) => ({ name, value: tipoTotals[key] ?? 0, color: COLORS_MAP[key] }))
     .filter((d) => d.value > 0);
 
+  const groupTotal = groupPieData.reduce((s, d) => s + d.value, 0);
+  const groupPieDataWithPct = groupPieData.map(d => ({
+    ...d,
+    pct: groupTotal > 0 ? ((d.value / groupTotal) * 100).toFixed(1) : '0',
+  }));
+
+  // Distinct colors for essential categories
+  const DISTINCT_CAT_COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#06B6D4', '#F97316', '#14B8A6', '#6366F1'];
+
   // Pie by category (essenciais only)
   const catMap = new Map<string, { nome: string; cor: string; total: number }>();
+  let catIdx = 0;
   transactions.filter((t: any) => t.tipo_despesa === 'essencial' && t.categories).forEach((t: any) => {
     const name = t.categories?.nome ?? 'Outros';
     const existing = catMap.get(name);
     if (existing) existing.total += Number(t.valor);
-    else catMap.set(name, { nome: name, cor: t.categories?.cor_hex ?? '#666', total: Number(t.valor) });
+    else {
+      catMap.set(name, { nome: name, cor: DISTINCT_CAT_COLORS[catIdx % DISTINCT_CAT_COLORS.length], total: Number(t.valor) });
+      catIdx++;
+    }
   });
   const pieData = Array.from(catMap.values()).sort((a, b) => b.total - a.total);
 
@@ -165,8 +178,8 @@ export default function DashboardPage() {
               <div className="h-56">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart onClick={() => setActiveGroupIdx(undefined)}>
-                    <Pie data={groupPieData} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={50} outerRadius={85} paddingAngle={3} strokeWidth={0} activeShape={renderActiveSlice} activeIndex={activeGroupIdx} onMouseDown={(_, idx) => { setActiveGroupIdx(prev => prev === idx ? undefined : idx); }} rootTabIndex={-1}>
-                      {groupPieData.map((entry, i) => (<Cell key={i} fill={entry.color} />))}
+                    <Pie data={groupPieDataWithPct} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={50} outerRadius={85} paddingAngle={3} strokeWidth={0} activeShape={renderActiveSlice} activeIndex={activeGroupIdx} onMouseDown={(_, idx) => { setActiveGroupIdx(prev => prev === idx ? undefined : idx); }} rootTabIndex={-1} label={({ cx, cy, midAngle, outerRadius, pct }) => { const RADIAN = Math.PI / 180; const x = cx + (outerRadius + 18) * Math.cos(-midAngle * RADIAN); const y = cy + (outerRadius + 18) * Math.sin(-midAngle * RADIAN); return (<text x={x} y={y} fill="hsl(var(--foreground))" textAnchor="middle" dominantBaseline="central" fontSize={11} fontWeight={600}>{pct}%</text>); }} labelLine={false}>
+                      {groupPieDataWithPct.map((entry, i) => (<Cell key={i} fill={entry.color} />))}
                     </Pie>
                     <Tooltip content={<PieTooltip fmt={fmt} />} active={activeGroupIdx !== undefined} />
                     <Legend formatter={(value) => <span className="text-sm text-foreground">{value}</span>} />
