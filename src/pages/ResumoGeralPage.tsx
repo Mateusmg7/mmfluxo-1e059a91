@@ -115,7 +115,7 @@ export default function ResumoGeralPage() {
             <CardContent className="space-y-3">
               <div className="flex justify-between text-sm"><span className="text-muted-foreground">Despesas</span><span className="text-destructive font-medium">{fmt(p.despesas)}</span></div>
               <div className="flex justify-between text-sm"><span className="text-muted-foreground">Renda Extra</span><span className="text-accent font-medium">{fmt(p.renda)}</span></div>
-              <div className="border-t border-border pt-2 flex justify-between text-sm font-semibold"><span>Saldo</span><span className={p.saldo >= 0 ? 'text-accent' : 'text-destructive'}>{fmt(p.saldo)}</span></div>
+              
               {totalDespesas > 0 && p.despesas > 0 && (
                 <div>
                   <Progress value={(p.despesas / totalDespesas) * 100} className="h-1.5" />

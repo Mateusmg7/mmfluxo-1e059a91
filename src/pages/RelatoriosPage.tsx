@@ -154,7 +154,6 @@ export default function RelatoriosPage() {
         {[
           { label: 'Despesas', value: totalDespesas, color: 'destructive', Icon: ArrowDownCircle },
           { label: 'Renda Extra', value: totalRendaExtra, color: 'accent', Icon: ArrowUpCircle },
-          { label: 'Saldo', value: saldo, color: saldo >= 0 ? 'accent' : 'destructive', Icon: Wallet },
         ].map((c, i) => (
           <Card key={c.label} className="card-glass overflow-hidden animate-fade-up" style={{ animationDelay: `${0.05 + i * 0.05}s` }}>
             <CardContent className="pt-5 pb-4 relative">
