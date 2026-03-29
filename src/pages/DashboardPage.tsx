@@ -175,14 +175,21 @@ export default function DashboardPage() {
             {groupPieData.length === 0 ? (
               <p className="text-muted-foreground text-center py-12 text-sm">Sem despesas no mês</p>
             ) : (
-              <div className="h-56">
+              <div className="h-72">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart onClick={() => setActiveGroupIdx(undefined)}>
-                    <Pie data={groupPieDataWithPct} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={50} outerRadius={85} paddingAngle={3} strokeWidth={0} activeShape={renderActiveSlice} activeIndex={activeGroupIdx} onMouseDown={(_, idx) => { setActiveGroupIdx(prev => prev === idx ? undefined : idx); }} rootTabIndex={-1} label={({ cx, cy, midAngle, outerRadius, pct }) => { const RADIAN = Math.PI / 180; const x = cx + (outerRadius + 18) * Math.cos(-midAngle * RADIAN); const y = cy + (outerRadius + 18) * Math.sin(-midAngle * RADIAN); return (<text x={x} y={y} fill="hsl(var(--foreground))" textAnchor="middle" dominantBaseline="central" fontSize={11} fontWeight={600}>{pct}%</text>); }} labelLine={false}>
+                    <Pie data={groupPieDataWithPct} dataKey="value" nameKey="name" cx="50%" cy="42%" innerRadius={40} outerRadius={70} paddingAngle={3} strokeWidth={0} activeShape={renderActiveSlice} activeIndex={activeGroupIdx} onMouseDown={(_, idx) => { setActiveGroupIdx(prev => prev === idx ? undefined : idx); }} rootTabIndex={-1}>
                       {groupPieDataWithPct.map((entry, i) => (<Cell key={i} fill={entry.color} />))}
                     </Pie>
                     <Tooltip content={<PieTooltip fmt={fmt} />} active={activeGroupIdx !== undefined} />
-                    <Legend formatter={(value) => <span className="text-sm text-foreground">{value}</span>} />
+                    <Legend
+                      verticalAlign="bottom"
+                      wrapperStyle={{ paddingTop: 16 }}
+                      formatter={(value, entry: any) => {
+                        const item = groupPieDataWithPct.find(d => d.name === value);
+                        return <span className="text-xs text-foreground">{value} {item ? `(${item.pct}%)` : ''}</span>;
+                      }}
+                    />
                   </PieChart>
                 </ResponsiveContainer>
               </div>
@@ -198,14 +205,18 @@ export default function DashboardPage() {
             {pieData.length === 0 ? (
               <p className="text-muted-foreground text-center py-12 text-sm">Sem despesas essenciais no mês</p>
             ) : (
-              <div className="h-56">
+              <div className="h-72">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart onClick={() => setActiveCatIdx(undefined)}>
-                    <Pie data={pieData} dataKey="total" nameKey="nome" cx="50%" cy="50%" innerRadius={50} outerRadius={85} paddingAngle={2} strokeWidth={0} activeShape={renderActiveSlice} activeIndex={activeCatIdx} onMouseDown={(_, idx) => { setActiveCatIdx(prev => prev === idx ? undefined : idx); }} rootTabIndex={-1}>
+                    <Pie data={pieData} dataKey="total" nameKey="nome" cx="50%" cy="42%" innerRadius={40} outerRadius={70} paddingAngle={2} strokeWidth={0} activeShape={renderActiveSlice} activeIndex={activeCatIdx} onMouseDown={(_, idx) => { setActiveCatIdx(prev => prev === idx ? undefined : idx); }} rootTabIndex={-1}>
                       {pieData.map((entry, i) => (<Cell key={i} fill={entry.cor} />))}
                     </Pie>
                     <Tooltip content={<PieTooltip fmt={fmt} />} active={activeCatIdx !== undefined} />
-                    <Legend formatter={(value) => <span className="text-sm text-foreground">{value}</span>} />
+                    <Legend
+                      verticalAlign="bottom"
+                      wrapperStyle={{ paddingTop: 16 }}
+                      formatter={(value) => <span className="text-xs text-foreground">{value}</span>}
+                    />
                   </PieChart>
                 </ResponsiveContainer>
               </div>
