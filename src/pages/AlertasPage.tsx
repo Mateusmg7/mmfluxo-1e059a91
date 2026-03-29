@@ -7,7 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ConfirmDeleteDialog } from '@/components/ConfirmDeleteDialog';
-import { Bell, BellOff, Plus, Trash2, Pencil, AlertTriangle } from 'lucide-react';
+import { Bell, BellOff, Plus, Trash2, Pencil, AlertTriangle, Send } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 
 export default function AlertasPage() {
