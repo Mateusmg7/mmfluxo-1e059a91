@@ -171,21 +171,16 @@ export default function AlertasPage() {
             <Button
               size="sm"
               disabled={!testReminderId}
-              onClick={() => {
+              onClick={async () => {
                 const r = reminders.find(rem => rem.id === testReminderId);
                 if (!r) return;
-                const valorStr = r.valor ? ` - R$ ${r.valor.toFixed(2)}` : '';
-                try {
-                  if ('Notification' in window && Notification.permission === 'granted') {
-                    new Notification(`💰 Teste: ${r.nome}`, {
-                      body: `${r.nome}${valorStr} (dia ${r.dia_vencimento})`,
-                      icon: '/favicon.ico',
-                    });
-                  }
-                } catch {
-                  // fallback
+
+                const sent = await sendTestNotification(r);
+                if (sent) {
+                  toast.success(`🔔 Notificação enviada: ${r.nome}`);
+                } else {
+                  toast.error('Não foi possível enviar a notificação do sistema neste dispositivo.');
                 }
-                toast.success(`🔔 Teste: ${r.nome}${valorStr} (dia ${r.dia_vencimento})`);
               }}
             >
               TESTAR
