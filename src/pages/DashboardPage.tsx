@@ -32,9 +32,15 @@ export default function DashboardPage() {
   const [activeGroupIdx, setActiveGroupIdx] = useState<number | undefined>(undefined);
   const [activeCatIdx, setActiveCatIdx] = useState<number | undefined>(undefined);
   const { activeProfile } = useProfile();
+  const [currentMonth, setCurrentMonth] = useState(new Date());
   const now = new Date();
-  const monthStart = format(startOfMonth(now), 'yyyy-MM-dd');
-  const monthEnd = format(endOfMonth(now), 'yyyy-MM-dd');
+  const monthStart = format(startOfMonth(currentMonth), 'yyyy-MM-dd');
+  const monthEnd = format(endOfMonth(currentMonth), 'yyyy-MM-dd');
+
+  const goToPrevMonth = () => setCurrentMonth(prev => subMonths(prev, 1));
+  const goToNextMonth = () => setCurrentMonth(prev => addMonths(prev, 1));
+  const goToCurrentMonth = () => setCurrentMonth(new Date());
+  const isCurrentMonth = isSameMonth(currentMonth, now);
 
   const { data: transactions = [] } = useQuery({
     queryKey: ['transactions', monthStart, monthEnd, activeProfile?.id],
