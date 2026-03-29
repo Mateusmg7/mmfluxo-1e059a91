@@ -49,7 +49,7 @@ export default function RelatoriosPage() {
 
   const totalDespesas = transactions.reduce((s, t) => s + Number(t.valor), 0);
   const totalRendaExtra = extraIncome.reduce((s, t) => s + Number(t.valor), 0);
-  const saldo = totalRendaExtra - totalDespesas;
+  
 
   // Pie: essenciais by category
   const catMap = new Map<string, { nome: string; cor: string; total: number }>();
