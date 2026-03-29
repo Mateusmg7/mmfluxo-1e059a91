@@ -51,6 +51,7 @@ const App = () => (
             <Route path="/renda-extra" element={<ProtectedRoute><RendaExtraPage /></ProtectedRoute>} />
             <Route path="/categorias" element={<ProtectedRoute><CategoriasPage /></ProtectedRoute>} />
             <Route path="/metas" element={<ProtectedRoute><MetasPage /></ProtectedRoute>} />
+            <Route path="/alertas" element={<ProtectedRoute><AlertasPage /></ProtectedRoute>} />
             <Route path="/relatorios" element={<ProtectedRoute><RelatoriosPage /></ProtectedRoute>} />
             <Route path="/resumo-geral" element={<ProtectedRoute><ResumoGeralPage /></ProtectedRoute>} />
             <Route path="/configuracoes" element={<ProtectedRoute><ConfiguracoesPage /></ProtectedRoute>} />

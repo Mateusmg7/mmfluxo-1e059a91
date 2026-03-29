@@ -112,7 +112,10 @@ export default function AppLayout({ children }: { children: ReactNode }) {
                       )
                     }
                   >
-                    <item.icon size={18} />
+                    <span className="relative">
+                      <item.icon size={18} />
+                      {item.hasBadge && <AlertBadge />}
+                    </span>
                     {item.label}
                   </NavLink>
                 ))}
