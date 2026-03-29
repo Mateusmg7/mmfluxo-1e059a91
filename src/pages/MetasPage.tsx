@@ -114,10 +114,18 @@ export default function MetasPage() {
     resetForm();
   };
 
-  const handleDelete = async (id: string) => {
-    await supabase.from('goals').delete().eq('id', id);
+  const confirmDelete = (id: string) => {
+    setDeleteId(id);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDelete = async () => {
+    if (!deleteId) return;
+    await supabase.from('goals').delete().eq('id', deleteId);
     toast.success('Meta removida');
     qc.invalidateQueries({ queryKey: ['goals'] });
+    setDeleteDialogOpen(false);
+    setDeleteId(null);
   };
 
   const getProgress = (goal: any) => {
