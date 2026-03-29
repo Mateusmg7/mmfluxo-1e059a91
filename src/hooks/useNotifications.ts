@@ -82,10 +82,15 @@ export async function requestNotificationPermission(): Promise<boolean> {
 }
 
 export async function sendTestNotification(reminder: BillReminder): Promise<boolean> {
+  const today = new Date().getDate();
+  const isToday = reminder.dia_vencimento === today;
+  const tomorrow = new Date(Date.now() + 86400000).getDate();
+  const isTomorrow = reminder.dia_vencimento === tomorrow;
+  const label = isToday ? 'Conta vencendo hoje' : isTomorrow ? 'Conta vencendo amanhã' : `Conta vence dia ${reminder.dia_vencimento}`;
   const valorStr = reminder.valor ? ` - R$ ${reminder.valor.toFixed(2)}` : '';
 
-  return showSystemNotification(`💰 Teste: ${reminder.nome}`, {
-    body: `${reminder.nome}${valorStr} (dia ${reminder.dia_vencimento})`,
+  return showSystemNotification(`💰 ${label}`, {
+    body: `${reminder.nome}${valorStr}`,
     icon: '/favicon.ico',
     tag: `test-${reminder.id}-${Date.now()}`,
   });
