@@ -130,14 +130,6 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
         ))}
-        <Card className="card-glass animate-fade-up" style={{ animationDelay: '0.2s' }}>
-          <CardContent className="pt-5 pb-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg" style={{ background: 'hsl(187 82% 54% / 0.1)' }}><TrendingUp className="text-cyan" size={20} /></div>
-              <div><p className="text-xs text-muted-foreground">Metas</p><p className="text-lg font-bold">{goals.length}</p></div>
-            </div>
-          </CardContent>
-        </Card>
       </div>
 
       {/* Charts */}
