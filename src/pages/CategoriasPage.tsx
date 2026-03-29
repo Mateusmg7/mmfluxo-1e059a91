@@ -21,6 +21,8 @@ export default function CategoriasPage() {
   const [editId, setEditId] = useState<string | null>(null);
   const [nome, setNome] = useState('');
   const [corHex, setCorHex] = useState('#0C5BA8');
+  const [deleteItem, setDeleteItem] = useState<any>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   const { data: categories = [] } = useQuery({
     queryKey: ['categories', activeProfile?.id],
