@@ -252,6 +252,10 @@ export default function TransacoesPage() {
                   <Input type="time" value={hora} onChange={(e) => setHora(e.target.value)} />
                 </div>
               </div>
+              <div className="flex items-center gap-2">
+                <Checkbox id="recorrente" checked={recorrente} onCheckedChange={(v) => setRecorrente(!!v)} />
+                <Label htmlFor="recorrente" className="text-sm cursor-pointer">Despesa recorrente</Label>
+              </div>
               <Button onClick={handleSave} className="w-full">Salvar</Button>
             </div>
           </DialogContent>
