@@ -89,10 +89,18 @@ export default function RendaExtraPage() {
     setDialogOpen(true);
   };
 
-  const handleDelete = async (id: string) => {
-    await supabase.from('extra_income').delete().eq('id', id);
+  const confirmDelete = (id: string) => {
+    setDeleteId(id);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDelete = async () => {
+    if (!deleteId) return;
+    await supabase.from('extra_income').delete().eq('id', deleteId);
     toast.success('Removido');
     qc.invalidateQueries({ queryKey: ['extra_income'] });
+    setDeleteDialogOpen(false);
+    setDeleteId(null);
   };
 
   return (
