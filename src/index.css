@@ -110,10 +110,16 @@
 }
 
 @layer utilities {
+  .recharts-sector,
   .recharts-sector:focus,
   .recharts-sector:focus-visible,
-  .recharts-sector:active {
-    outline: none;
+  .recharts-sector:active,
+  .recharts-active-shape,
+  .recharts-wrapper path:focus,
+  .recharts-wrapper path:focus-visible {
+    outline: none !important;
+    stroke: none !important;
+    stroke-width: 0 !important;
   }
 
   .gradient-brand {
