@@ -216,7 +216,7 @@ export default function MetasPage() {
                   </div>
                   <div className="flex items-center gap-2">
                     <Badge variant={isLimit && isOver ? 'destructive' : 'secondary'} className="text-xs">{statusLabel}</Badge>
-                    <button onClick={() => handleDelete(goal.id)} className="p-1 rounded hover:bg-secondary text-muted-foreground hover:text-destructive">
+                    <button onClick={() => confirmDelete(goal.id)} className="p-1 rounded hover:bg-secondary text-muted-foreground hover:text-destructive">
                       <Trash2 size={14} />
                     </button>
                   </div>
