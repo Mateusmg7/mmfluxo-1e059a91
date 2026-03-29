@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useBillReminders, BillReminder } from '@/hooks/useBillReminders';
-import { requestNotificationPermission } from '@/hooks/useNotifications';
+import { requestNotificationPermission, sendTestNotification } from '@/hooks/useNotifications';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
