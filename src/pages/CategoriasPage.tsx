@@ -125,6 +125,12 @@ export default function CategoriasPage() {
           </Card>
         ))}
       </div>
+      <ConfirmDeleteDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        onConfirm={handleDelete}
+        description="Tem certeza que deseja excluir esta categoria? Esta ação não pode ser desfeita."
+      />
     </div>
   );
 }

@@ -196,6 +196,12 @@ export default function RendaExtraPage() {
           </Card>
         ))}
       </div>
+      <ConfirmDeleteDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        onConfirm={handleDelete}
+        description="Tem certeza que deseja excluir esta renda extra? Esta ação não pode ser desfeita."
+      />
     </div>
   );
 }
