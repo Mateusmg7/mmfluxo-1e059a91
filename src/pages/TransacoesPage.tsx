@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -50,6 +51,7 @@ export default function TransacoesPage() {
   const [data, setData] = useState(format(now, 'yyyy-MM-dd'));
   const [hora, setHora] = useState(format(now, 'HH:mm'));
   const [status, setStatus] = useState('pago');
+  const [recorrente, setRecorrente] = useState(false);
 
   const getDateRange = () => {
     if (periodo === 'anterior') {
@@ -105,6 +107,7 @@ export default function TransacoesPage() {
     setData(format(now, 'yyyy-MM-dd'));
     setHora(format(now, 'HH:mm'));
     setStatus('pago');
+    setRecorrente(false);
     setEditId(null);
   };
 
@@ -121,6 +124,7 @@ export default function TransacoesPage() {
       hora,
       descricao: motivo,
       status,
+      recorrente,
       profile_id: activeProfile?.id,
       category_id: tipoDespesa === 'essencial' ? categoryId : null,
     };
@@ -149,6 +153,7 @@ export default function TransacoesPage() {
     setData(t.data);
     setHora(t.hora);
     setStatus(t.status);
+    setRecorrente(t.recorrente ?? false);
     setDialogOpen(true);
   };
 
@@ -248,6 +253,10 @@ export default function TransacoesPage() {
                   <Input type="time" value={hora} onChange={(e) => setHora(e.target.value)} />
                 </div>
               </div>
+              <div className="flex items-center gap-2">
+                <Checkbox id="recorrente" checked={recorrente} onCheckedChange={(v) => setRecorrente(!!v)} />
+                <Label htmlFor="recorrente" className="text-sm cursor-pointer">Despesa recorrente</Label>
+              </div>
               <Button onClick={handleSave} className="w-full">Salvar</Button>
             </div>
           </DialogContent>
@@ -311,6 +320,7 @@ export default function TransacoesPage() {
                   <p className="text-xs text-muted-foreground">
                     {format(new Date(t.data + 'T00:00'), 'dd/MM', { locale: ptBR })} · {t.hora} · {TIPO_LABELS[t.tipo_despesa] ?? 'Essencial'}
                     {t.categories?.nome ? ` · ${t.categories.nome}` : ''}
+                    {t.recorrente ? ' · 🔄 Recorrente' : ''}
                   </p>
                 </div>
               </div>
