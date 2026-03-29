@@ -205,14 +205,18 @@ export default function DashboardPage() {
             {pieData.length === 0 ? (
               <p className="text-muted-foreground text-center py-12 text-sm">Sem despesas essenciais no mês</p>
             ) : (
-              <div className="h-56">
+              <div className="h-72">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart onClick={() => setActiveCatIdx(undefined)}>
-                    <Pie data={pieData} dataKey="total" nameKey="nome" cx="50%" cy="50%" innerRadius={50} outerRadius={85} paddingAngle={2} strokeWidth={0} activeShape={renderActiveSlice} activeIndex={activeCatIdx} onMouseDown={(_, idx) => { setActiveCatIdx(prev => prev === idx ? undefined : idx); }} rootTabIndex={-1}>
+                    <Pie data={pieData} dataKey="total" nameKey="nome" cx="50%" cy="42%" innerRadius={40} outerRadius={70} paddingAngle={2} strokeWidth={0} activeShape={renderActiveSlice} activeIndex={activeCatIdx} onMouseDown={(_, idx) => { setActiveCatIdx(prev => prev === idx ? undefined : idx); }} rootTabIndex={-1}>
                       {pieData.map((entry, i) => (<Cell key={i} fill={entry.cor} />))}
                     </Pie>
                     <Tooltip content={<PieTooltip fmt={fmt} />} active={activeCatIdx !== undefined} />
-                    <Legend formatter={(value) => <span className="text-sm text-foreground">{value}</span>} />
+                    <Legend
+                      verticalAlign="bottom"
+                      wrapperStyle={{ paddingTop: 16 }}
+                      formatter={(value) => <span className="text-xs text-foreground">{value}</span>}
+                    />
                   </PieChart>
                 </ResponsiveContainer>
               </div>
