@@ -305,6 +305,20 @@ export default function TransacoesPage() {
             <SelectItem value="previsto">Previsto</SelectItem>
           </SelectContent>
         </Select>
+        <Select value={ordem} onValueChange={setOrdem}>
+          <SelectTrigger className="w-48">
+            <ArrowUpDown size={14} className="mr-1 flex-shrink-0" />
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="data-desc">Data (recente → antiga)</SelectItem>
+            <SelectItem value="data-asc">Data (antiga → recente)</SelectItem>
+            <SelectItem value="valor-desc">Valor (maior → menor)</SelectItem>
+            <SelectItem value="valor-asc">Valor (menor → maior)</SelectItem>
+            <SelectItem value="nome-asc">Nome (A → Z)</SelectItem>
+            <SelectItem value="nome-desc">Nome (Z → A)</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       {/* Total */}
