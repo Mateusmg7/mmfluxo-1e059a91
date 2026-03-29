@@ -115,11 +115,23 @@
   .recharts-sector:focus-visible,
   .recharts-sector:active,
   .recharts-active-shape,
+  .recharts-active-shape:focus,
+  .recharts-active-shape:focus-visible,
+  .recharts-layer:focus,
+  .recharts-layer:focus-visible,
+  .recharts-surface:focus,
+  .recharts-surface:focus-visible,
+  .recharts-wrapper:focus,
+  .recharts-wrapper:focus-visible,
+  .recharts-wrapper svg:focus,
+  .recharts-wrapper svg:focus-visible,
   .recharts-wrapper path:focus,
   .recharts-wrapper path:focus-visible {
     outline: none !important;
     stroke: none !important;
     stroke-width: 0 !important;
+    box-shadow: none !important;
+    -webkit-tap-highlight-color: transparent !important;
   }
 
   .gradient-brand {
