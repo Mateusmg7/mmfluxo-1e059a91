@@ -320,6 +320,7 @@ export default function TransacoesPage() {
                   <p className="text-xs text-muted-foreground">
                     {format(new Date(t.data + 'T00:00'), 'dd/MM', { locale: ptBR })} · {t.hora} · {TIPO_LABELS[t.tipo_despesa] ?? 'Essencial'}
                     {t.categories?.nome ? ` · ${t.categories.nome}` : ''}
+                    {t.recorrente ? ' · 🔄 Recorrente' : ''}
                   </p>
                 </div>
               </div>
