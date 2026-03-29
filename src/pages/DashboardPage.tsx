@@ -178,8 +178,8 @@ export default function DashboardPage() {
               <div className="h-56">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart onClick={() => setActiveGroupIdx(undefined)}>
-                    <Pie data={groupPieData} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={50} outerRadius={85} paddingAngle={3} strokeWidth={0} activeShape={renderActiveSlice} activeIndex={activeGroupIdx} onMouseDown={(_, idx) => { setActiveGroupIdx(prev => prev === idx ? undefined : idx); }} rootTabIndex={-1}>
-                      {groupPieData.map((entry, i) => (<Cell key={i} fill={entry.color} />))}
+                    <Pie data={groupPieDataWithPct} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={50} outerRadius={85} paddingAngle={3} strokeWidth={0} activeShape={renderActiveSlice} activeIndex={activeGroupIdx} onMouseDown={(_, idx) => { setActiveGroupIdx(prev => prev === idx ? undefined : idx); }} rootTabIndex={-1} label={({ cx, cy, midAngle, outerRadius, pct }) => { const RADIAN = Math.PI / 180; const x = cx + (outerRadius + 18) * Math.cos(-midAngle * RADIAN); const y = cy + (outerRadius + 18) * Math.sin(-midAngle * RADIAN); return (<text x={x} y={y} fill="hsl(var(--foreground))" textAnchor="middle" dominantBaseline="central" fontSize={11} fontWeight={600}>{pct}%</text>); }} labelLine={false}>
+                      {groupPieDataWithPct.map((entry, i) => (<Cell key={i} fill={entry.color} />))}
                     </Pie>
                     <Tooltip content={<PieTooltip fmt={fmt} />} active={activeGroupIdx !== undefined} />
                     <Legend formatter={(value) => <span className="text-sm text-foreground">{value}</span>} />
