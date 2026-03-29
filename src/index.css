@@ -135,12 +135,28 @@
   }
 
   .gradient-brand {
-    color: #06B6D4;
+    background: linear-gradient(90deg, #06B6D4 0%, #06B6D4 42%, rgba(6, 140, 170, 0.7) 48%, rgba(6, 140, 170, 0.7) 52%, #06B6D4 58%, #06B6D4 100%);
+    background-size: 300% 100%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
     filter: drop-shadow(0 0 6px rgba(6, 182, 212, 0.4));
+    animation: dark-spot 6s ease-in-out infinite;
   }
 
   .dark .gradient-brand {
+    background: linear-gradient(90deg, #22D3EE 0%, #22D3EE 42%, rgba(14, 116, 144, 0.6) 48%, rgba(14, 116, 144, 0.6) 52%, #22D3EE 58%, #22D3EE 100%);
+    background-size: 300% 100%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
     filter: drop-shadow(0 0 8px rgba(34, 211, 238, 0.6));
+    animation: dark-spot 6s ease-in-out infinite;
+  }
+
+  @keyframes dark-spot {
+    0% { background-position: 150% 50%; }
+    100% { background-position: -50% 50%; }
   }
 
   .glass-header {
