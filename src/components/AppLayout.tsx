@@ -20,7 +20,7 @@ import ProfileSwitcher from '@/components/ProfileSwitcher';
 
 const navItems = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard },
-  { to: '/transacoes', label: 'Transações', icon: ArrowDownCircle },
+  { to: '/transacoes', label: 'Despesas', icon: ArrowDownCircle },
   { to: '/renda-extra', label: 'Renda Extra', icon: ArrowUpCircle },
   
   { to: '/metas', label: 'Metas', icon: Target },
