@@ -150,7 +150,7 @@ export default function RelatoriosPage() {
       </div>
 
       {/* Summary */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {[
           { label: 'Despesas', value: totalDespesas, color: 'destructive', Icon: ArrowDownCircle },
           { label: 'Renda Extra', value: totalRendaExtra, color: 'accent', Icon: ArrowUpCircle },

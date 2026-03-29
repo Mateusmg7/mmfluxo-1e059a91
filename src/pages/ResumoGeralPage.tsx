@@ -73,7 +73,7 @@ export default function ResumoGeralPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {[
           { label: 'Despesas Totais', value: totalDespesas, cls: 'text-destructive', Icon: ArrowDownCircle, bg: 'bg-destructive/10' },
           { label: 'Renda Extra Total', value: totalRendaExtra, cls: 'text-accent', Icon: ArrowUpCircle, bg: 'bg-accent/10' },
