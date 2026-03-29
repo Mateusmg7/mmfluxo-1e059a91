@@ -111,14 +111,27 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <div className="animate-fade-up">
-        <h2 className="text-2xl font-bold">Dashboard</h2>
-        <p className="text-muted-foreground text-sm capitalize">
-          {format(now, "MMMM 'de' yyyy", { locale: ptBR })}
-        </p>
+      <div className="flex items-center justify-between animate-fade-up">
+        <div>
+          <h2 className="text-2xl font-bold">Dashboard</h2>
+          <p className="text-muted-foreground text-sm capitalize">
+            {format(currentMonth, "MMMM 'de' yyyy", { locale: ptBR })}
+          </p>
+        </div>
+        <div className="flex items-center gap-1">
+          <Button variant="ghost" size="icon" onClick={goToPrevMonth} className="h-8 w-8">
+            <ChevronLeft size={18} />
+          </Button>
+          {!isCurrentMonth && (
+            <Button variant="outline" size="sm" onClick={goToCurrentMonth} className="h-8 text-xs px-2">
+              Hoje
+            </Button>
+          )}
+          <Button variant="ghost" size="icon" onClick={goToNextMonth} className="h-8 w-8">
+            <ChevronRight size={18} />
+          </Button>
+        </div>
       </div>
-
-      {/* Summary cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4 animate-fade-up">
         {[
           { label: 'Despesas', value: fmt(totalDespesas), cls: 'text-destructive', bg: 'bg-destructive/10', Icon: ArrowDownCircle, delay: '0.05s' },
