@@ -7,6 +7,7 @@ import { ptBR } from 'date-fns/locale';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, Legend } from 'recharts';
+import { PieTooltip } from '@/components/PieTooltip';
 import { Download, FileText, BarChart3, PieChartIcon, TrendingUp, ArrowDownCircle, ArrowUpCircle, Wallet } from 'lucide-react';
 import { exportPdf } from '@/lib/exportPdf';
 import { Progress } from '@/components/ui/progress';
@@ -180,10 +181,10 @@ export default function RelatoriosPage() {
               <div className="h-72">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
-                    <Pie data={pieData} dataKey="total" nameKey="nome" cx="50%" cy="50%" innerRadius={50} outerRadius={85} strokeWidth={2} stroke="hsl(var(--background))" label={renderCustomLabel} activeShape={false as any}>
+                    <Pie data={pieData} dataKey="total" nameKey="nome" cx="50%" cy="50%" innerRadius={50} outerRadius={85} strokeWidth={2} stroke="hsl(var(--background))" label={renderCustomLabel} activeIndex={-1}>
                       {pieData.map((entry, i) => (<Cell key={i} fill={entry.cor} />))}
                     </Pie>
-                    <Tooltip formatter={(v: number) => fmt(v)} contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '10px', color: 'hsl(var(--card-foreground))', fontSize: '12px', boxShadow: '0 8px 24px rgba(0,0,0,0.3)' }} itemStyle={{ color: 'hsl(var(--card-foreground))' }} labelStyle={{ color: 'hsl(var(--card-foreground))', fontWeight: 600 }} />
+                    <Tooltip content={<PieTooltip fmt={fmt} />} />
                   </PieChart>
                 </ResponsiveContainer>
               </div>
