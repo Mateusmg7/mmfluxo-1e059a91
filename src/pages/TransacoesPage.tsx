@@ -190,7 +190,22 @@ export default function TransacoesPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold">Despesas</h2>
-          <p className="text-muted-foreground text-sm">Despesas do período</p>
+          <p className="text-muted-foreground text-sm capitalize">
+            {format(currentMonth, "MMMM 'de' yyyy", { locale: ptBR })}
+          </p>
+        </div>
+        <div className="flex items-center gap-1">
+          <Button variant="ghost" size="icon" onClick={goToPrevMonth} className="h-8 w-8">
+            <ChevronLeft size={18} />
+          </Button>
+          {!isCurrentMonth && (
+            <Button variant="outline" size="sm" onClick={goToCurrentMonth} className="h-8 text-xs px-2">
+              Hoje
+            </Button>
+          )}
+          <Button variant="ghost" size="icon" onClick={goToNextMonth} className="h-8 w-8">
+            <ChevronRight size={18} />
+          </Button>
         </div>
         <Dialog open={dialogOpen} onOpenChange={(o) => { setDialogOpen(o); if (!o) resetForm(); }}>
           <DialogTrigger asChild>
