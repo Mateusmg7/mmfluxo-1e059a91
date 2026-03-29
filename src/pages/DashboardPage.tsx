@@ -158,7 +158,7 @@ export default function DashboardPage() {
               <div className="h-56">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
-                    <Pie data={groupPieData} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={50} outerRadius={85} paddingAngle={3} strokeWidth={0} activeIndex={-1} rootTabIndex={-1}>
+                    <Pie data={groupPieData} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={50} outerRadius={85} paddingAngle={3} strokeWidth={0} activeShape={renderActiveSlice} rootTabIndex={-1}>
                       {groupPieData.map((entry, i) => (<Cell key={i} fill={entry.color} />))}
                     </Pie>
                     <Tooltip content={<PieTooltip fmt={fmt} />} />
