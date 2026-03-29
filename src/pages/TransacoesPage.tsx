@@ -27,9 +27,9 @@ const TIPO_LABELS: Record<string, string> = {
 
 const TIPO_COLORS: Record<string, string> = {
   essencial: '#0C5BA8',
-  lazer: '#F97316',
-  imprevisto: '#EF4444',
-  besteira: '#A855F7',
+  lazer: '#8B5CF6',
+  imprevisto: '#EAB308',
+  besteira: '#F97316',
 };
 
 export default function TransacoesPage() {
