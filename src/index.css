@@ -151,7 +151,7 @@
     -webkit-text-fill-color: transparent;
     background-clip: text;
     filter: drop-shadow(0 0 8px rgba(34, 211, 238, 0.6));
-    animation: dark-spot 6s ease-in-out infinite;
+    animation: dark-spot 12s ease-in-out infinite;
   }
 
   @keyframes dark-spot {
