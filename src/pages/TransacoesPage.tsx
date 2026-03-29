@@ -123,6 +123,7 @@ export default function TransacoesPage() {
       hora,
       descricao: motivo,
       status,
+      recorrente,
       profile_id: activeProfile?.id,
       category_id: tipoDespesa === 'essencial' ? categoryId : null,
     };
