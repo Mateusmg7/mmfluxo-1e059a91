@@ -14,7 +14,9 @@ export const renderActiveSlice = (props: any) => {
         startAngle={startAngle}
         endAngle={endAngle}
         fill={fill}
-        style={{ filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.25))', transition: 'all 0.3s ease' }}
+        stroke="none"
+        strokeWidth={0}
+        style={{ filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.25))', transition: 'all 0.3s ease', outline: 'none' }}
       />
     </g>
   );
