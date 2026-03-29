@@ -113,22 +113,23 @@ export default function DashboardPage() {
 
       {/* Summary cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4 animate-fade-up">
-        <Card className="card-glass animate-fade-up" style={{ animationDelay: '0.05s' }}>
-          <CardContent className="pt-5 pb-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-destructive/10"><ArrowDownCircle className="text-destructive" size={20} /></div>
-              <div><p className="text-xs text-muted-foreground">Despesas</p><p className="text-lg font-bold text-destructive">{fmt(totalDespesas)}</p></div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="card-glass animate-fade-up" style={{ animationDelay: '0.1s' }}>
-          <CardContent className="pt-5 pb-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-accent/10"><ArrowUpCircle className="text-accent" size={20} /></div>
-              <div><p className="text-xs text-muted-foreground">Renda Extra</p><p className="text-lg font-bold text-accent">{fmt(totalRendaExtra)}</p></div>
-            </div>
-          </CardContent>
-        </Card>
+        {[
+          { label: 'Despesas', value: fmt(totalDespesas), cls: 'text-destructive', bg: 'bg-destructive/10', Icon: ArrowDownCircle, delay: '0.05s' },
+          { label: 'Renda Extra', value: fmt(totalRendaExtra), cls: 'text-accent', bg: 'bg-accent/10', Icon: ArrowUpCircle, delay: '0.1s' },
+          { label: 'Metas', value: String(goals.length), cls: 'text-foreground', bg: 'bg-primary/10', Icon: TrendingUp, delay: '0.15s' },
+        ].map((c) => (
+          <Card key={c.label} className="card-glass animate-fade-up" style={{ animationDelay: c.delay }}>
+            <CardContent className="pt-5 pb-4">
+              <div className="flex items-center gap-3">
+                <div className={`p-2.5 rounded-xl ${c.bg}`}><c.Icon className={c.cls} size={20} /></div>
+                <div>
+                  <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">{c.label}</p>
+                  <p className={`text-lg font-bold ${c.cls}`}>{c.value}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
         <Card className="card-glass animate-fade-up" style={{ animationDelay: '0.2s' }}>
           <CardContent className="pt-5 pb-4">
             <div className="flex items-center gap-3">
