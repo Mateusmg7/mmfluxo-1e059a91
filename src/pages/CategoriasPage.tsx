@@ -118,7 +118,7 @@ export default function CategoriasPage() {
               <div className="flex gap-1">
                 <button onClick={() => handleEdit(c)} className="p-1.5 rounded hover:bg-secondary text-muted-foreground"><Pencil size={14} /></button>
                 {!c.is_default && (
-                  <button onClick={() => handleDelete(c)} className="p-1.5 rounded hover:bg-secondary text-muted-foreground hover:text-destructive"><Trash2 size={14} /></button>
+                  <button onClick={() => confirmDelete(c)} className="p-1.5 rounded hover:bg-secondary text-muted-foreground hover:text-destructive"><Trash2 size={14} /></button>
                 )}
               </div>
             </CardContent>

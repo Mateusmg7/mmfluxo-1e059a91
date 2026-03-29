@@ -230,6 +230,12 @@ export default function MetasPage() {
           );
         })}
       </div>
+      <ConfirmDeleteDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        onConfirm={handleDelete}
+        description="Tem certeza que deseja excluir esta meta? Esta ação não pode ser desfeita."
+      />
     </div>
   );
 }

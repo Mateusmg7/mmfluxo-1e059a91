@@ -190,7 +190,7 @@ export default function RendaExtraPage() {
               <div className="flex items-center gap-3 flex-shrink-0">
                 <span className="font-semibold text-accent">{fmt(Number(r.valor))}</span>
                 <button onClick={() => handleEdit(r)} className="p-1.5 rounded hover:bg-secondary text-muted-foreground"><Pencil size={14} /></button>
-                <button onClick={() => handleDelete(r.id)} className="p-1.5 rounded hover:bg-secondary text-muted-foreground hover:text-destructive"><Trash2 size={14} /></button>
+                <button onClick={() => confirmDelete(r.id)} className="p-1.5 rounded hover:bg-secondary text-muted-foreground hover:text-destructive"><Trash2 size={14} /></button>
               </div>
             </CardContent>
           </Card>
