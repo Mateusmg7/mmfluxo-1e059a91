@@ -173,11 +173,19 @@ export default function TransacoesPage() {
     setDialogOpen(true);
   };
 
-  const handleDelete = async (id: string) => {
-    const { error } = await supabase.from('transactions').delete().eq('id', id);
+  const confirmDelete = (id: string) => {
+    setDeleteId(id);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDelete = async () => {
+    if (!deleteId) return;
+    const { error } = await supabase.from('transactions').delete().eq('id', deleteId);
     if (error) { toast.error(error.message); return; }
     toast.success('Despesa removida');
     qc.invalidateQueries({ queryKey: ['transactions'] });
+    setDeleteDialogOpen(false);
+    setDeleteId(null);
   };
 
   const fmt = (v: number) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
