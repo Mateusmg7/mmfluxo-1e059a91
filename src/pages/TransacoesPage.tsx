@@ -307,8 +307,10 @@ export default function TransacoesPage() {
         </Select>
         <Select value={ordem} onValueChange={setOrdem}>
           <SelectTrigger className="w-48">
-            <ArrowUpDown size={14} className="mr-1 flex-shrink-0" />
-            <SelectValue placeholder="Ordenar Por" />
+            <div className="flex items-center gap-1 min-w-0">
+              <ArrowUpDown size={14} className="flex-shrink-0" />
+              <span className="truncate">Ordenar Por</span>
+            </div>
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="data-desc">Data (recente → antiga)</SelectItem>
