@@ -37,12 +37,20 @@ export default function TransacoesPage() {
   const qc = useQueryClient();
   const now = new Date();
 
-  const [periodo, setPeriodo] = useState('atual');
+  const [currentMonth, setCurrentMonth] = useState(new Date());
   const [filtroTipo, setFiltroTipo] = useState('todos');
   const [filtroStatus, setFiltroStatus] = useState('todos');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [ordem, setOrdem] = useState('');
+
+  const goToPrevMonth = () => setCurrentMonth(prev => subMonths(prev, 1));
+  const goToNextMonth = () => setCurrentMonth(prev => addMonths(prev, 1));
+  const goToCurrentMonth = () => setCurrentMonth(new Date());
+  const isCurrentMonth = isSameMonth(currentMonth, now);
+
+  const start = format(startOfMonth(currentMonth), 'yyyy-MM-dd');
+  const end = format(endOfMonth(currentMonth), 'yyyy-MM-dd');
 
   // Form state
   const [tipoDespesa, setTipoDespesa] = useState('essencial');
@@ -53,16 +61,6 @@ export default function TransacoesPage() {
   const [hora, setHora] = useState(format(now, 'HH:mm'));
   const [status, setStatus] = useState('pago');
   const [recorrente, setRecorrente] = useState(false);
-
-  const getDateRange = () => {
-    if (periodo === 'anterior') {
-      const prev = subMonths(now, 1);
-      return { start: format(startOfMonth(prev), 'yyyy-MM-dd'), end: format(endOfMonth(prev), 'yyyy-MM-dd') };
-    }
-    return { start: format(startOfMonth(now), 'yyyy-MM-dd'), end: format(endOfMonth(now), 'yyyy-MM-dd') };
-  };
-
-  const { start, end } = getDateRange();
 
   const { data: categories = [] } = useQuery({
     queryKey: ['categories', activeProfile?.id],
