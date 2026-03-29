@@ -229,6 +229,7 @@ export type Database = {
           id: string
           motivo: string
           profile_id: string | null
+          recorrente: boolean
           status: string
           tipo_despesa: string
           user_id: string
@@ -243,6 +244,7 @@ export type Database = {
           id?: string
           motivo?: string
           profile_id?: string | null
+          recorrente?: boolean
           status?: string
           tipo_despesa?: string
           user_id: string
@@ -257,6 +259,7 @@ export type Database = {
           id?: string
           motivo?: string
           profile_id?: string | null
+          recorrente?: boolean
           status?: string
           tipo_despesa?: string
           user_id?: string
