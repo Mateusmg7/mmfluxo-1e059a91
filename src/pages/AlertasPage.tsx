@@ -7,7 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ConfirmDeleteDialog } from '@/components/ConfirmDeleteDialog';
-import { Bell, BellOff, Plus, Trash2, Pencil, AlertTriangle } from 'lucide-react';
+import { Bell, BellOff, Plus, Trash2, Pencil, AlertTriangle, Send } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 
 export default function AlertasPage() {
@@ -146,6 +147,38 @@ export default function AlertasPage() {
           {notificationsEnabled ? 'Desativar Notificações' : 'Ativar Notificações'}
         </Button>
       </div>
+
+      {notificationsEnabled && reminders.length > 0 && (
+        <Card>
+          <CardContent className="py-3 flex flex-col sm:flex-row items-start sm:items-center gap-3">
+            <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground shrink-0">
+              <Send size={14} />
+              Testar Notificação
+            </div>
+            <Select onValueChange={(id) => {
+              const r = reminders.find(rem => rem.id === id);
+              if (!r) return;
+              const valorStr = r.valor ? ` - R$ ${r.valor.toFixed(2)}` : '';
+              new Notification(`💰 Teste: ${r.nome}`, {
+                body: `${r.nome}${valorStr} (dia ${r.dia_vencimento})`,
+                icon: '/favicon.ico',
+              });
+              toast.success('Notificação de teste enviada!');
+            }}>
+              <SelectTrigger className="w-full sm:w-[250px]">
+                <SelectValue placeholder="Selecione um lembrete" />
+              </SelectTrigger>
+              <SelectContent>
+                {reminders.map((r) => (
+                  <SelectItem key={r.id} value={r.id}>
+                    {r.nome} — Dia {r.dia_vencimento}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </CardContent>
+        </Card>
+      )}
 
       {urgentReminders.length > 0 && (
         <Card className="border-yellow-500/50 bg-yellow-500/10">
