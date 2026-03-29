@@ -106,6 +106,7 @@ export default function TransacoesPage() {
     setData(format(now, 'yyyy-MM-dd'));
     setHora(format(now, 'HH:mm'));
     setStatus('pago');
+    setRecorrente(false);
     setEditId(null);
   };
 
