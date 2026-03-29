@@ -183,11 +183,11 @@ export default function RelatoriosPage() {
             ) : (
               <div className="h-72">
                 <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie data={pieData} dataKey="total" nameKey="nome" cx="50%" cy="50%" innerRadius={50} outerRadius={85} strokeWidth={2} stroke="hsl(var(--background))" label={renderCustomLabel} activeShape={renderActiveSlice} rootTabIndex={-1}>
+                    <PieChart onClick={() => setActivePieIdx(undefined)}>
+                      <Pie data={pieData} dataKey="total" nameKey="nome" cx="50%" cy="50%" innerRadius={50} outerRadius={85} strokeWidth={2} stroke="hsl(var(--background))" label={renderCustomLabel} activeShape={renderActiveSlice} activeIndex={activePieIdx} onMouseDown={(_, idx) => { setActivePieIdx(prev => prev === idx ? undefined : idx); }} rootTabIndex={-1}>
                       {pieData.map((entry, i) => (<Cell key={i} fill={entry.cor} />))}
                     </Pie>
-                    <Tooltip content={<PieTooltip fmt={fmt} />} />
+                    <Tooltip content={<PieTooltip fmt={fmt} />} active={activePieIdx !== undefined} />
                   </PieChart>
                 </ResponsiveContainer>
               </div>
