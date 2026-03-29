@@ -156,7 +156,7 @@ export default function DashboardPage() {
               <div className="h-56">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
-                    <Pie data={groupPieData} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={50} outerRadius={85} paddingAngle={3} strokeWidth={0} activeIndex={-1}>
+                    <Pie data={groupPieData} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={50} outerRadius={85} paddingAngle={3} strokeWidth={0} activeIndex={-1} rootTabIndex={-1}>
                       {groupPieData.map((entry, i) => (<Cell key={i} fill={entry.color} />))}
                     </Pie>
                     <Tooltip content={<PieTooltip fmt={fmt} />} />
@@ -179,7 +179,7 @@ export default function DashboardPage() {
               <div className="h-56">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
-                    <Pie data={pieData} dataKey="total" nameKey="nome" cx="50%" cy="50%" innerRadius={50} outerRadius={85} paddingAngle={2} strokeWidth={0} activeIndex={-1}>
+                    <Pie data={pieData} dataKey="total" nameKey="nome" cx="50%" cy="50%" innerRadius={50} outerRadius={85} paddingAngle={2} strokeWidth={0} activeIndex={-1} rootTabIndex={-1}>
                       {pieData.map((entry, i) => (<Cell key={i} fill={entry.cor} />))}
                     </Pie>
                     <Tooltip content={<PieTooltip fmt={fmt} />} />

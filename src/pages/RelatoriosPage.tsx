@@ -180,8 +180,8 @@ export default function RelatoriosPage() {
             ) : (
               <div className="h-72">
                 <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie data={pieData} dataKey="total" nameKey="nome" cx="50%" cy="50%" innerRadius={50} outerRadius={85} strokeWidth={2} stroke="hsl(var(--background))" label={renderCustomLabel} activeIndex={-1}>
+                    <PieChart>
+                      <Pie data={pieData} dataKey="total" nameKey="nome" cx="50%" cy="50%" innerRadius={50} outerRadius={85} strokeWidth={2} stroke="hsl(var(--background))" label={renderCustomLabel} activeIndex={-1} rootTabIndex={-1}>
                       {pieData.map((entry, i) => (<Cell key={i} fill={entry.cor} />))}
                     </Pie>
                     <Tooltip content={<PieTooltip fmt={fmt} />} />
