@@ -20,7 +20,7 @@ export default function RendaExtraPage() {
   const qc = useQueryClient();
   const now = new Date();
 
-  const [periodo, setPeriodo] = useState('atual');
+  const [currentMonth, setCurrentMonth] = useState(new Date());
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [origem, setOrigem] = useState('');
@@ -29,15 +29,13 @@ export default function RendaExtraPage() {
   const [hora, setHora] = useState(format(now, 'HH:mm'));
   const [observacao, setObservacao] = useState('');
 
-  const getDateRange = () => {
-    if (periodo === 'anterior') {
-      const prev = subMonths(now, 1);
-      return { start: format(startOfMonth(prev), 'yyyy-MM-dd'), end: format(endOfMonth(prev), 'yyyy-MM-dd') };
-    }
-    return { start: format(startOfMonth(now), 'yyyy-MM-dd'), end: format(endOfMonth(now), 'yyyy-MM-dd') };
-  };
+  const goToPrevMonth = () => setCurrentMonth(prev => subMonths(prev, 1));
+  const goToNextMonth = () => setCurrentMonth(prev => addMonths(prev, 1));
+  const goToCurrentMonth = () => setCurrentMonth(new Date());
+  const isCurrentMonth = isSameMonth(currentMonth, now);
 
-  const { start, end } = getDateRange();
+  const start = format(startOfMonth(currentMonth), 'yyyy-MM-dd');
+  const end = format(endOfMonth(currentMonth), 'yyyy-MM-dd');
 
   const { data: records = [] } = useQuery({
     queryKey: ['extra_income', start, end, activeProfile?.id],
