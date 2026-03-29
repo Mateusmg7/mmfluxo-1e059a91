@@ -3,14 +3,15 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/contexts/ProfileContext';
 import { useQuery } from '@tanstack/react-query';
-import { format, startOfMonth, endOfMonth } from 'date-fns';
+import { format, startOfMonth, endOfMonth, addMonths, subMonths, isSameMonth } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowDownCircle, ArrowUpCircle, TrendingUp } from 'lucide-react';
+import { ArrowDownCircle, ArrowUpCircle, TrendingUp, ChevronLeft, ChevronRight } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import { PieTooltip } from '@/components/PieTooltip';
 import { renderActiveSlice } from '@/components/ActivePieSlice';
 import { Progress } from '@/components/ui/progress';
+import { Button } from '@/components/ui/button';
 
 const COLORS_MAP: Record<string, string> = {
   essencial: '#0C5BA8',
@@ -31,9 +32,15 @@ export default function DashboardPage() {
   const [activeGroupIdx, setActiveGroupIdx] = useState<number | undefined>(undefined);
   const [activeCatIdx, setActiveCatIdx] = useState<number | undefined>(undefined);
   const { activeProfile } = useProfile();
+  const [currentMonth, setCurrentMonth] = useState(new Date());
   const now = new Date();
-  const monthStart = format(startOfMonth(now), 'yyyy-MM-dd');
-  const monthEnd = format(endOfMonth(now), 'yyyy-MM-dd');
+  const monthStart = format(startOfMonth(currentMonth), 'yyyy-MM-dd');
+  const monthEnd = format(endOfMonth(currentMonth), 'yyyy-MM-dd');
+
+  const goToPrevMonth = () => setCurrentMonth(prev => subMonths(prev, 1));
+  const goToNextMonth = () => setCurrentMonth(prev => addMonths(prev, 1));
+  const goToCurrentMonth = () => setCurrentMonth(new Date());
+  const isCurrentMonth = isSameMonth(currentMonth, now);
 
   const { data: transactions = [] } = useQuery({
     queryKey: ['transactions', monthStart, monthEnd, activeProfile?.id],
@@ -104,14 +111,27 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <div className="animate-fade-up">
-        <h2 className="text-2xl font-bold">Dashboard</h2>
-        <p className="text-muted-foreground text-sm capitalize">
-          {format(now, "MMMM 'de' yyyy", { locale: ptBR })}
-        </p>
+      <div className="flex items-center justify-between animate-fade-up">
+        <div>
+          <h2 className="text-2xl font-bold">Dashboard</h2>
+          <p className="text-muted-foreground text-sm capitalize">
+            {format(currentMonth, "MMMM 'de' yyyy", { locale: ptBR })}
+          </p>
+        </div>
+        <div className="flex items-center gap-1">
+          <Button variant="ghost" size="icon" onClick={goToPrevMonth} className="h-8 w-8">
+            <ChevronLeft size={18} />
+          </Button>
+          {!isCurrentMonth && (
+            <Button variant="outline" size="sm" onClick={goToCurrentMonth} className="h-8 text-xs px-2">
+              Hoje
+            </Button>
+          )}
+          <Button variant="ghost" size="icon" onClick={goToNextMonth} className="h-8 w-8">
+            <ChevronRight size={18} />
+          </Button>
+        </div>
       </div>
-
-      {/* Summary cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4 animate-fade-up">
         {[
           { label: 'Despesas', value: fmt(totalDespesas), cls: 'text-destructive', bg: 'bg-destructive/10', Icon: ArrowDownCircle, delay: '0.05s' },
