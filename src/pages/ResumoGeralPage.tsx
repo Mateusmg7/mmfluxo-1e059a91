@@ -77,7 +77,6 @@ export default function ResumoGeralPage() {
         {[
           { label: 'Despesas Totais', value: totalDespesas, cls: 'text-destructive', Icon: ArrowDownCircle, bg: 'bg-destructive/10' },
           { label: 'Renda Extra Total', value: totalRendaExtra, cls: 'text-accent', Icon: ArrowUpCircle, bg: 'bg-accent/10' },
-          { label: 'Saldo Geral', value: saldo, cls: saldo >= 0 ? 'text-accent' : 'text-destructive', Icon: Wallet, bg: 'bg-primary/10' },
         ].map((c, i) => (
           <Card key={c.label} className="card-glass animate-fade-up" style={{ animationDelay: `${0.05 + i * 0.05}s` }}>
             <CardContent className="pt-5 pb-4">
