@@ -156,22 +156,7 @@ export default function AlertasPage() {
               <Send size={14} />
               Testar Notificação
             </div>
-            <Select onValueChange={(id) => {
-              const r = reminders.find(rem => rem.id === id);
-              if (!r) return;
-              const valorStr = r.valor ? ` - R$ ${r.valor.toFixed(2)}` : '';
-              try {
-                if ('Notification' in window && Notification.permission === 'granted') {
-                  new Notification(`💰 Teste: ${r.nome}`, {
-                    body: `${r.nome}${valorStr} (dia ${r.dia_vencimento})`,
-                    icon: '/favicon.ico',
-                  });
-                }
-              } catch {
-                // Notification API not supported (mobile browsers)
-              }
-              toast.success(`🔔 Teste: ${r.nome}${valorStr} (dia ${r.dia_vencimento})`);
-            }}>
+            <Select value={testReminderId ?? undefined} onValueChange={setTestReminderId}>
               <SelectTrigger className="w-full sm:w-[250px]">
                 <SelectValue placeholder="Selecione um lembrete" />
               </SelectTrigger>
@@ -183,6 +168,28 @@ export default function AlertasPage() {
                 ))}
               </SelectContent>
             </Select>
+            <Button
+              size="sm"
+              disabled={!testReminderId}
+              onClick={() => {
+                const r = reminders.find(rem => rem.id === testReminderId);
+                if (!r) return;
+                const valorStr = r.valor ? ` - R$ ${r.valor.toFixed(2)}` : '';
+                try {
+                  if ('Notification' in window && Notification.permission === 'granted') {
+                    new Notification(`💰 Teste: ${r.nome}`, {
+                      body: `${r.nome}${valorStr} (dia ${r.dia_vencimento})`,
+                      icon: '/favicon.ico',
+                    });
+                  }
+                } catch {
+                  // fallback
+                }
+                toast.success(`🔔 Teste: ${r.nome}${valorStr} (dia ${r.dia_vencimento})`);
+              }}
+            >
+              TESTAR
+            </Button>
           </CardContent>
         </Card>
       )}
