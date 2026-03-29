@@ -111,11 +111,19 @@
 
 @layer utilities {
   .gradient-brand {
-    background: linear-gradient(90deg, #3B82F6, #06B6D4, #22D3EE);
+    background: linear-gradient(90deg, #3B82F6, #06B6D4, #22D3EE, #3B82F6);
+    background-size: 200% 100%;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
     filter: drop-shadow(0 0 8px rgba(34, 211, 238, 0.5));
+    animation: gradient-shift 4s ease-in-out infinite;
+  }
+
+  @keyframes gradient-shift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
   }
 
   .glass-header {
