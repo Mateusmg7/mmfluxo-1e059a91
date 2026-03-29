@@ -112,7 +112,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Summary cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4 animate-fade-up">
         <Card className="card-glass animate-fade-up" style={{ animationDelay: '0.05s' }}>
           <CardContent className="pt-5 pb-4">
             <div className="flex items-center gap-3">
