@@ -5,7 +5,7 @@ import {
   LayoutDashboard,
   ArrowDownCircle,
   ArrowUpCircle,
-  Tag,
+  Bell,
   Target,
   BarChart3,
   Layers,
@@ -17,6 +17,7 @@ import {
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import ProfileSwitcher from '@/components/ProfileSwitcher';
+import AlertBadge from '@/components/AlertBadge';
 
 const navItems = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard },
