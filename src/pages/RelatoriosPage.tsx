@@ -20,6 +20,7 @@ const TIPO_COLORS: Record<string, string> = { essencial: '#0C5BA8', lazer: '#F97
 export default function RelatoriosPage() {
   const { user } = useAuth();
   const { activeProfile } = useProfile();
+  const [activePieIdx, setActivePieIdx] = useState<number | undefined>(undefined);
   const now = new Date();
   const monthStart = format(startOfMonth(now), 'yyyy-MM-dd');
   const monthEnd = format(endOfMonth(now), 'yyyy-MM-dd');
