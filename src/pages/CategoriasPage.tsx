@@ -60,12 +60,20 @@ export default function CategoriasPage() {
     setDialogOpen(true);
   };
 
-  const handleDelete = async (c: any) => {
+  const confirmDelete = (c: any) => {
     if (c.is_default) { toast.error('Não é possível excluir categorias padrão'); return; }
-    const { error } = await supabase.from('categories').delete().eq('id', c.id);
-    if (error) { toast.error('Categoria em uso, não pode ser excluída'); return; }
+    setDeleteItem(c);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDelete = async () => {
+    if (!deleteItem) return;
+    const { error } = await supabase.from('categories').delete().eq('id', deleteItem.id);
+    if (error) { toast.error('Categoria em uso, não pode ser excluída'); setDeleteDialogOpen(false); setDeleteItem(null); return; }
     toast.success('Categoria removida');
     qc.invalidateQueries({ queryKey: ['categories'] });
+    setDeleteDialogOpen(false);
+    setDeleteItem(null);
   };
 
   return (
