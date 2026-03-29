@@ -10,13 +10,14 @@ export function PieTooltip({ active, payload, fmt }: PieTooltipProps) {
   const color = entry.payload?.fill || entry.color || '#888';
   const name = entry.name || '';
   const value = entry.value ?? 0;
+  const pct = entry.payload?.pct;
 
   return (
     <div
       className="rounded-lg px-3 py-2 text-xs font-medium shadow-2xl border border-white/20"
       style={{ backgroundColor: color, color: '#fff' }}
     >
-      <p className="font-semibold text-sm">{name}</p>
+      <p className="font-semibold text-sm">{name}{pct ? ` (${pct}%)` : ''}</p>
       <p className="text-white/90">{fmt(value)}</p>
     </div>
   );
