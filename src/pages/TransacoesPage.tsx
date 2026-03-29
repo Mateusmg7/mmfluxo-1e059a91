@@ -50,6 +50,7 @@ export default function TransacoesPage() {
   const [data, setData] = useState(format(now, 'yyyy-MM-dd'));
   const [hora, setHora] = useState(format(now, 'HH:mm'));
   const [status, setStatus] = useState('pago');
+  const [recorrente, setRecorrente] = useState(false);
 
   const getDateRange = () => {
     if (periodo === 'anterior') {
