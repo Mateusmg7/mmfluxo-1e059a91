@@ -129,14 +129,6 @@ export default function DashboardPage() {
             </div>
           </CardContent>
         </Card>
-        <Card className="card-glass animate-fade-up" style={{ animationDelay: '0.15s' }}>
-          <CardContent className="pt-5 pb-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-primary/10"><Wallet className="text-primary" size={20} /></div>
-              <div><p className="text-xs text-muted-foreground">Saldo</p><p className={`text-lg font-bold ${saldo >= 0 ? 'text-accent' : 'text-destructive'}`}>{fmt(saldo)}</p></div>
-            </div>
-          </CardContent>
-        </Card>
         <Card className="card-glass animate-fade-up" style={{ animationDelay: '0.2s' }}>
           <CardContent className="pt-5 pb-4">
             <div className="flex items-center gap-3">
