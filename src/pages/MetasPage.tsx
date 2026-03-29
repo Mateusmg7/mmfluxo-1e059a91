@@ -39,6 +39,8 @@ export default function MetasPage() {
   const [valorAlvo, setValorAlvo] = useState('');
   const [categoryId, setCategoryId] = useState('');
   const [periodoTipo, setPeriodoTipo] = useState('mensal');
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   const { data: goals = [] } = useQuery({
     queryKey: ['goals', activeProfile?.id],
