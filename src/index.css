@@ -110,6 +110,12 @@
 }
 
 @layer utilities {
+  .recharts-sector:focus,
+  .recharts-sector:focus-visible,
+  .recharts-sector:active {
+    outline: none;
+  }
+
   .gradient-brand {
     background: linear-gradient(90deg, #3B82F6, #06B6D4, #22D3EE, #3B82F6);
     background-size: 200% 100%;
