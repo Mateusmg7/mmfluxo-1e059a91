@@ -158,7 +158,7 @@ export default function DashboardPage() {
                     <Pie data={groupPieData} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={50} outerRadius={85} paddingAngle={3} strokeWidth={0}>
                       {groupPieData.map((entry, i) => (<Cell key={i} fill={entry.color} />))}
                     </Pie>
-                    <Tooltip formatter={(value: number) => fmt(value)} contentStyle={{ backgroundColor: 'hsl(var(--popover))', border: '1px solid hsl(var(--border))', borderRadius: '8px', color: 'hsl(var(--popover-foreground))', fontSize: '13px' }} />
+                    <Tooltip formatter={(value: number) => fmt(value)} contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px', color: 'hsl(var(--card-foreground))', fontSize: '13px', boxShadow: '0 8px 24px rgba(0,0,0,0.3)' }} itemStyle={{ color: 'hsl(var(--card-foreground))' }} labelStyle={{ color: 'hsl(var(--card-foreground))', fontWeight: 600 }} />
                     <Legend formatter={(value) => <span className="text-sm text-foreground">{value}</span>} />
                   </PieChart>
                 </ResponsiveContainer>
@@ -181,7 +181,7 @@ export default function DashboardPage() {
                     <Pie data={pieData} dataKey="total" nameKey="nome" cx="50%" cy="50%" innerRadius={50} outerRadius={85} paddingAngle={2} strokeWidth={0}>
                       {pieData.map((entry, i) => (<Cell key={i} fill={entry.cor} />))}
                     </Pie>
-                    <Tooltip formatter={(value: number) => fmt(value)} contentStyle={{ backgroundColor: 'hsl(var(--popover))', border: '1px solid hsl(var(--border))', borderRadius: '8px', color: 'hsl(var(--popover-foreground))', fontSize: '13px' }} />
+                    <Tooltip formatter={(value: number) => fmt(value)} contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px', color: 'hsl(var(--card-foreground))', fontSize: '13px', boxShadow: '0 8px 24px rgba(0,0,0,0.3)' }} itemStyle={{ color: 'hsl(var(--card-foreground))' }} labelStyle={{ color: 'hsl(var(--card-foreground))', fontWeight: 600 }} />
                     <Legend formatter={(value) => <span className="text-sm text-foreground">{value}</span>} />
                   </PieChart>
                 </ResponsiveContainer>
