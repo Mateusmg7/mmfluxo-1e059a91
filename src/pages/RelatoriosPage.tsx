@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, Legend } from 'recharts';
 import { renderActiveSlice } from '@/components/ActivePieSlice';
 import { PieTooltip } from '@/components/PieTooltip';
-import { Download, FileText, BarChart3, PieChartIcon, TrendingUp, ArrowDownCircle, ArrowUpCircle, Wallet } from 'lucide-react';
+import { Download, FileText, BarChart3, PieChartIcon, TrendingUp, ArrowDownCircle, ArrowUpCircle } from 'lucide-react';
 import { exportPdf } from '@/lib/exportPdf';
 import { Progress } from '@/components/ui/progress';
 
