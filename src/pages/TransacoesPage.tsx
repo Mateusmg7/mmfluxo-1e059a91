@@ -3,7 +3,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/contexts/ProfileContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { format, startOfMonth, endOfMonth, subMonths } from 'date-fns';
+import { format, startOfMonth, endOfMonth, addMonths, subMonths, isSameMonth } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -14,7 +14,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Plus, Pencil, Trash2, ArrowUpDown } from 'lucide-react';
+import { Plus, Pencil, Trash2, ArrowUpDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import { toast } from 'sonner';
 
 const TIPO_LABELS: Record<string, string> = {
@@ -37,12 +37,20 @@ export default function TransacoesPage() {
   const qc = useQueryClient();
   const now = new Date();
 
-  const [periodo, setPeriodo] = useState('atual');
+  const [currentMonth, setCurrentMonth] = useState(new Date());
   const [filtroTipo, setFiltroTipo] = useState('todos');
   const [filtroStatus, setFiltroStatus] = useState('todos');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [ordem, setOrdem] = useState('');
+
+  const goToPrevMonth = () => setCurrentMonth(prev => subMonths(prev, 1));
+  const goToNextMonth = () => setCurrentMonth(prev => addMonths(prev, 1));
+  const goToCurrentMonth = () => setCurrentMonth(new Date());
+  const isCurrentMonth = isSameMonth(currentMonth, now);
+
+  const start = format(startOfMonth(currentMonth), 'yyyy-MM-dd');
+  const end = format(endOfMonth(currentMonth), 'yyyy-MM-dd');
 
   // Form state
   const [tipoDespesa, setTipoDespesa] = useState('essencial');
@@ -53,16 +61,6 @@ export default function TransacoesPage() {
   const [hora, setHora] = useState(format(now, 'HH:mm'));
   const [status, setStatus] = useState('pago');
   const [recorrente, setRecorrente] = useState(false);
-
-  const getDateRange = () => {
-    if (periodo === 'anterior') {
-      const prev = subMonths(now, 1);
-      return { start: format(startOfMonth(prev), 'yyyy-MM-dd'), end: format(endOfMonth(prev), 'yyyy-MM-dd') };
-    }
-    return { start: format(startOfMonth(now), 'yyyy-MM-dd'), end: format(endOfMonth(now), 'yyyy-MM-dd') };
-  };
-
-  const { start, end } = getDateRange();
 
   const { data: categories = [] } = useQuery({
     queryKey: ['categories', activeProfile?.id],
@@ -192,7 +190,22 @@ export default function TransacoesPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold">Despesas</h2>
-          <p className="text-muted-foreground text-sm">Despesas do período</p>
+          <p className="text-muted-foreground text-sm capitalize">
+            {format(currentMonth, "MMMM 'de' yyyy", { locale: ptBR })}
+          </p>
+        </div>
+        <div className="flex items-center gap-1">
+          <Button variant="ghost" size="icon" onClick={goToPrevMonth} className="h-8 w-8">
+            <ChevronLeft size={18} />
+          </Button>
+          {!isCurrentMonth && (
+            <Button variant="outline" size="sm" onClick={goToCurrentMonth} className="h-8 text-xs px-2">
+              Hoje
+            </Button>
+          )}
+          <Button variant="ghost" size="icon" onClick={goToNextMonth} className="h-8 w-8">
+            <ChevronRight size={18} />
+          </Button>
         </div>
         <Dialog open={dialogOpen} onOpenChange={(o) => { setDialogOpen(o); if (!o) resetForm(); }}>
           <DialogTrigger asChild>
@@ -280,13 +293,6 @@ export default function TransacoesPage() {
 
       {/* Filters */}
       <div className="flex flex-wrap gap-3">
-        <Select value={periodo} onValueChange={setPeriodo}>
-          <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="atual">Mês atual</SelectItem>
-            <SelectItem value="anterior">Mês anterior</SelectItem>
-          </SelectContent>
-        </Select>
         <Select value={filtroTipo} onValueChange={setFiltroTipo}>
           <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
           <SelectContent>

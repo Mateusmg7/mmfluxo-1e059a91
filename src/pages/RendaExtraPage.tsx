@@ -3,15 +3,15 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/contexts/ProfileContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { format, startOfMonth, endOfMonth, subMonths } from 'date-fns';
+import { format, startOfMonth, endOfMonth, addMonths, subMonths, isSameMonth } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Plus, Pencil, Trash2, ArrowUpCircle } from 'lucide-react';
+import { Plus, Pencil, Trash2, ArrowUpCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function RendaExtraPage() {
@@ -20,7 +20,7 @@ export default function RendaExtraPage() {
   const qc = useQueryClient();
   const now = new Date();
 
-  const [periodo, setPeriodo] = useState('atual');
+  const [currentMonth, setCurrentMonth] = useState(new Date());
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [origem, setOrigem] = useState('');
@@ -29,15 +29,13 @@ export default function RendaExtraPage() {
   const [hora, setHora] = useState(format(now, 'HH:mm'));
   const [observacao, setObservacao] = useState('');
 
-  const getDateRange = () => {
-    if (periodo === 'anterior') {
-      const prev = subMonths(now, 1);
-      return { start: format(startOfMonth(prev), 'yyyy-MM-dd'), end: format(endOfMonth(prev), 'yyyy-MM-dd') };
-    }
-    return { start: format(startOfMonth(now), 'yyyy-MM-dd'), end: format(endOfMonth(now), 'yyyy-MM-dd') };
-  };
+  const goToPrevMonth = () => setCurrentMonth(prev => subMonths(prev, 1));
+  const goToNextMonth = () => setCurrentMonth(prev => addMonths(prev, 1));
+  const goToCurrentMonth = () => setCurrentMonth(new Date());
+  const isCurrentMonth = isSameMonth(currentMonth, now);
 
-  const { start, end } = getDateRange();
+  const start = format(startOfMonth(currentMonth), 'yyyy-MM-dd');
+  const end = format(endOfMonth(currentMonth), 'yyyy-MM-dd');
 
   const { data: records = [] } = useQuery({
     queryKey: ['extra_income', start, end, activeProfile?.id],
@@ -99,7 +97,22 @@ export default function RendaExtraPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold">Renda Extra</h2>
-          <p className="text-muted-foreground text-sm">Freelas, bicos e entradas extras</p>
+          <p className="text-muted-foreground text-sm capitalize">
+            {format(currentMonth, "MMMM 'de' yyyy", { locale: ptBR })}
+          </p>
+        </div>
+        <div className="flex items-center gap-1 mr-auto sm:mr-0">
+          <Button variant="ghost" size="icon" onClick={goToPrevMonth} className="h-8 w-8">
+            <ChevronLeft size={18} />
+          </Button>
+          {!isCurrentMonth && (
+            <Button variant="outline" size="sm" onClick={goToCurrentMonth} className="h-8 text-xs px-2">
+              Hoje
+            </Button>
+          )}
+          <Button variant="ghost" size="icon" onClick={goToNextMonth} className="h-8 w-8">
+            <ChevronRight size={18} />
+          </Button>
         </div>
         <Dialog open={dialogOpen} onOpenChange={(o) => { setDialogOpen(o); if (!o) resetForm(); }}>
           <DialogTrigger asChild>
@@ -140,15 +153,6 @@ export default function RendaExtraPage() {
         </Dialog>
       </div>
 
-      <div className="flex gap-3">
-        <Select value={periodo} onValueChange={setPeriodo}>
-          <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="atual">Mês atual</SelectItem>
-            <SelectItem value="anterior">Mês anterior</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
 
       <Card className="card-glass">
         <CardContent className="py-4 flex items-center justify-between">
