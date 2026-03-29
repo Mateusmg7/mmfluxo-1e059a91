@@ -152,6 +152,7 @@ export default function TransacoesPage() {
     setData(t.data);
     setHora(t.hora);
     setStatus(t.status);
+    setRecorrente(t.recorrente ?? false);
     setDialogOpen(true);
   };
 
