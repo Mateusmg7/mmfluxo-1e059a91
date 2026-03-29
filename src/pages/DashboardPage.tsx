@@ -182,11 +182,11 @@ export default function DashboardPage() {
             ) : (
               <div className="h-56">
                 <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie data={pieData} dataKey="total" nameKey="nome" cx="50%" cy="50%" innerRadius={50} outerRadius={85} paddingAngle={2} strokeWidth={0} activeShape={renderActiveSlice} rootTabIndex={-1}>
+                  <PieChart onClick={() => setActiveCatIdx(undefined)}>
+                    <Pie data={pieData} dataKey="total" nameKey="nome" cx="50%" cy="50%" innerRadius={50} outerRadius={85} paddingAngle={2} strokeWidth={0} activeShape={renderActiveSlice} activeIndex={activeCatIdx} onMouseDown={(_, idx) => { setActiveCatIdx(prev => prev === idx ? undefined : idx); }} rootTabIndex={-1}>
                       {pieData.map((entry, i) => (<Cell key={i} fill={entry.cor} />))}
                     </Pie>
-                    <Tooltip content={<PieTooltip fmt={fmt} />} />
+                    <Tooltip content={<PieTooltip fmt={fmt} />} active={activeCatIdx !== undefined} />
                     <Legend formatter={(value) => <span className="text-sm text-foreground">{value}</span>} />
                   </PieChart>
                 </ResponsiveContainer>
