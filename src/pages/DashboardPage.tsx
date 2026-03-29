@@ -75,7 +75,7 @@ export default function DashboardPage() {
 
   const totalDespesas = transactions.reduce((s, t) => s + Number(t.valor), 0);
   const totalRendaExtra = extraIncome.reduce((s, t) => s + Number(t.valor), 0);
-  const saldo = totalRendaExtra - totalDespesas;
+  
 
   // Group by tipo_despesa
   const tipoTotals = transactions.reduce((acc: Record<string, number>, t: any) => {
