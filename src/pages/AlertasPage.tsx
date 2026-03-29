@@ -159,11 +159,17 @@ export default function AlertasPage() {
               const r = reminders.find(rem => rem.id === id);
               if (!r) return;
               const valorStr = r.valor ? ` - R$ ${r.valor.toFixed(2)}` : '';
-              new Notification(`💰 Teste: ${r.nome}`, {
-                body: `${r.nome}${valorStr} (dia ${r.dia_vencimento})`,
-                icon: '/favicon.ico',
-              });
-              toast.success('Notificação de teste enviada!');
+              try {
+                if ('Notification' in window && Notification.permission === 'granted') {
+                  new Notification(`💰 Teste: ${r.nome}`, {
+                    body: `${r.nome}${valorStr} (dia ${r.dia_vencimento})`,
+                    icon: '/favicon.ico',
+                  });
+                }
+              } catch {
+                // Notification API not supported (mobile browsers)
+              }
+              toast.success(`🔔 Teste: ${r.nome}${valorStr} (dia ${r.dia_vencimento})`);
             }}>
               <SelectTrigger className="w-full sm:w-[250px]">
                 <SelectValue placeholder="Selecione um lembrete" />

@@ -25,11 +25,15 @@ export function useNotifications(urgentReminders: BillReminder[]) {
         const label = isToday ? 'HOJE' : 'AMANHÃ';
         const valorStr = r.valor ? ` - R$ ${r.valor.toFixed(2)}` : '';
 
-        new Notification(`💰 Conta vence ${label}!`, {
-          body: `${r.nome}${valorStr} (dia ${r.dia_vencimento})`,
-          icon: '/favicon.ico',
-          tag: key,
-        });
+        try {
+          new Notification(`💰 Conta vence ${label}!`, {
+            body: `${r.nome}${valorStr} (dia ${r.dia_vencimento})`,
+            icon: '/favicon.ico',
+            tag: key,
+          });
+        } catch {
+          // Notification API may fail on mobile browsers
+        }
       });
     };
 
