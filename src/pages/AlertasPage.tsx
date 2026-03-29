@@ -12,6 +12,7 @@ import { toast } from 'sonner';
 
 export default function AlertasPage() {
   const { reminders, isLoading, addReminder, updateReminder, deleteReminder, urgentReminders } = useBillReminders();
+  const notificationsEnabled = 'Notification' in window && Notification.permission === 'granted';
   const [showForm, setShowForm] = useState(false);
   const [nome, setNome] = useState('');
   const [valor, setValor] = useState('');
@@ -117,6 +118,10 @@ export default function AlertasPage() {
   };
 
   const handleEnableNotifications = async () => {
+    if (notificationsEnabled) {
+      toast.info('Para desativar notificações, altere nas configurações do navegador.');
+      return;
+    }
     const granted = await requestNotificationPermission();
     if (granted) {
       toast.success('Notificações ativadas!');
@@ -131,9 +136,14 @@ export default function AlertasPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-foreground">Alertas</h1>
-        <Button variant="outline" size="sm" onClick={handleEnableNotifications}>
-          <Bell size={16} />
-          Ativar Notificações
+        <Button
+          variant={notificationsEnabled ? "default" : "outline"}
+          size="sm"
+          onClick={handleEnableNotifications}
+          className={notificationsEnabled ? "bg-primary text-primary-foreground" : ""}
+        >
+          {notificationsEnabled ? <Bell size={16} className="text-primary-foreground" /> : <BellOff size={16} />}
+          {notificationsEnabled ? 'Desativar Notificações' : 'Ativar Notificações'}
         </Button>
       </div>
 
