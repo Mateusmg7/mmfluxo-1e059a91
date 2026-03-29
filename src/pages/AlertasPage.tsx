@@ -149,7 +149,7 @@ export default function AlertasPage() {
         </Button>
       </div>
 
-      {notificationsEnabled && reminders.length > 0 && (
+      {reminders.length > 0 && (
         <Card>
           <CardContent className="py-3 flex flex-col sm:flex-row items-start sm:items-center gap-3">
             <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground shrink-0">
@@ -174,6 +174,15 @@ export default function AlertasPage() {
               onClick={async () => {
                 const r = reminders.find(rem => rem.id === testReminderId);
                 if (!r) return;
+
+                // Request permission if not yet granted
+                if (!notificationsEnabled) {
+                  const granted = await requestNotificationPermission();
+                  if (!granted) {
+                    toast.error('Permissão de notificação negada. Ative nas configurações do navegador.');
+                    return;
+                  }
+                }
 
                 const sent = await sendTestNotification(r);
                 if (sent) {
