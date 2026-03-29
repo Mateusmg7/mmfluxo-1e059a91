@@ -141,7 +141,7 @@
     -webkit-text-fill-color: transparent;
     background-clip: text;
     filter: drop-shadow(0 0 6px rgba(6, 182, 212, 0.4));
-    animation: dark-spot 6s ease-in-out infinite;
+    animation: dark-spot 12s ease-in-out infinite;
   }
 
   .dark .gradient-brand {
