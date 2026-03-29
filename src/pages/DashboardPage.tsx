@@ -219,7 +219,7 @@ export default function DashboardPage() {
                   <div className="min-w-0">
                     <p className="text-sm font-medium truncate">{t.motivo || t.categories?.nome || TIPO_LABELS[t.tipo_despesa]}</p>
                     <p className="text-xs text-muted-foreground">
-                      {format(new Date(t.data + 'T00:00'), 'dd/MM', { locale: ptBR })} · {TIPO_LABELS[t.tipo_despesa] ?? 'Essencial'}
+                      {format(new Date(t.data + 'T00:00'), 'dd/MM', { locale: ptBR })} às {t.hora?.slice(0, 5) || '00:00'} · {TIPO_LABELS[t.tipo_despesa] ?? 'Essencial'}
                     </p>
                   </div>
                 </div>
