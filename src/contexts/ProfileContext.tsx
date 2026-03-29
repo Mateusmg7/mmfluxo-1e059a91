@@ -93,9 +93,9 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
       { nome: 'Transporte', cor_hex: '#8B5CF6', grupo: 'essenciais' as const, is_default: true },
       { nome: 'Contas', cor_hex: '#EC4899', grupo: 'essenciais' as const, is_default: true },
       { nome: 'Saúde', cor_hex: '#10B981', grupo: 'essenciais' as const, is_default: true },
-      { nome: 'Lazer', cor_hex: '#F97316', grupo: 'lazer' as const, is_default: true },
-      { nome: 'Imprevistos', cor_hex: '#EF4444', grupo: 'imprevistos' as const, is_default: true },
-      { nome: 'Besteiras', cor_hex: '#A855F7', grupo: 'besteiras' as const, is_default: true },
+      { nome: 'Lazer', cor_hex: '#8B5CF6', grupo: 'lazer' as const, is_default: true },
+      { nome: 'Imprevistos', cor_hex: '#EAB308', grupo: 'imprevistos' as const, is_default: true },
+      { nome: 'Besteiras', cor_hex: '#F97316', grupo: 'besteiras' as const, is_default: true },
     ];
     await supabase.from('categories').insert(
       defaultCats.map(c => ({ ...c, user_id: user!.id, profile_id: data.id }))
