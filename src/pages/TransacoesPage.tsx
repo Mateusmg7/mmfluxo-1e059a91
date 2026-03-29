@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Badge } from '@/components/ui/badge';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -197,14 +198,24 @@ export default function TransacoesPage() {
               {tipoDespesa === 'essencial' && (
                 <div className="space-y-2">
                   <Label>Categoria Essencial</Label>
-                  <Select value={categoryId} onValueChange={setCategoryId}>
-                    <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
-                    <SelectContent>
-                      {categories.map((c) => (
-                        <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <div className="flex gap-2">
+                    <Select value={categoryId} onValueChange={setCategoryId}>
+                      <SelectTrigger className="flex-1"><SelectValue placeholder="Selecione" /></SelectTrigger>
+                      <SelectContent>
+                        {categories.map((c) => (
+                          <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <NewCategoryPopover
+                      userId={user!.id}
+                      profileId={activeProfile?.id ?? null}
+                      onCreated={(id) => {
+                        qc.invalidateQueries({ queryKey: ['categories'] });
+                        setCategoryId(id);
+                      }}
+                    />
+                  </div>
                 </div>
               )}
               <div className="space-y-2">
@@ -324,5 +335,43 @@ export default function TransacoesPage() {
         ))}
       </div>
     </div>
+  );
+}
+
+function NewCategoryPopover({ userId, profileId, onCreated }: { userId: string; profileId: string | null; onCreated: (id: string) => void }) {
+  const [open, setOpen] = useState(false);
+  const [nome, setNome] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  const handleSave = async () => {
+    if (!nome.trim()) { toast.error('Digite o nome da categoria'); return; }
+    setSaving(true);
+    const { data, error } = await supabase.from('categories').insert({
+      user_id: userId,
+      profile_id: profileId,
+      nome: nome.trim(),
+      grupo: 'essenciais' as const,
+    }).select('id').single();
+    setSaving(false);
+    if (error) { toast.error(error.message); return; }
+    toast.success('Categoria criada');
+    setNome('');
+    setOpen(false);
+    onCreated(data.id);
+  };
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button variant="outline" size="icon" className="flex-shrink-0" title="Nova categoria">
+          <Plus size={16} />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-64 space-y-3">
+        <p className="text-sm font-medium">Nova categoria essencial</p>
+        <Input value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Ex: Educação" onKeyDown={(e) => e.key === 'Enter' && handleSave()} />
+        <Button onClick={handleSave} disabled={saving} size="sm" className="w-full">Criar</Button>
+      </PopoverContent>
+    </Popover>
   );
 }
