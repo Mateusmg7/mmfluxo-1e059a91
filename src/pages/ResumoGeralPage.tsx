@@ -47,7 +47,7 @@ export default function ResumoGeralPage() {
   const profileData = profiles.map((p) => {
     const despesas = allTransactions.filter((t) => t.profile_id === p.id).reduce((s, t) => s + Number(t.valor), 0);
     const renda = allExtraIncome.filter((t) => t.profile_id === p.id).reduce((s, t) => s + Number(t.valor), 0);
-    return { ...p, despesas, renda, saldo: renda - despesas };
+    return { ...p, despesas, renda };
   });
 
   const barData = profileData.map((p) => ({ name: `${p.icon} ${p.name}`, Despesas: p.despesas, 'Renda Extra': p.renda }));
