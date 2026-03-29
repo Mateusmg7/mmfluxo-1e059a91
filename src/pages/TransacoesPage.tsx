@@ -383,7 +383,7 @@ export default function TransacoesPage() {
                   <button onClick={() => handleEdit(t)} className="p-1.5 rounded hover:bg-secondary text-muted-foreground">
                     <Pencil size={14} />
                   </button>
-                  <button onClick={() => handleDelete(t.id)} className="p-1.5 rounded hover:bg-secondary text-muted-foreground hover:text-destructive">
+                  <button onClick={() => confirmDelete(t.id)} className="p-1.5 rounded hover:bg-secondary text-muted-foreground hover:text-destructive">
                     <Trash2 size={14} />
                   </button>
                 </div>
