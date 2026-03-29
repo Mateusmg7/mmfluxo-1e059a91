@@ -198,14 +198,24 @@ export default function TransacoesPage() {
               {tipoDespesa === 'essencial' && (
                 <div className="space-y-2">
                   <Label>Categoria Essencial</Label>
-                  <Select value={categoryId} onValueChange={setCategoryId}>
-                    <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
-                    <SelectContent>
-                      {categories.map((c) => (
-                        <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <div className="flex gap-2">
+                    <Select value={categoryId} onValueChange={setCategoryId}>
+                      <SelectTrigger className="flex-1"><SelectValue placeholder="Selecione" /></SelectTrigger>
+                      <SelectContent>
+                        {categories.map((c) => (
+                          <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <NewCategoryPopover
+                      userId={user!.id}
+                      profileId={activeProfile?.id ?? null}
+                      onCreated={(id) => {
+                        qc.invalidateQueries({ queryKey: ['categories'] });
+                        setCategoryId(id);
+                      }}
+                    />
+                  </div>
                 </div>
               )}
               <div className="space-y-2">
