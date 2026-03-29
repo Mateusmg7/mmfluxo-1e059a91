@@ -23,7 +23,7 @@ const navItems = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/transacoes', label: 'Despesas', icon: ArrowDownCircle },
   { to: '/renda-extra', label: 'Renda Extra', icon: ArrowUpCircle },
-  
+  { to: '/alertas', label: 'Alertas', icon: Bell, hasBadge: true },
   { to: '/metas', label: 'Metas', icon: Target },
   { to: '/relatorios', label: 'Relatórios', icon: BarChart3 },
   { to: '/resumo-geral', label: 'Resumo Geral', icon: Layers },
