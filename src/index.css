@@ -161,7 +161,7 @@
 
 
   .glass-header {
-    @apply bg-background/80 backdrop-blur-md;
+    @apply bg-background/50 backdrop-blur-md;
   }
 
   .card-glass {
