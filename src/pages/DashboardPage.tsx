@@ -28,6 +28,8 @@ const TIPO_LABELS: Record<string, string> = {
 
 export default function DashboardPage() {
   const { user } = useAuth();
+  const [activeGroupIdx, setActiveGroupIdx] = useState<number | undefined>(undefined);
+  const [activeCatIdx, setActiveCatIdx] = useState<number | undefined>(undefined);
   const { activeProfile } = useProfile();
   const now = new Date();
   const monthStart = format(startOfMonth(now), 'yyyy-MM-dd');
@@ -157,11 +159,11 @@ export default function DashboardPage() {
             ) : (
               <div className="h-56">
                 <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie data={groupPieData} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={50} outerRadius={85} paddingAngle={3} strokeWidth={0} activeShape={renderActiveSlice} rootTabIndex={-1}>
+                  <PieChart onClick={() => setActiveGroupIdx(undefined)}>
+                    <Pie data={groupPieData} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={50} outerRadius={85} paddingAngle={3} strokeWidth={0} activeShape={renderActiveSlice} activeIndex={activeGroupIdx} onMouseDown={(_, idx) => { setActiveGroupIdx(prev => prev === idx ? undefined : idx); }} rootTabIndex={-1}>
                       {groupPieData.map((entry, i) => (<Cell key={i} fill={entry.color} />))}
                     </Pie>
-                    <Tooltip content={<PieTooltip fmt={fmt} />} />
+                    <Tooltip content={<PieTooltip fmt={fmt} />} active={activeGroupIdx !== undefined} />
                     <Legend formatter={(value) => <span className="text-sm text-foreground">{value}</span>} />
                   </PieChart>
                 </ResponsiveContainer>
@@ -180,11 +182,11 @@ export default function DashboardPage() {
             ) : (
               <div className="h-56">
                 <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie data={pieData} dataKey="total" nameKey="nome" cx="50%" cy="50%" innerRadius={50} outerRadius={85} paddingAngle={2} strokeWidth={0} activeShape={renderActiveSlice} rootTabIndex={-1}>
+                  <PieChart onClick={() => setActiveCatIdx(undefined)}>
+                    <Pie data={pieData} dataKey="total" nameKey="nome" cx="50%" cy="50%" innerRadius={50} outerRadius={85} paddingAngle={2} strokeWidth={0} activeShape={renderActiveSlice} activeIndex={activeCatIdx} onMouseDown={(_, idx) => { setActiveCatIdx(prev => prev === idx ? undefined : idx); }} rootTabIndex={-1}>
                       {pieData.map((entry, i) => (<Cell key={i} fill={entry.cor} />))}
                     </Pie>
-                    <Tooltip content={<PieTooltip fmt={fmt} />} />
+                    <Tooltip content={<PieTooltip fmt={fmt} />} active={activeCatIdx !== undefined} />
                     <Legend formatter={(value) => <span className="text-sm text-foreground">{value}</span>} />
                   </PieChart>
                 </ResponsiveContainer>

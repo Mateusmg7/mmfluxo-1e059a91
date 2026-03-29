@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/contexts/ProfileContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -19,6 +20,7 @@ const TIPO_COLORS: Record<string, string> = { essencial: '#0C5BA8', lazer: '#F97
 export default function RelatoriosPage() {
   const { user } = useAuth();
   const { activeProfile } = useProfile();
+  const [activePieIdx, setActivePieIdx] = useState<number | undefined>(undefined);
   const now = new Date();
   const monthStart = format(startOfMonth(now), 'yyyy-MM-dd');
   const monthEnd = format(endOfMonth(now), 'yyyy-MM-dd');
@@ -181,11 +183,11 @@ export default function RelatoriosPage() {
             ) : (
               <div className="h-72">
                 <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie data={pieData} dataKey="total" nameKey="nome" cx="50%" cy="50%" innerRadius={50} outerRadius={85} strokeWidth={2} stroke="hsl(var(--background))" label={renderCustomLabel} activeShape={renderActiveSlice} rootTabIndex={-1}>
+                    <PieChart onClick={() => setActivePieIdx(undefined)}>
+                      <Pie data={pieData} dataKey="total" nameKey="nome" cx="50%" cy="50%" innerRadius={50} outerRadius={85} strokeWidth={2} stroke="hsl(var(--background))" label={renderCustomLabel} activeShape={renderActiveSlice} activeIndex={activePieIdx} onMouseDown={(_, idx) => { setActivePieIdx(prev => prev === idx ? undefined : idx); }} rootTabIndex={-1}>
                       {pieData.map((entry, i) => (<Cell key={i} fill={entry.cor} />))}
                     </Pie>
-                    <Tooltip content={<PieTooltip fmt={fmt} />} />
+                    <Tooltip content={<PieTooltip fmt={fmt} />} active={activePieIdx !== undefined} />
                   </PieChart>
                 </ResponsiveContainer>
               </div>
