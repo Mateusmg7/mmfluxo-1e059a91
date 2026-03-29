@@ -28,6 +28,8 @@ const TIPO_LABELS: Record<string, string> = {
 
 export default function DashboardPage() {
   const { user } = useAuth();
+  const [activeGroupIdx, setActiveGroupIdx] = useState<number | undefined>(undefined);
+  const [activeCatIdx, setActiveCatIdx] = useState<number | undefined>(undefined);
   const { activeProfile } = useProfile();
   const now = new Date();
   const monthStart = format(startOfMonth(now), 'yyyy-MM-dd');
