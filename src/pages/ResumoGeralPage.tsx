@@ -6,7 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { format, startOfMonth, endOfMonth, subMonths, addMonths } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowDownCircle, ArrowUpCircle, Wallet, Layers, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowDownCircle, ArrowUpCircle, Layers, ChevronLeft, ChevronRight } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
@@ -42,12 +42,12 @@ export default function ResumoGeralPage() {
   const fmt = (v: number) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
   const totalDespesas = allTransactions.reduce((s, t) => s + Number(t.valor), 0);
   const totalRendaExtra = allExtraIncome.reduce((s, t) => s + Number(t.valor), 0);
-  const saldo = totalRendaExtra - totalDespesas;
+  
 
   const profileData = profiles.map((p) => {
     const despesas = allTransactions.filter((t) => t.profile_id === p.id).reduce((s, t) => s + Number(t.valor), 0);
     const renda = allExtraIncome.filter((t) => t.profile_id === p.id).reduce((s, t) => s + Number(t.valor), 0);
-    return { ...p, despesas, renda, saldo: renda - despesas };
+    return { ...p, despesas, renda };
   });
 
   const barData = profileData.map((p) => ({ name: `${p.icon} ${p.name}`, Despesas: p.despesas, 'Renda Extra': p.renda }));
@@ -73,11 +73,10 @@ export default function ResumoGeralPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {[
           { label: 'Despesas Totais', value: totalDespesas, cls: 'text-destructive', Icon: ArrowDownCircle, bg: 'bg-destructive/10' },
           { label: 'Renda Extra Total', value: totalRendaExtra, cls: 'text-accent', Icon: ArrowUpCircle, bg: 'bg-accent/10' },
-          { label: 'Saldo Geral', value: saldo, cls: saldo >= 0 ? 'text-accent' : 'text-destructive', Icon: Wallet, bg: 'bg-primary/10' },
         ].map((c, i) => (
           <Card key={c.label} className="card-glass animate-fade-up" style={{ animationDelay: `${0.05 + i * 0.05}s` }}>
             <CardContent className="pt-5 pb-4">
@@ -116,7 +115,7 @@ export default function ResumoGeralPage() {
             <CardContent className="space-y-3">
               <div className="flex justify-between text-sm"><span className="text-muted-foreground">Despesas</span><span className="text-destructive font-medium">{fmt(p.despesas)}</span></div>
               <div className="flex justify-between text-sm"><span className="text-muted-foreground">Renda Extra</span><span className="text-accent font-medium">{fmt(p.renda)}</span></div>
-              <div className="border-t border-border pt-2 flex justify-between text-sm font-semibold"><span>Saldo</span><span className={p.saldo >= 0 ? 'text-accent' : 'text-destructive'}>{fmt(p.saldo)}</span></div>
+              
               {totalDespesas > 0 && p.despesas > 0 && (
                 <div>
                   <Progress value={(p.despesas / totalDespesas) * 100} className="h-1.5" />

@@ -6,7 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { format, startOfMonth, endOfMonth } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowDownCircle, ArrowUpCircle, Wallet, TrendingUp } from 'lucide-react';
+import { ArrowDownCircle, ArrowUpCircle, TrendingUp } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import { PieTooltip } from '@/components/PieTooltip';
 import { renderActiveSlice } from '@/components/ActivePieSlice';
@@ -75,7 +75,7 @@ export default function DashboardPage() {
 
   const totalDespesas = transactions.reduce((s, t) => s + Number(t.valor), 0);
   const totalRendaExtra = extraIncome.reduce((s, t) => s + Number(t.valor), 0);
-  const saldo = totalRendaExtra - totalDespesas;
+  
 
   // Group by tipo_despesa
   const tipoTotals = transactions.reduce((acc: Record<string, number>, t: any) => {
@@ -112,7 +112,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Summary cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
         <Card className="card-glass animate-fade-up" style={{ animationDelay: '0.05s' }}>
           <CardContent className="pt-5 pb-4">
             <div className="flex items-center gap-3">
@@ -126,14 +126,6 @@ export default function DashboardPage() {
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-lg bg-accent/10"><ArrowUpCircle className="text-accent" size={20} /></div>
               <div><p className="text-xs text-muted-foreground">Renda Extra</p><p className="text-lg font-bold text-accent">{fmt(totalRendaExtra)}</p></div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="card-glass animate-fade-up" style={{ animationDelay: '0.15s' }}>
-          <CardContent className="pt-5 pb-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-primary/10"><Wallet className="text-primary" size={20} /></div>
-              <div><p className="text-xs text-muted-foreground">Saldo</p><p className={`text-lg font-bold ${saldo >= 0 ? 'text-accent' : 'text-destructive'}`}>{fmt(saldo)}</p></div>
             </div>
           </CardContent>
         </Card>

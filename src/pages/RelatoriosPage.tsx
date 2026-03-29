@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, Legend } from 'recharts';
 import { renderActiveSlice } from '@/components/ActivePieSlice';
 import { PieTooltip } from '@/components/PieTooltip';
-import { Download, FileText, BarChart3, PieChartIcon, TrendingUp, ArrowDownCircle, ArrowUpCircle, Wallet } from 'lucide-react';
+import { Download, FileText, BarChart3, PieChartIcon, TrendingUp, ArrowDownCircle, ArrowUpCircle } from 'lucide-react';
 import { exportPdf } from '@/lib/exportPdf';
 import { Progress } from '@/components/ui/progress';
 
@@ -49,7 +49,7 @@ export default function RelatoriosPage() {
 
   const totalDespesas = transactions.reduce((s, t) => s + Number(t.valor), 0);
   const totalRendaExtra = extraIncome.reduce((s, t) => s + Number(t.valor), 0);
-  const saldo = totalRendaExtra - totalDespesas;
+  
 
   // Pie: essenciais by category
   const catMap = new Map<string, { nome: string; cor: string; total: number }>();
@@ -150,11 +150,10 @@ export default function RelatoriosPage() {
       </div>
 
       {/* Summary */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {[
           { label: 'Despesas', value: totalDespesas, color: 'destructive', Icon: ArrowDownCircle },
           { label: 'Renda Extra', value: totalRendaExtra, color: 'accent', Icon: ArrowUpCircle },
-          { label: 'Saldo', value: saldo, color: saldo >= 0 ? 'accent' : 'destructive', Icon: Wallet },
         ].map((c, i) => (
           <Card key={c.label} className="card-glass overflow-hidden animate-fade-up" style={{ animationDelay: `${0.05 + i * 0.05}s` }}>
             <CardContent className="pt-5 pb-4 relative">
