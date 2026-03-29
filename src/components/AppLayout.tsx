@@ -66,10 +66,13 @@ export default function AppLayout({ children }: { children: ReactNode }) {
                     isActive
                       ? 'bg-primary/15 text-primary'
                       : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
-                  )
+                )
                 }
               >
-                <item.icon size={18} />
+                <span className="relative">
+                  <item.icon size={18} />
+                  {item.hasBadge && <AlertBadge />}
+                </span>
                 {item.label}
               </NavLink>
             ))}
