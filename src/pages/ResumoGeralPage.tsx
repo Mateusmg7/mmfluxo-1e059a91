@@ -12,7 +12,7 @@ import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 
 const TIPO_LABELS: Record<string, string> = { essencial: 'Essenciais', lazer: 'Lazer', imprevisto: 'Imprevistos', besteira: 'Besteiras' };
-const TIPO_COLORS: Record<string, string> = { essencial: '#0C5BA8', lazer: '#F97316', imprevisto: '#EF4444', besteira: '#A855F7' };
+const TIPO_COLORS: Record<string, string> = { essencial: '#0C5BA8', lazer: '#8B5CF6', imprevisto: '#EAB308', besteira: '#F97316' };
 
 export default function ResumoGeralPage() {
   const { user } = useAuth();
