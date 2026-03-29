@@ -42,7 +42,7 @@ export default function TransacoesPage() {
   const [filtroStatus, setFiltroStatus] = useState('todos');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
-  const [ordem, setOrdem] = useState('data-desc');
+  const [ordem, setOrdem] = useState('');
 
   // Form state
   const [tipoDespesa, setTipoDespesa] = useState('essencial');
