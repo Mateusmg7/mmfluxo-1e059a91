@@ -12,6 +12,7 @@ import { toast } from 'sonner';
 
 export default function AlertasPage() {
   const { reminders, isLoading, addReminder, updateReminder, deleteReminder, urgentReminders } = useBillReminders();
+  const notificationsEnabled = 'Notification' in window && Notification.permission === 'granted';
   const [showForm, setShowForm] = useState(false);
   const [nome, setNome] = useState('');
   const [valor, setValor] = useState('');
