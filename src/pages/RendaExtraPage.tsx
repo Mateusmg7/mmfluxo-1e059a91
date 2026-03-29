@@ -24,6 +24,8 @@ export default function RendaExtraPage() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [origem, setOrigem] = useState('');
   const [valor, setValor] = useState('');
   const [data, setData] = useState(format(now, 'yyyy-MM-dd'));
