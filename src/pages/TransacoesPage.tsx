@@ -308,7 +308,7 @@ export default function TransacoesPage() {
         <Select value={ordem} onValueChange={setOrdem}>
           <SelectTrigger className="w-48">
             <ArrowUpDown size={14} className="mr-1 flex-shrink-0" />
-            <SelectValue />
+            <SelectValue placeholder="Ordenar Por" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="data-desc">Data (recente → antiga)</SelectItem>
