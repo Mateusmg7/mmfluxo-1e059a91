@@ -96,6 +96,20 @@ export default function TransacoesPage() {
     if (filtroTipo !== 'todos' && t.tipo_despesa !== filtroTipo) return false;
     if (filtroStatus !== 'todos' && t.status !== filtroStatus) return false;
     return true;
+  }).sort((a: any, b: any) => {
+    const [campo, dir] = ordem.split('-');
+    const mult = dir === 'asc' ? 1 : -1;
+    if (campo === 'data') {
+      const cmp = a.data.localeCompare(b.data) || a.hora.localeCompare(b.hora);
+      return cmp * mult;
+    }
+    if (campo === 'valor') return (Number(a.valor) - Number(b.valor)) * mult;
+    if (campo === 'nome') {
+      const nA = (a.motivo || a.categories?.nome || '').toLowerCase();
+      const nB = (b.motivo || b.categories?.nome || '').toLowerCase();
+      return nA.localeCompare(nB) * mult;
+    }
+    return 0;
   });
 
   const total = filtered.reduce((s, t) => s + Number(t.valor), 0);
