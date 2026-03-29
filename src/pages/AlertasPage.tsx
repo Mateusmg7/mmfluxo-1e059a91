@@ -18,6 +18,7 @@ export default function AlertasPage() {
   const [nome, setNome] = useState('');
   const [valor, setValor] = useState('');
   const [dia, setDia] = useState('');
+  const [testReminderId, setTestReminderId] = useState<string | null>(null);
 
   // Edit state
   const [editId, setEditId] = useState<string | null>(null);
