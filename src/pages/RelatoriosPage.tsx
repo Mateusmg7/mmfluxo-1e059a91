@@ -183,7 +183,7 @@ export default function RelatoriosPage() {
                     <Pie data={pieData} dataKey="total" nameKey="nome" cx="50%" cy="50%" innerRadius={50} outerRadius={85} strokeWidth={2} stroke="hsl(var(--background))" label={renderCustomLabel}>
                       {pieData.map((entry, i) => (<Cell key={i} fill={entry.cor} />))}
                     </Pie>
-                    <Tooltip formatter={(v: number) => fmt(v)} contentStyle={{ backgroundColor: 'hsl(var(--popover))', border: '1px solid hsl(var(--border))', borderRadius: '10px', color: 'hsl(var(--popover-foreground))', fontSize: '12px', boxShadow: '0 8px 32px rgba(0,0,0,0.2)' }} />
+                    <Tooltip formatter={(v: number) => fmt(v)} contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '10px', color: 'hsl(var(--card-foreground))', fontSize: '12px', boxShadow: '0 8px 24px rgba(0,0,0,0.3)' }} itemStyle={{ color: 'hsl(var(--card-foreground))' }} labelStyle={{ color: 'hsl(var(--card-foreground))', fontWeight: 600 }} />
                   </PieChart>
                 </ResponsiveContainer>
               </div>
@@ -206,7 +206,7 @@ export default function RelatoriosPage() {
                     <CartesianGrid strokeDasharray="3 3" stroke="hsl(216 20% 12%)" vertical={false} />
                     <XAxis dataKey="semana" tick={{ fill: 'hsl(232 10% 59%)', fontSize: 11 }} axisLine={false} tickLine={false} />
                     <YAxis tick={{ fill: 'hsl(232 10% 59%)', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(v) => `R$${v >= 1000 ? `${(v / 1000).toFixed(0)}k` : v}`} />
-                    <Tooltip formatter={(v: number) => [fmt(v), 'Total']} contentStyle={{ backgroundColor: 'hsl(var(--popover))', border: '1px solid hsl(var(--border))', borderRadius: '10px', color: 'hsl(var(--popover-foreground))', fontSize: '12px', boxShadow: '0 8px 32px rgba(0,0,0,0.2)' }} />
+                    <Tooltip formatter={(v: number) => [fmt(v), 'Total']} contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '10px', color: 'hsl(var(--card-foreground))', fontSize: '12px', boxShadow: '0 8px 24px rgba(0,0,0,0.3)' }} itemStyle={{ color: 'hsl(var(--card-foreground))' }} labelStyle={{ color: 'hsl(var(--card-foreground))', fontWeight: 600 }} />
                     <Bar dataKey="total" fill="url(#barGradient)" radius={[6, 6, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
