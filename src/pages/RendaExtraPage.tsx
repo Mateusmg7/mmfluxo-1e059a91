@@ -153,15 +153,6 @@ export default function RendaExtraPage() {
         </Dialog>
       </div>
 
-      <div className="flex gap-3">
-        <Select value={periodo} onValueChange={setPeriodo}>
-          <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="atual">Mês atual</SelectItem>
-            <SelectItem value="anterior">Mês anterior</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
 
       <Card className="card-glass">
         <CardContent className="py-4 flex items-center justify-between">
