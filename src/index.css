@@ -159,6 +159,7 @@
     100% { background-position: -50% 50%; }
   }
 
+
   .glass-header {
     @apply bg-background/80 backdrop-blur-md;
   }
