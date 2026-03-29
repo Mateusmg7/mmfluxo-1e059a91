@@ -6,7 +6,8 @@ import { format, startOfMonth, endOfMonth } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowDownCircle, ArrowUpCircle, Wallet, TrendingUp } from 'lucide-react';
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend, Sector } from 'recharts';
+import { PieTooltip } from '@/components/PieTooltip';
 import { Progress } from '@/components/ui/progress';
 
 const COLORS_MAP: Record<string, string> = {
