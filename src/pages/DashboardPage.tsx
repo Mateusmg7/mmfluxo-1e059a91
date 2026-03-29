@@ -95,13 +95,26 @@ export default function DashboardPage() {
     .map(([key, name]) => ({ name, value: tipoTotals[key] ?? 0, color: COLORS_MAP[key] }))
     .filter((d) => d.value > 0);
 
+  const groupTotal = groupPieData.reduce((s, d) => s + d.value, 0);
+  const groupPieDataWithPct = groupPieData.map(d => ({
+    ...d,
+    pct: groupTotal > 0 ? ((d.value / groupTotal) * 100).toFixed(1) : '0',
+  }));
+
+  // Distinct colors for essential categories
+  const DISTINCT_CAT_COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#06B6D4', '#F97316', '#14B8A6', '#6366F1'];
+
   // Pie by category (essenciais only)
   const catMap = new Map<string, { nome: string; cor: string; total: number }>();
+  let catIdx = 0;
   transactions.filter((t: any) => t.tipo_despesa === 'essencial' && t.categories).forEach((t: any) => {
     const name = t.categories?.nome ?? 'Outros';
     const existing = catMap.get(name);
     if (existing) existing.total += Number(t.valor);
-    else catMap.set(name, { nome: name, cor: t.categories?.cor_hex ?? '#666', total: Number(t.valor) });
+    else {
+      catMap.set(name, { nome: name, cor: DISTINCT_CAT_COLORS[catIdx % DISTINCT_CAT_COLORS.length], total: Number(t.valor) });
+      catIdx++;
+    }
   });
   const pieData = Array.from(catMap.values()).sort((a, b) => b.total - a.total);
 
