@@ -42,7 +42,7 @@ export default function ResumoGeralPage() {
   const fmt = (v: number) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
   const totalDespesas = allTransactions.reduce((s, t) => s + Number(t.valor), 0);
   const totalRendaExtra = allExtraIncome.reduce((s, t) => s + Number(t.valor), 0);
-  const saldo = totalRendaExtra - totalDespesas;
+  
 
   const profileData = profiles.map((p) => {
     const despesas = allTransactions.filter((t) => t.profile_id === p.id).reduce((s, t) => s + Number(t.valor), 0);
