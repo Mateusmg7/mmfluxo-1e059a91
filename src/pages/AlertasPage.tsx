@@ -242,7 +242,31 @@ export default function AlertasPage() {
         </Card>
       )}
 
-      {urgentReminders.length > 0 && (
+      {/* Configuração do intervalo de notificação automática */}
+      <Card>
+        <CardContent className="py-3 flex flex-col sm:flex-row items-start sm:items-center gap-3">
+          <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground shrink-0">
+            <Clock size={14} />
+            Notificação Automática
+          </div>
+          <Select value={String(notifInterval)} onValueChange={handleIntervalChange} disabled={intervalLoading}>
+            <SelectTrigger className="w-full sm:w-[200px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="1">A cada 1 hora</SelectItem>
+              <SelectItem value="2">A cada 2 horas</SelectItem>
+              <SelectItem value="3">A cada 3 horas</SelectItem>
+              <SelectItem value="6">A cada 6 horas</SelectItem>
+              <SelectItem value="9">A cada 9 horas</SelectItem>
+              <SelectItem value="12">A cada 12 horas</SelectItem>
+              <SelectItem value="24">A cada 24 horas</SelectItem>
+            </SelectContent>
+          </Select>
+          <span className="text-xs text-muted-foreground">Notifica 1 dia antes e no dia do vencimento</span>
+        </CardContent>
+      </Card>
+
         <Card className="border-yellow-500/50 bg-yellow-500/10">
           <CardContent className="py-4">
             <div className="flex items-center gap-2 mb-2">
