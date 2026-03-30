@@ -284,6 +284,39 @@ export default function AlertasPage() {
         </CardContent>
       </Card>
 
+      {/* Indicador da próxima notificação */}
+      {notificationsEnabled && (
+        <Card className="border-primary/20 bg-primary/5">
+          <CardContent className="py-3 flex items-center gap-3">
+            <Bell size={16} className="text-primary shrink-0" />
+            <div className="text-sm">
+              {lastPushSentAt ? (
+                <>
+                  <span className="text-muted-foreground">Última notificação: </span>
+                  <span className="font-medium text-foreground">
+                    {new Date(lastPushSentAt).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
+                  </span>
+                  <span className="text-muted-foreground"> · Próxima em: </span>
+                  <span className="font-medium text-primary">
+                    {(() => {
+                      const next = new Date(new Date(lastPushSentAt).getTime() + notifInterval * 3600000);
+                      const now = new Date();
+                      if (next <= now) return 'A qualquer momento';
+                      const diffMs = next.getTime() - now.getTime();
+                      const diffH = Math.floor(diffMs / 3600000);
+                      const diffM = Math.floor((diffMs % 3600000) / 60000);
+                      return diffH > 0 ? `${diffH}h ${diffM}min` : `${diffM}min`;
+                    })()}
+                  </span>
+                </>
+              ) : (
+                <span className="text-muted-foreground">Nenhuma notificação enviada ainda. A próxima será verificada em breve.</span>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {urgentReminders.length > 0 && (
         <Card className="border-yellow-500/50 bg-yellow-500/10">
           <CardContent className="py-4">
