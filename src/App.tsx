@@ -26,6 +26,11 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
   if (loading) return <div className="min-h-screen flex items-center justify-center bg-background"><div className="text-muted-foreground">Carregando...</div></div>;
   if (!user) return <Navigate to="/login" replace />;
+  return <AppLayoutWithPush>{children}</AppLayoutWithPush>;
+}
+
+function AppLayoutWithPush({ children }: { children: React.ReactNode }) {
+  usePushSubscription();
   return <AppLayout>{children}</AppLayout>;
 }
 
