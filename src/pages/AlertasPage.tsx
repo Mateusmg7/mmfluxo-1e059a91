@@ -183,7 +183,8 @@ export default function AlertasPage() {
         <Button
           variant={notificationsEnabled ? "default" : "outline"}
           size="sm"
-          onClick={handleEnableNotifications}
+          onClick={handleToggleNotifications}
+          disabled={notifLoading}
           className={notificationsEnabled ? "bg-primary text-primary-foreground" : ""}
         >
           {notificationsEnabled ? <Bell size={16} className="text-primary-foreground" /> : <BellOff size={16} />}
