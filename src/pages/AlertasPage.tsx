@@ -267,6 +267,7 @@ export default function AlertasPage() {
         </CardContent>
       </Card>
 
+      {urgentReminders.length > 0 && (
         <Card className="border-yellow-500/50 bg-yellow-500/10">
           <CardContent className="py-4">
             <div className="flex items-center gap-2 mb-2">
