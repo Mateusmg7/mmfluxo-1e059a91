@@ -1,5 +1,6 @@
 import { createRoot } from "react-dom/client";
 import { registerSW } from "virtual:pwa-register";
+import { getNotificationServiceWorkerRegistration } from "@/lib/notificationServiceWorker";
 import App from "./App.tsx";
 import "./index.css";
 
@@ -27,7 +28,7 @@ if (isPreviewHost || isInIframe) {
 
   // Also register notification SW
   window.addEventListener("load", () => {
-    navigator.serviceWorker.register("/notification-sw.js").catch(() => {});
+    getNotificationServiceWorkerRegistration().catch(() => {});
   });
 }
 

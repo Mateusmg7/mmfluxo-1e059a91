@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { getNotificationServiceWorkerRegistration } from '@/lib/notificationServiceWorker';
 
 const VAPID_PUBLIC_KEY = 'BBoGobTKXKkUZiElB60iyievvJyDAuScrv7JB0JHQz2PvIqaHa8hMm0nZoyOxpHsSmyzUhHtGSI02bO4nN2uUT4';
 
@@ -25,7 +26,8 @@ export function usePushSubscription() {
 
     const subscribe = async () => {
       try {
-        const registration = await navigator.serviceWorker.ready;
+        const registration = await getNotificationServiceWorkerRegistration();
+        if (!registration) return;
         
         // Check if already subscribed
         let subscription = await registration.pushManager.getSubscription();

@@ -1,12 +1,14 @@
 import { useEffect, useRef } from 'react';
 import { BillReminder } from './useBillReminders';
+import { getNotificationServiceWorkerRegistration } from '@/lib/notificationServiceWorker';
 
 async function showSystemNotification(title: string, options: NotificationOptions) {
   if (!('Notification' in window)) return false;
 
   try {
     if ('serviceWorker' in navigator) {
-      const registration = await navigator.serviceWorker.ready;
+      const registration = await getNotificationServiceWorkerRegistration();
+      if (!registration) return false;
       await registration.showNotification(title, options);
       return true;
     }
