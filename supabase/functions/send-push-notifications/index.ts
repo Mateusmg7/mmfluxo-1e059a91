@@ -6,7 +6,6 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-// Web Push helpers using Web Crypto API
 function base64UrlToUint8Array(base64Url: string): Uint8Array {
   const padding = "=".repeat((4 - (base64Url.length % 4)) % 4);
   const base64 = (base64Url + padding).replace(/-/g, "+").replace(/_/g, "/");
@@ -38,27 +37,21 @@ async function generateVapidJwt(
     sub: "mailto:noreply@mmfluxo.lovable.app",
   };
 
-  const headerB64 = uint8ArrayToBase64Url(
-    new TextEncoder().encode(JSON.stringify(header))
-  );
-  const payloadB64 = uint8ArrayToBase64Url(
-    new TextEncoder().encode(JSON.stringify(payload))
-  );
+  const headerB64 = uint8ArrayToBase64Url(new TextEncoder().encode(JSON.stringify(header)));
+  const payloadB64 = uint8ArrayToBase64Url(new TextEncoder().encode(JSON.stringify(payload)));
   const unsignedToken = `${headerB64}.${payloadB64}`;
 
   const privateKeyBytes = base64UrlToUint8Array(vapidPrivateKeyBase64Url);
+  const pubKeyBytes = base64UrlToUint8Array(vapidPublicKeyBase64Url);
+
   const key = await crypto.subtle.importKey(
     "jwk",
     {
       kty: "EC",
       crv: "P-256",
       d: uint8ArrayToBase64Url(privateKeyBytes),
-      x: uint8ArrayToBase64Url(
-        base64UrlToUint8Array(vapidPublicKeyBase64Url).slice(1, 33)
-      ),
-      y: uint8ArrayToBase64Url(
-        base64UrlToUint8Array(vapidPublicKeyBase64Url).slice(33, 65)
-      ),
+      x: uint8ArrayToBase64Url(pubKeyBytes.slice(1, 33)),
+      y: uint8ArrayToBase64Url(pubKeyBytes.slice(33, 65)),
     },
     { name: "ECDSA", namedCurve: "P-256" },
     false,
@@ -71,22 +64,16 @@ async function generateVapidJwt(
     new TextEncoder().encode(unsignedToken)
   );
 
-  // Convert DER signature to raw r||s format
   const sigArray = new Uint8Array(signature);
-  let r: Uint8Array, s: Uint8Array;
-
-  if (sigArray.length === 64) {
-    r = sigArray.slice(0, 32);
-    s = sigArray.slice(32);
-  } else {
-    // DER format
-    r = sigArray.slice(0, 32);
-    s = sigArray.slice(32, 64);
-  }
-
   const rawSig = new Uint8Array(64);
-  rawSig.set(r.length > 32 ? r.slice(r.length - 32) : r, 32 - Math.min(r.length, 32));
-  rawSig.set(s.length > 32 ? s.slice(s.length - 32) : s, 64 - Math.min(s.length, 32));
+  if (sigArray.length === 64) {
+    rawSig.set(sigArray);
+  } else {
+    const r = sigArray.slice(0, 32);
+    const s = sigArray.slice(32, 64);
+    rawSig.set(r.length > 32 ? r.slice(r.length - 32) : r, 32 - Math.min(r.length, 32));
+    rawSig.set(s.length > 32 ? s.slice(s.length - 32) : s, 64 - Math.min(s.length, 32));
+  }
 
   const jwt = `${unsignedToken}.${uint8ArrayToBase64Url(rawSig)}`;
 
@@ -121,9 +108,8 @@ async function sendWebPush(
     });
 
     if (response.status === 410 || response.status === 404) {
-      return false; // subscription expired
+      return false;
     }
-
     return response.ok;
   } catch (e) {
     console.error("Push send error:", e);
@@ -158,12 +144,11 @@ Deno.serve(async (req: Request) => {
           testPayload = body.payload;
         }
       } catch {
-        // not JSON, proceed with scheduled logic
+        // not JSON body, proceed with scheduled logic
       }
     }
 
     if (isTest && testUserId && testPayload) {
-      // Send test notification to specific user
       const { data: subs } = await supabase
         .from("push_subscriptions")
         .select("*")
@@ -186,7 +171,6 @@ Deno.serve(async (req: Request) => {
         );
         if (ok) sent++;
         else {
-          // Remove expired subscription
           await supabase.from("push_subscriptions").delete().eq("id", sub.id);
         }
       }
@@ -197,11 +181,12 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    // Scheduled: check all users' bill reminders for today/tomorrow
+    // === SCHEDULED MODE ===
     const now = new Date();
     const today = now.getDate();
     const tomorrow = new Date(now.getTime() + 86400000).getDate();
 
+    // Get all active reminders for today/tomorrow
     const { data: reminders } = await supabase
       .from("bill_reminders")
       .select("*")
@@ -216,22 +201,44 @@ Deno.serve(async (req: Request) => {
     }
 
     // Group reminders by user
-    const byUser = new Map<string, typeof reminders>();
-    for (const r of reminders) {
-      const list = byUser.get(r.user_id) || [];
-      list.push(r);
-      byUser.set(r.user_id, list);
-    }
+    const userIds = [...new Set(reminders.map((r) => r.user_id))];
+
+    // Get user profiles to check interval preferences
+    const { data: profiles } = await supabase
+      .from("profiles")
+      .select("user_id, notif_interval_hours, last_push_sent_at")
+      .in("user_id", userIds);
+
+    const profileMap = new Map(
+      (profiles || []).map((p) => [p.user_id, p])
+    );
 
     let totalSent = 0;
+    const usersNotified: string[] = [];
 
-    for (const [userId, userReminders] of byUser) {
+    for (const userId of userIds) {
+      const profile = profileMap.get(userId);
+      const intervalHours = profile?.notif_interval_hours ?? 9;
+      const lastSent = profile?.last_push_sent_at
+        ? new Date(profile.last_push_sent_at)
+        : null;
+
+      // Check if enough time has passed since last notification
+      if (lastSent) {
+        const hoursSinceLast = (now.getTime() - lastSent.getTime()) / (1000 * 60 * 60);
+        if (hoursSinceLast < intervalHours) {
+          continue; // Skip this user, not enough time has passed
+        }
+      }
+
       const { data: subs } = await supabase
         .from("push_subscriptions")
         .select("*")
         .eq("user_id", userId);
 
       if (!subs || subs.length === 0) continue;
+
+      const userReminders = reminders.filter((r) => r.user_id === userId);
 
       for (const r of userReminders) {
         const isToday = r.dia_vencimento === today;
@@ -257,10 +264,20 @@ Deno.serve(async (req: Request) => {
           }
         }
       }
+
+      usersNotified.push(userId);
+    }
+
+    // Update last_push_sent_at for all notified users
+    for (const userId of usersNotified) {
+      await supabase
+        .from("profiles")
+        .update({ last_push_sent_at: now.toISOString() })
+        .eq("user_id", userId);
     }
 
     return new Response(
-      JSON.stringify({ sent: totalSent }),
+      JSON.stringify({ sent: totalSent, users_notified: usersNotified.length }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {
