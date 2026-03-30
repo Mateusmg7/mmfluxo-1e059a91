@@ -36,12 +36,14 @@ export default function AlertasPage() {
   // Notification interval state
   const [notifInterval, setNotifInterval] = useState<number>(9);
   const [intervalLoading, setIntervalLoading] = useState(false);
+  const [lastPushSentAt, setLastPushSentAt] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) return;
-    (supabase as any).from('profiles').select('notif_interval_hours, notifications_enabled').eq('user_id', user.id).single().then(({ data }: any) => {
+    (supabase as any).from('profiles').select('notif_interval_hours, notifications_enabled, last_push_sent_at').eq('user_id', user.id).single().then(({ data }: any) => {
       if (data?.notif_interval_hours) setNotifInterval(data.notif_interval_hours);
       if (data?.notifications_enabled !== undefined) setNotificationsEnabled(data.notifications_enabled);
+      if (data?.last_push_sent_at !== undefined) setLastPushSentAt(data.last_push_sent_at);
     });
   }, [user]);
 
