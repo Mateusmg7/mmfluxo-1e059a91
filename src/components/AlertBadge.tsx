@@ -1,9 +1,7 @@
 import { useBillReminders } from '@/hooks/useBillReminders';
-import { useNotifications } from '@/hooks/useNotifications';
 
 export default function AlertBadge() {
   const { urgentReminders } = useBillReminders();
-  useNotifications(urgentReminders);
 
   if (urgentReminders.length === 0) return null;
 
