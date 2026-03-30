@@ -176,9 +176,8 @@ export default function AlertasPage() {
               disabled={!testReminderId}
               onClick={async () => {
                 const r = reminders.find(rem => rem.id === testReminderId);
-                if (!r) return;
+                if (!r || !user) return;
 
-                // Request permission if not yet granted
                 if (!notificationsEnabled) {
                   const granted = await requestNotificationPermission();
                   if (!granted) {
@@ -187,11 +186,28 @@ export default function AlertasPage() {
                   }
                 }
 
-                const sent = await sendTestNotification(r);
-                if (sent) {
-                  toast.success(`🔔 Notificação enviada: ${r.nome}`);
+                const today = new Date().getDate();
+                const tomorrow = new Date(Date.now() + 86400000).getDate();
+                const isToday = r.dia_vencimento === today;
+                const isTomorrow = r.dia_vencimento === tomorrow;
+                const label = isToday ? 'Conta vencendo hoje' : isTomorrow ? 'Conta vencendo amanhã' : `Conta vence dia ${r.dia_vencimento}`;
+                const valorStr = r.valor ? ` - R$ ${r.valor.toFixed(2)}` : '';
+
+                const pushSent = await sendTestPushNotification(user.id, {
+                  title: `💰 ${label}`,
+                  body: `${r.nome}${valorStr}`,
+                  tag: `test-${r.id}-${Date.now()}`,
+                });
+
+                if (pushSent) {
+                  toast.success(`🔔 Notificação push enviada: ${r.nome}`);
                 } else {
-                  toast.error('Não foi possível enviar a notificação do sistema neste dispositivo.');
+                  const sent = await sendTestNotification(r);
+                  if (sent) {
+                    toast.success(`🔔 Notificação enviada: ${r.nome}`);
+                  } else {
+                    toast.error('Não foi possível enviar a notificação. Verifique se as notificações estão ativadas.');
+                  }
                 }
               }}
             >
