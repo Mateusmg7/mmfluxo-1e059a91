@@ -14,6 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { toast } from 'sonner';
 
 export default function AlertasPage() {
+  const { user } = useAuth();
   const { reminders, isLoading, addReminder, updateReminder, deleteReminder, urgentReminders } = useBillReminders();
   const notificationsEnabled = 'Notification' in window && Notification.permission === 'granted';
   const [showForm, setShowForm] = useState(false);
