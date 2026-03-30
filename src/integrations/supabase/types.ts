@@ -237,6 +237,7 @@ export type Database = {
           mes_referencia_inicio: number
           name: string
           notif_interval_hours: number
+          notifications_enabled: boolean
           updated_at: string
           user_id: string
         }
@@ -249,6 +250,7 @@ export type Database = {
           mes_referencia_inicio?: number
           name?: string
           notif_interval_hours?: number
+          notifications_enabled?: boolean
           updated_at?: string
           user_id: string
         }
@@ -261,6 +263,7 @@ export type Database = {
           mes_referencia_inicio?: number
           name?: string
           notif_interval_hours?: number
+          notifications_enabled?: boolean
           updated_at?: string
           user_id?: string
         }
