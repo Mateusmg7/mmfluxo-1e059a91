@@ -149,18 +149,29 @@ export default function AlertasPage() {
     setDeleteId(null);
   };
 
-  const handleEnableNotifications = async () => {
-    if (notificationsEnabled) {
-      toast.info('Para desativar notificações, altere nas configurações do seu navegador (Configurações > Notificações).');
-      return;
+  const handleToggleNotifications = async () => {
+    if (!user) return;
+    setNotifLoading(true);
+    const newValue = !notificationsEnabled;
+
+    // If enabling, request browser permission first
+    if (newValue) {
+      const granted = await requestNotificationPermission();
+      if (!granted) {
+        toast.error('Permissão de notificação negada. Ative nas configurações do navegador.');
+        setNotifLoading(false);
+        return;
+      }
     }
-    const granted = await requestNotificationPermission();
-    setNotifPermission(Notification.permission);
-    if (granted) {
-      toast.success('Notificações ativadas!');
-    } else {
-      toast.error('Permissão de notificação negada. Ative nas configurações do navegador.');
+
+    try {
+      await (supabase as any).from('profiles').update({ notifications_enabled: newValue }).eq('user_id', user.id);
+      setNotificationsEnabled(newValue);
+      toast.success(newValue ? 'Notificações ativadas!' : 'Notificações desativadas!');
+    } catch {
+      toast.error('Erro ao atualizar notificações');
     }
+    setNotifLoading(false);
   };
 
   const today = new Date().getDate();
