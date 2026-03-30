@@ -181,13 +181,13 @@ export default function AlertasPage() {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-foreground">Alertas</h1>
         <Button
-          variant={notificationsEnabled ? "default" : "outline"}
+          variant={notificationsEnabled ? "destructive" : "outline"}
           size="sm"
           onClick={handleToggleNotifications}
           disabled={notifLoading}
-          className={notificationsEnabled ? "bg-primary text-primary-foreground" : ""}
+          className={!notificationsEnabled ? "opacity-50" : ""}
         >
-          {notificationsEnabled ? <Bell size={16} className="text-primary-foreground" /> : <BellOff size={16} />}
+          {notificationsEnabled ? <Bell size={16} /> : <BellOff size={16} />}
           {notificationsEnabled ? 'Desativar Notificações' : 'Ativar Notificações'}
         </Button>
       </div>
