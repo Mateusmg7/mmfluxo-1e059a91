@@ -16,8 +16,14 @@ if (isPreviewHost || isInIframe) {
     regs.forEach((r) => r.unregister())
   );
 } else if ("serviceWorker" in navigator) {
-  // Register PWA service worker (auto-update)
-  registerSW({ immediate: true });
+  // Register PWA service worker (prompt update, no auto-reload)
+  const updateSW = registerSW({
+    immediate: true,
+    onNeedRefresh() {
+      // Silently update without reloading
+      updateSW(true);
+    },
+  });
 
   // Also register notification SW
   window.addEventListener("load", () => {
