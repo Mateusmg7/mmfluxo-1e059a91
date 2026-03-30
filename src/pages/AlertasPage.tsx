@@ -17,7 +17,10 @@ import { toast } from 'sonner';
 export default function AlertasPage() {
   const { user } = useAuth();
   const { reminders, isLoading, addReminder, updateReminder, deleteReminder, urgentReminders } = useBillReminders();
-  const notificationsEnabled = 'Notification' in window && Notification.permission === 'granted';
+  const [notifPermission, setNotifPermission] = useState<NotificationPermission>(
+    'Notification' in window ? Notification.permission : 'denied'
+  );
+  const notificationsEnabled = notifPermission === 'granted';
   const [showForm, setShowForm] = useState(false);
   const [nome, setNome] = useState('');
   const [valor, setValor] = useState('');
