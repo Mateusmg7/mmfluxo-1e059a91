@@ -39,8 +39,9 @@ export default function AlertasPage() {
 
   useEffect(() => {
     if (!user) return;
-    (supabase as any).from('profiles').select('notif_interval_hours').eq('user_id', user.id).single().then(({ data }: any) => {
+    (supabase as any).from('profiles').select('notif_interval_hours, notifications_enabled').eq('user_id', user.id).single().then(({ data }: any) => {
       if (data?.notif_interval_hours) setNotifInterval(data.notif_interval_hours);
+      if (data?.notifications_enabled !== undefined) setNotificationsEnabled(data.notifications_enabled);
     });
   }, [user]);
 
