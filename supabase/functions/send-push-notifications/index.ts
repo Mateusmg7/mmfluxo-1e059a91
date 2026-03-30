@@ -102,7 +102,7 @@ Deno.serve(async (req: Request) => {
 
     const { data: profiles } = await supabase
       .from("profiles")
-      .select("user_id, notif_interval_hours, last_push_sent_at")
+      .select("user_id, notif_interval_hours, last_push_sent_at, notifications_enabled")
       .in("user_id", userIds);
 
     const profileMap = new Map(
@@ -114,6 +114,10 @@ Deno.serve(async (req: Request) => {
 
     for (const userId of userIds) {
       const profile = profileMap.get(userId);
+      
+      // Skip if user disabled notifications
+      if (profile?.notifications_enabled === false) continue;
+
       const intervalHours = profile?.notif_interval_hours ?? 9;
       const lastSent = profile?.last_push_sent_at
         ? new Date(profile.last_push_sent_at)

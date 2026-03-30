@@ -17,10 +17,8 @@ import { toast } from 'sonner';
 export default function AlertasPage() {
   const { user } = useAuth();
   const { reminders, isLoading, addReminder, updateReminder, deleteReminder, urgentReminders } = useBillReminders();
-  const [notifPermission, setNotifPermission] = useState<NotificationPermission>(
-    'Notification' in window ? Notification.permission : 'denied'
-  );
-  const notificationsEnabled = notifPermission === 'granted';
+  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const [notifLoading, setNotifLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [nome, setNome] = useState('');
   const [valor, setValor] = useState('');
@@ -41,8 +39,9 @@ export default function AlertasPage() {
 
   useEffect(() => {
     if (!user) return;
-    (supabase as any).from('profiles').select('notif_interval_hours').eq('user_id', user.id).single().then(({ data }: any) => {
+    (supabase as any).from('profiles').select('notif_interval_hours, notifications_enabled').eq('user_id', user.id).single().then(({ data }: any) => {
       if (data?.notif_interval_hours) setNotifInterval(data.notif_interval_hours);
+      if (data?.notifications_enabled !== undefined) setNotificationsEnabled(data.notifications_enabled);
     });
   }, [user]);
 
@@ -150,18 +149,29 @@ export default function AlertasPage() {
     setDeleteId(null);
   };
 
-  const handleEnableNotifications = async () => {
-    if (notificationsEnabled) {
-      toast.info('Para desativar notificações, altere nas configurações do seu navegador (Configurações > Notificações).');
-      return;
+  const handleToggleNotifications = async () => {
+    if (!user) return;
+    setNotifLoading(true);
+    const newValue = !notificationsEnabled;
+
+    // If enabling, request browser permission first
+    if (newValue) {
+      const granted = await requestNotificationPermission();
+      if (!granted) {
+        toast.error('Permissão de notificação negada. Ative nas configurações do navegador.');
+        setNotifLoading(false);
+        return;
+      }
     }
-    const granted = await requestNotificationPermission();
-    setNotifPermission(Notification.permission);
-    if (granted) {
-      toast.success('Notificações ativadas!');
-    } else {
-      toast.error('Permissão de notificação negada. Ative nas configurações do navegador.');
+
+    try {
+      await (supabase as any).from('profiles').update({ notifications_enabled: newValue }).eq('user_id', user.id);
+      setNotificationsEnabled(newValue);
+      toast.success(newValue ? 'Notificações ativadas!' : 'Notificações desativadas!');
+    } catch {
+      toast.error('Erro ao atualizar notificações');
     }
+    setNotifLoading(false);
   };
 
   const today = new Date().getDate();
@@ -173,7 +183,8 @@ export default function AlertasPage() {
         <Button
           variant={notificationsEnabled ? "default" : "outline"}
           size="sm"
-          onClick={handleEnableNotifications}
+          onClick={handleToggleNotifications}
+          disabled={notifLoading}
           className={notificationsEnabled ? "bg-primary text-primary-foreground" : ""}
         >
           {notificationsEnabled ? <Bell size={16} className="text-primary-foreground" /> : <BellOff size={16} />}
