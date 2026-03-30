@@ -48,6 +48,7 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
+      <InstallPWA />
       <BrowserRouter>
         <AuthProvider>
           <ProfileProvider>
