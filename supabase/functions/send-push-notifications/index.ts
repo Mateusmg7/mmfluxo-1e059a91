@@ -16,9 +16,11 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    const vapidPrivateKey = Deno.env.get("VAPID_PRIVATE_KEY")!;
+    const vapidPrivateKey = (Deno.env.get("VAPID_PRIVATE_KEY") || "").trim();
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+
+    console.log("VAPID key length:", vapidPrivateKey.length, "chars:", JSON.stringify(vapidPrivateKey.slice(0, 5) + "..." + vapidPrivateKey.slice(-5)));
 
     webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC_KEY, vapidPrivateKey);
 
