@@ -233,8 +233,10 @@ export type Database = {
           email: string
           fuso_horario: string
           id: string
+          last_push_sent_at: string | null
           mes_referencia_inicio: number
           name: string
+          notif_interval_hours: number
           updated_at: string
           user_id: string
         }
@@ -243,8 +245,10 @@ export type Database = {
           email?: string
           fuso_horario?: string
           id?: string
+          last_push_sent_at?: string | null
           mes_referencia_inicio?: number
           name?: string
+          notif_interval_hours?: number
           updated_at?: string
           user_id: string
         }
@@ -253,8 +257,10 @@ export type Database = {
           email?: string
           fuso_horario?: string
           id?: string
+          last_push_sent_at?: string | null
           mes_referencia_inicio?: number
           name?: string
+          notif_interval_hours?: number
           updated_at?: string
           user_id?: string
         }
