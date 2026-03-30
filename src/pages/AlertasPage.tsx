@@ -156,16 +156,6 @@ export default function AlertasPage() {
     setNotifLoading(true);
     const newValue = !notificationsEnabled;
 
-    // If enabling, request browser permission first
-    if (newValue) {
-      const granted = await requestNotificationPermission();
-      if (!granted) {
-        toast.error('Permissão de notificação negada. Ative nas configurações do navegador.');
-        setNotifLoading(false);
-        return;
-      }
-    }
-
     try {
       await (supabase as any).from('profiles').update({ notifications_enabled: newValue }).eq('user_id', user.id);
       setNotificationsEnabled(newValue);
