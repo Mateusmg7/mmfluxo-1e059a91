@@ -1,15 +1,16 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useBillReminders, BillReminder } from '@/hooks/useBillReminders';
 import { requestNotificationPermission, sendTestNotification } from '@/hooks/useNotifications';
 import { sendTestPushNotification } from '@/hooks/usePushSubscription';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ConfirmDeleteDialog } from '@/components/ConfirmDeleteDialog';
-import { Bell, BellOff, Plus, Trash2, Pencil, AlertTriangle, Send } from 'lucide-react';
+import { Bell, BellOff, Plus, Trash2, Pencil, AlertTriangle, Send, Clock } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 
@@ -30,6 +31,30 @@ export default function AlertasPage() {
   // Delete confirmation state
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+
+  // Notification interval state
+  const [notifInterval, setNotifInterval] = useState<number>(9);
+  const [intervalLoading, setIntervalLoading] = useState(false);
+
+  useEffect(() => {
+    if (!user) return;
+    (supabase as any).from('profiles').select('notif_interval_hours').eq('user_id', user.id).single().then(({ data }: any) => {
+      if (data?.notif_interval_hours) setNotifInterval(data.notif_interval_hours);
+    });
+  }, [user]);
+
+  const handleIntervalChange = async (value: string) => {
+    const hours = parseInt(value);
+    setNotifInterval(hours);
+    setIntervalLoading(true);
+    try {
+      await (supabase as any).from('profiles').update({ notif_interval_hours: hours }).eq('user_id', user!.id);
+      toast.success(`Intervalo de notificação atualizado para ${hours}h`);
+    } catch {
+      toast.error('Erro ao atualizar intervalo');
+    }
+    setIntervalLoading(false);
+  };
 
   const handleAdd = async () => {
     if (!nome.trim() || !dia) {
@@ -216,6 +241,31 @@ export default function AlertasPage() {
           </CardContent>
         </Card>
       )}
+
+      {/* Configuração do intervalo de notificação automática */}
+      <Card>
+        <CardContent className="py-3 flex flex-col sm:flex-row items-start sm:items-center gap-3">
+          <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground shrink-0">
+            <Clock size={14} />
+            Notificação Automática
+          </div>
+          <Select value={String(notifInterval)} onValueChange={handleIntervalChange} disabled={intervalLoading}>
+            <SelectTrigger className="w-full sm:w-[200px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="1">A cada 1 hora</SelectItem>
+              <SelectItem value="2">A cada 2 horas</SelectItem>
+              <SelectItem value="3">A cada 3 horas</SelectItem>
+              <SelectItem value="6">A cada 6 horas</SelectItem>
+              <SelectItem value="9">A cada 9 horas</SelectItem>
+              <SelectItem value="12">A cada 12 horas</SelectItem>
+              <SelectItem value="24">A cada 24 horas</SelectItem>
+            </SelectContent>
+          </Select>
+          <span className="text-xs text-muted-foreground">Notifica 1 dia antes e no dia do vencimento</span>
+        </CardContent>
+      </Card>
 
       {urgentReminders.length > 0 && (
         <Card className="border-yellow-500/50 bg-yellow-500/10">
