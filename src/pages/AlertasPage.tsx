@@ -152,10 +152,11 @@ export default function AlertasPage() {
 
   const handleEnableNotifications = async () => {
     if (notificationsEnabled) {
-      toast.info('Para desativar notificações, altere nas configurações do navegador.');
+      toast.info('Para desativar notificações, altere nas configurações do seu navegador (Configurações > Notificações).');
       return;
     }
     const granted = await requestNotificationPermission();
+    setNotifPermission(Notification.permission);
     if (granted) {
       toast.success('Notificações ativadas!');
     } else {
