@@ -32,6 +32,30 @@ export default function AlertasPage() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
+  // Notification interval state
+  const [notifInterval, setNotifInterval] = useState<number>(9);
+  const [intervalLoading, setIntervalLoading] = useState(false);
+
+  useEffect(() => {
+    if (!user) return;
+    (supabase as any).from('profiles').select('notif_interval_hours').eq('user_id', user.id).single().then(({ data }: any) => {
+      if (data?.notif_interval_hours) setNotifInterval(data.notif_interval_hours);
+    });
+  }, [user]);
+
+  const handleIntervalChange = async (value: string) => {
+    const hours = parseInt(value);
+    setNotifInterval(hours);
+    setIntervalLoading(true);
+    try {
+      await (supabase as any).from('profiles').update({ notif_interval_hours: hours }).eq('user_id', user!.id);
+      toast.success(`Intervalo de notificação atualizado para ${hours}h`);
+    } catch {
+      toast.error('Erro ao atualizar intervalo');
+    }
+    setIntervalLoading(false);
+  };
+
   const handleAdd = async () => {
     if (!nome.trim() || !dia) {
       toast.error('Preencha o nome e o dia de vencimento');
