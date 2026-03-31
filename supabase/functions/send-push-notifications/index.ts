@@ -74,6 +74,15 @@ Deno.serve(async (req: Request) => {
         }
       }
 
+      if (sent > 0) {
+        await supabase.from("notification_logs").insert({
+          user_id: testUserId,
+          title: testPayload.title,
+          body: testPayload.body,
+          type: "test",
+        });
+      }
+
       return new Response(
         JSON.stringify({ sent }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
