@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { getNotificationServiceWorkerRegistration } from '@/lib/notificationServiceWorker';
 
-const VAPID_PUBLIC_KEY = 'BBoGobTKXKkUZiElB60iyievvJyDAuScrv7JB0JHQz2PvIqaHa8hMm0nZoyOxpHsSmyzUhHtGSI02bO4nN2uUT4';
+const VAPID_PUBLIC_KEY = 'BK-QhnYN7GjBazPqGrUgXernNbH-pV7v04fog9CY5rJiju0llUD3m9HzBX5Moo5rwQaRdVoQJyXRbQOqpPa6fOs';
 
 function urlBase64ToUint8Array(base64String: string): Uint8Array {
   const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
