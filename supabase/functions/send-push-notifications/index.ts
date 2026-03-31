@@ -174,6 +174,15 @@ Deno.serve(async (req: Request) => {
             }
           }
         }
+
+        // Log each reminder notification
+        const parsedPayload = JSON.parse(payload);
+        await supabase.from("notification_logs").insert({
+          user_id: userId,
+          title: parsedPayload.title,
+          body: parsedPayload.body,
+          type: "auto",
+        });
       }
 
       usersNotified.push(userId);
