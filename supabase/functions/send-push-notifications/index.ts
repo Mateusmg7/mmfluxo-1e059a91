@@ -7,8 +7,8 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const VAPID_PUBLIC_KEY = "BE16AO5GKJ--Det7TwGpZX9Isz6ListpI61tC1ZeIK-lfWcmXlvcKkUh41lWY5clFIsqB9MfZ0rBhheRqmrkOLE";
-const VAPID_PRIVATE_KEY = "A6t49h7w0ws_ThPN8jynyVqMIK5_J7E_8Tk5Zrnu1m8";
+const VAPID_PUBLIC_KEY = "BFgXjTf8wlHBEE_kHZ2pjnoH_c5ejwYbxfq6Thwgt99m4_dJjqXEjcUR94Ju9P2j42kSI4B3JQpTwK7m18_ScBs";
+const VAPID_PRIVATE_KEY = "svvw9UKjU3GQwOlHfD7Ym_qv7iupJtW46JcRlVCxJVA";
 const VAPID_SUBJECT = "mailto:noreply@mmfluxo.lovable.app";
 
 Deno.serve(async (req: Request) => {
