@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useBillReminders, BillReminder } from '@/hooks/useBillReminders';
-import { requestNotificationPermission, sendTestNotification } from '@/hooks/useNotifications';
+import { requestNotificationPermission, sendTestNotification, logNotificationHistory } from '@/hooks/useNotifications';
 import { sendTestPushNotification } from '@/hooks/usePushSubscription';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';

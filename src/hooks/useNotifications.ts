@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { BillReminder } from './useBillReminders';
+import { supabase } from '@/integrations/supabase/client';
 import { getNotificationServiceWorkerRegistration } from '@/lib/notificationServiceWorker';
 
 async function showSystemNotification(title: string, options: NotificationOptions) {
