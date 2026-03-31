@@ -16,7 +16,7 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    const vapidPrivateKey = "BgFUuoy-kp3M40WSFn0Skz5peUIPV9lMmjEYaJp8vcE";
+    const vapidPrivateKey = Deno.env.get("VAPID_PRIVATE_KEY")!;
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
