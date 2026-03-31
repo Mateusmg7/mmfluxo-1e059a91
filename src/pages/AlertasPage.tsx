@@ -37,6 +37,7 @@ export default function AlertasPage() {
   const [notifInterval, setNotifInterval] = useState<number>(9);
   const [intervalLoading, setIntervalLoading] = useState(false);
   const [lastPushSentAt, setLastPushSentAt] = useState<string | null>(null);
+  const [countdown, setCountdown] = useState<string>('');
 
   useEffect(() => {
     if (!user) return;
