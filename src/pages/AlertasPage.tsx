@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useBillReminders, BillReminder } from '@/hooks/useBillReminders';
 import { requestNotificationPermission, sendTestNotification } from '@/hooks/useNotifications';
 import { sendTestPushNotification } from '@/hooks/usePushSubscription';
@@ -39,14 +39,32 @@ export default function AlertasPage() {
   const [lastPushSentAt, setLastPushSentAt] = useState<string | null>(null);
   const [countdown, setCountdown] = useState<string>('');
 
+  const loadNotificationSettings = useCallback(async () => {
+    if (!user) return;
+    const { data } = await (supabase as any)
+      .from('profiles')
+      .select('notif_interval_hours, notifications_enabled, last_push_sent_at')
+      .eq('user_id', user.id)
+      .single();
+
+    if (typeof data?.notif_interval_hours === 'number') setNotifInterval(data.notif_interval_hours);
+    if (typeof data?.notifications_enabled === 'boolean') setNotificationsEnabled(data.notifications_enabled);
+    if (data?.last_push_sent_at !== undefined) setLastPushSentAt(data.last_push_sent_at);
+  }, [user]);
+
+  useEffect(() => {
+    loadNotificationSettings();
+  }, [loadNotificationSettings]);
+
   useEffect(() => {
     if (!user) return;
-    (supabase as any).from('profiles').select('notif_interval_hours, notifications_enabled, last_push_sent_at').eq('user_id', user.id).single().then(({ data }: any) => {
-      if (data?.notif_interval_hours) setNotifInterval(data.notif_interval_hours);
-      if (data?.notifications_enabled !== undefined) setNotificationsEnabled(data.notifications_enabled);
-      if (data?.last_push_sent_at !== undefined) setLastPushSentAt(data.last_push_sent_at);
-    });
-  }, [user]);
+
+    const intervalId = window.setInterval(() => {
+      loadNotificationSettings();
+    }, 10000);
+
+    return () => window.clearInterval(intervalId);
+  }, [loadNotificationSettings, user]);
 
   // Live countdown timer
   useEffect(() => {

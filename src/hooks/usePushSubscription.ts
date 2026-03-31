@@ -28,37 +28,28 @@ export function usePushSubscription() {
       try {
         const registration = await getNotificationServiceWorkerRegistration();
         if (!registration) return;
-        
-        // Check if already subscribed
+
+        const permission = Notification.permission === 'granted'
+          ? 'granted'
+          : await Notification.requestPermission();
+
+        if (permission !== 'granted') return;
+
         let subscription = await registration.pushManager.getSubscription();
-        
-        // If existing subscription uses a different VAPID key, unsubscribe and re-create
+
+        // Always renew the browser subscription to avoid expired endpoints (410)
         if (subscription) {
           try {
-            const existingKey = subscription.options?.applicationServerKey;
-            const newKey = urlBase64ToUint8Array(VAPID_PUBLIC_KEY);
-            if (existingKey) {
-              const existingArr = new Uint8Array(existingKey);
-              if (existingArr.length !== newKey.length || existingArr.some((v, i) => v !== newKey[i])) {
-                await subscription.unsubscribe();
-                subscription = null;
-              }
-            }
-          } catch {
             await subscription.unsubscribe();
-            subscription = null;
+          } catch {
+            // ignore stale subscription cleanup errors
           }
         }
-        
-        if (!subscription) {
-          const permission = await Notification.requestPermission();
-          if (permission !== 'granted') return;
 
-          subscription = await registration.pushManager.subscribe({
-            userVisibleOnly: true,
-            applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY).buffer as ArrayBuffer,
-          });
-        }
+        subscription = await registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY).buffer as ArrayBuffer,
+        });
 
         const key = subscription.getKey('p256dh');
         const auth = subscription.getKey('auth');
@@ -67,15 +58,18 @@ export function usePushSubscription() {
         const p256dh = btoa(String.fromCharCode(...new Uint8Array(key)));
         const authKey = btoa(String.fromCharCode(...new Uint8Array(auth)));
 
-        // Save to database (upsert by endpoint)
-        await (supabase as any).from('push_subscriptions').upsert(
+        await (supabase as any)
+          .from('push_subscriptions')
+          .delete()
+          .eq('user_id', user.id);
+
+        await (supabase as any).from('push_subscriptions').insert(
           {
             user_id: user.id,
             endpoint: subscription.endpoint,
             p256dh: p256dh,
             auth: authKey,
-          },
-          { onConflict: 'user_id,endpoint' }
+          }
         );
 
         subscribedRef.current = true;
