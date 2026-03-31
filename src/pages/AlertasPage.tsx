@@ -318,18 +318,10 @@ export default function AlertasPage() {
                   <span className="font-medium text-foreground">
                     {new Date(lastPushSentAt).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
                   </span>
-                  <span className="text-muted-foreground"> · Próxima em: </span>
-                  <span className="font-medium text-primary">
-                    {(() => {
-                      const next = new Date(new Date(lastPushSentAt).getTime() + notifInterval * 3600000);
-                      const now = new Date();
-                      if (next <= now) return 'A qualquer momento';
-                      const diffMs = next.getTime() - now.getTime();
-                      const diffH = Math.floor(diffMs / 3600000);
-                      const diffM = Math.floor((diffMs % 3600000) / 60000);
-                      return diffH > 0 ? `${diffH}h ${diffM}min` : `${diffM}min`;
-                    })()}
-                  </span>
+                   <span className="text-muted-foreground"> · Próxima em: </span>
+                   <span className="font-medium text-primary animate-pulse">
+                     {countdown || 'Calculando...'}
+                   </span>
                 </>
               ) : (
                 <span className="text-muted-foreground">Nenhuma notificação enviada ainda. A próxima será verificada em breve.</span>
