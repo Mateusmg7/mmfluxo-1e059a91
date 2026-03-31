@@ -261,6 +261,7 @@ export default function AlertasPage() {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
+              <SelectItem value="0.0333">A cada 2 minutos (teste)</SelectItem>
               <SelectItem value="1">A cada 1 hora</SelectItem>
               <SelectItem value="2">A cada 2 horas</SelectItem>
               <SelectItem value="3">A cada 3 horas</SelectItem>
