@@ -48,6 +48,36 @@ export default function AlertasPage() {
     });
   }, [user]);
 
+  // Live countdown timer
+  useEffect(() => {
+    if (!lastPushSentAt || !notificationsEnabled) {
+      setCountdown('');
+      return;
+    }
+    const tick = () => {
+      const next = new Date(new Date(lastPushSentAt).getTime() + notifInterval * 3600000);
+      const now = new Date();
+      if (next <= now) {
+        setCountdown('A qualquer momento');
+        return;
+      }
+      const diffMs = next.getTime() - now.getTime();
+      const diffH = Math.floor(diffMs / 3600000);
+      const diffM = Math.floor((diffMs % 3600000) / 60000);
+      const diffS = Math.floor((diffMs % 60000) / 1000);
+      if (diffH > 0) {
+        setCountdown(`${diffH}h ${diffM}min ${diffS}s`);
+      } else if (diffM > 0) {
+        setCountdown(`${diffM}min ${diffS}s`);
+      } else {
+        setCountdown(`${diffS}s`);
+      }
+    };
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, [lastPushSentAt, notifInterval, notificationsEnabled]);
+
   const handleIntervalChange = async (value: string) => {
     const hours = parseFloat(value);
     setNotifInterval(hours);
