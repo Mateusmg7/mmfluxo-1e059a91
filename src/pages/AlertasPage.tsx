@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useBillReminders, BillReminder } from '@/hooks/useBillReminders';
-import { requestNotificationPermission, sendTestNotification } from '@/hooks/useNotifications';
+import { requestNotificationPermission, sendTestNotification, logNotificationHistory } from '@/hooks/useNotifications';
 import { sendTestPushNotification } from '@/hooks/usePushSubscription';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -276,17 +276,24 @@ export default function AlertasPage() {
                 const label = isToday ? 'Conta vencendo hoje' : isTomorrow ? 'Conta vencendo amanhã' : `Conta vence dia ${r.dia_vencimento}`;
                 const valorStr = r.valor ? ` - R$ ${r.valor.toFixed(2)}` : '';
 
-                const pushSent = await sendTestPushNotification(user.id, {
+                const notificationPayload = {
                   title: `💰 ${label}`,
                   body: `${r.nome}${valorStr}`,
                   tag: `test-${r.id}-${Date.now()}`,
-                });
+                };
+
+                const pushSent = await sendTestPushNotification(user.id, notificationPayload);
 
                 if (pushSent) {
                   toast.success(`🔔 Notificação push enviada: ${r.nome}`);
                 } else {
                   const sent = await sendTestNotification(r);
                   if (sent) {
+                    await logNotificationHistory(user.id, {
+                      title: notificationPayload.title,
+                      body: notificationPayload.body,
+                      type: 'test',
+                    });
                     toast.success(`🔔 Notificação enviada: ${r.nome}`);
                   } else {
                     toast.error('Não foi possível enviar a notificação. Verifique se as notificações estão ativadas.');

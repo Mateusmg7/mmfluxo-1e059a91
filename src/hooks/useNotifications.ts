@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { BillReminder } from './useBillReminders';
+import { supabase } from '@/integrations/supabase/client';
 import { getNotificationServiceWorkerRegistration } from '@/lib/notificationServiceWorker';
 
 async function showSystemNotification(title: string, options: NotificationOptions) {
@@ -81,6 +82,22 @@ export async function requestNotificationPermission(): Promise<boolean> {
   if (Notification.permission === 'granted') return true;
   const result = await Notification.requestPermission();
   return result === 'granted';
+}
+
+export async function logNotificationHistory(
+  userId: string,
+  notification: { title: string; body: string; type: 'auto' | 'test' | 'received' }
+) {
+  try {
+    await (supabase as any).from('notification_logs').insert({
+      user_id: userId,
+      title: notification.title,
+      body: notification.body,
+      type: notification.type,
+    });
+  } catch (error) {
+    console.error('Notification history error:', error);
+  }
 }
 
 export async function sendTestNotification(reminder: BillReminder): Promise<boolean> {
