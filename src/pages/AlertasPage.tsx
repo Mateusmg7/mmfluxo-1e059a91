@@ -66,7 +66,6 @@ export default function AlertasPage() {
         setCountdown('0s');
         return;
       }
-      const diffMs = next.getTime() - now.getTime();
       const diffH = Math.floor(diffMs / 3600000);
       const diffM = Math.floor((diffMs % 3600000) / 60000);
       const diffS = Math.floor((diffMs % 60000) / 1000);
