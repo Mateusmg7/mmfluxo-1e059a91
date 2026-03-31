@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { Trash2 } from 'lucide-react';
 import { Bell } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -81,6 +82,16 @@ export default function NotificationBell() {
     }
   };
 
+  const handleClearLogs = useCallback(async () => {
+    if (!user) return;
+    await (supabase as any)
+      .from('notification_logs')
+      .delete()
+      .eq('user_id', user.id);
+    setLogs([]);
+    setUnseenCount(0);
+  }, [user]);
+
   return (
     <Popover open={open} onOpenChange={handleOpen}>
       <PopoverTrigger asChild>
@@ -94,8 +105,17 @@ export default function NotificationBell() {
         </button>
       </PopoverTrigger>
       <PopoverContent align="end" className="w-80 p-0">
-        <div className="px-4 py-3 border-b border-border">
+        <div className="px-4 py-3 border-b border-border flex items-center justify-between">
           <h3 className="text-sm font-semibold">Histórico de Notificações</h3>
+          {logs.length > 0 && (
+            <button
+              onClick={handleClearLogs}
+              className="text-muted-foreground hover:text-destructive transition-colors p-1 rounded"
+              title="Limpar histórico"
+            >
+              <Trash2 size={14} />
+            </button>
+          )}
         </div>
         <ScrollArea className="h-72">
           {logs.length === 0 ? (
