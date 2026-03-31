@@ -16,20 +16,9 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    const rawKey = Deno.env.get("VAPID_PRIVATE_KEY") ?? "";
-    console.log("VAPID key length:", rawKey.length, "first5:", rawKey.substring(0, 5), "last5:", rawKey.substring(rawKey.length - 5));
-    const vapidPrivateKey = rawKey
-      .trim()
-      .replace(/^['"]+|['"]+$/g, "")
-      .replace(/\s+/g, "")
-      .replace(/=+$/g, "");
-    console.log("Sanitized VAPID key length:", vapidPrivateKey.length, "value:", vapidPrivateKey);
+    const vapidPrivateKey = "lA51e9AR57PC9SOvv1KiB_XF0gEVzoOTJwlUuraU8TU";
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-
-    if (!vapidPrivateKey) {
-      throw new Error("VAPID_PRIVATE_KEY ausente ou inválida");
-    }
 
     webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC_KEY, vapidPrivateKey);
 
