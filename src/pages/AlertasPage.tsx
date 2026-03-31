@@ -48,7 +48,7 @@ export default function AlertasPage() {
   }, [user]);
 
   const handleIntervalChange = async (value: string) => {
-    const hours = parseInt(value);
+    const hours = parseFloat(value);
     setNotifInterval(hours);
     setIntervalLoading(true);
     try {
@@ -261,7 +261,7 @@ export default function AlertasPage() {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="0.0333">A cada 2 minutos (teste)</SelectItem>
+              <SelectItem value="0.0167">A cada 1 minuto (teste)</SelectItem>
               <SelectItem value="1">A cada 1 hora</SelectItem>
               <SelectItem value="2">A cada 2 horas</SelectItem>
               <SelectItem value="3">A cada 3 horas</SelectItem>
