@@ -82,6 +82,16 @@ export default function NotificationBell() {
     }
   };
 
+  const handleClearLogs = useCallback(async () => {
+    if (!user) return;
+    await (supabase as any)
+      .from('notification_logs')
+      .delete()
+      .eq('user_id', user.id);
+    setLogs([]);
+    setUnseenCount(0);
+  }, [user]);
+
   return (
     <Popover open={open} onOpenChange={handleOpen}>
       <PopoverTrigger asChild>
