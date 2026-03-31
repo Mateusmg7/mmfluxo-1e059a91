@@ -48,7 +48,7 @@ export default function AlertasPage() {
   }, [user]);
 
   const handleIntervalChange = async (value: string) => {
-    const hours = parseInt(value);
+    const hours = parseFloat(value);
     setNotifInterval(hours);
     setIntervalLoading(true);
     try {
