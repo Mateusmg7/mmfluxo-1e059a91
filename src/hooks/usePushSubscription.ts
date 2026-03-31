@@ -16,6 +16,82 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array {
   return outputArray;
 }
 
+async function createPushSubscription(userId: string, forceResubscribe = false): Promise<boolean> {
+  if (!('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window)) {
+    return false;
+  }
+
+  const registration = await getNotificationServiceWorkerRegistration();
+  if (!registration) return false;
+
+  const permission = Notification.permission === 'granted'
+    ? 'granted'
+    : await Notification.requestPermission();
+
+  if (permission !== 'granted') return false;
+
+  const vapidKey = urlBase64ToUint8Array(VAPID_PUBLIC_KEY);
+  let subscription = await registration.pushManager.getSubscription();
+
+  if (subscription) {
+    try {
+      const existingKey = subscription.options?.applicationServerKey;
+      const existingArr = existingKey ? new Uint8Array(existingKey) : null;
+      const keyChanged = !existingArr || existingArr.length !== vapidKey.length || existingArr.some((v, i) => v !== vapidKey[i]);
+
+      if (forceResubscribe || keyChanged) {
+        await subscription.unsubscribe();
+        subscription = null;
+      }
+    } catch {
+      try {
+        await subscription.unsubscribe();
+      } catch {
+        // ignore stale subscription cleanup errors
+      }
+      subscription = null;
+    }
+  }
+
+  if (!subscription) {
+    subscription = await registration.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: vapidKey.buffer as ArrayBuffer,
+    });
+  }
+
+  const key = subscription.getKey('p256dh');
+  const auth = subscription.getKey('auth');
+  if (!key || !auth) return false;
+
+  const p256dh = btoa(String.fromCharCode(...new Uint8Array(key)));
+  const authKey = btoa(String.fromCharCode(...new Uint8Array(auth)));
+
+  await (supabase as any)
+    .from('push_subscriptions')
+    .delete()
+    .eq('user_id', userId);
+
+  const { error } = await (supabase as any).from('push_subscriptions').insert({
+    user_id: userId,
+    endpoint: subscription.endpoint,
+    p256dh,
+    auth: authKey,
+  });
+
+  if (error) throw error;
+  return true;
+}
+
+export async function ensurePushSubscription(userId: string, forceResubscribe = false): Promise<boolean> {
+  try {
+    return await createPushSubscription(userId, forceResubscribe);
+  } catch (err) {
+    console.error('Push subscription error:', err);
+    return false;
+  }
+}
+
 export function usePushSubscription() {
   const { user } = useAuth();
   const subscribedRef = useRef(false);
@@ -25,56 +101,9 @@ export function usePushSubscription() {
     if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
 
     const subscribe = async () => {
-      try {
-        const registration = await getNotificationServiceWorkerRegistration();
-        if (!registration) return;
-
-        const permission = Notification.permission === 'granted'
-          ? 'granted'
-          : await Notification.requestPermission();
-
-        if (permission !== 'granted') return;
-
-        let subscription = await registration.pushManager.getSubscription();
-
-        // Always renew the browser subscription to avoid expired endpoints (410)
-        if (subscription) {
-          try {
-            await subscription.unsubscribe();
-          } catch {
-            // ignore stale subscription cleanup errors
-          }
-        }
-
-        subscription = await registration.pushManager.subscribe({
-          userVisibleOnly: true,
-          applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY).buffer as ArrayBuffer,
-        });
-
-        const key = subscription.getKey('p256dh');
-        const auth = subscription.getKey('auth');
-        if (!key || !auth) return;
-
-        const p256dh = btoa(String.fromCharCode(...new Uint8Array(key)));
-        const authKey = btoa(String.fromCharCode(...new Uint8Array(auth)));
-
-        await (supabase as any)
-          .from('push_subscriptions')
-          .delete()
-          .eq('user_id', user.id);
-
-        await (supabase as any).from('push_subscriptions').insert(
-          {
-            user_id: user.id,
-            endpoint: subscription.endpoint,
-            p256dh: p256dh,
-            auth: authKey,
-          }
-        );
-
+      const success = await ensurePushSubscription(user.id);
+      if (success) {
         subscribedRef.current = true;
-      } catch (err) {
-        console.error('Push subscription error:', err);
       }
     };
 
@@ -87,6 +116,9 @@ export async function sendTestPushNotification(
   payload: { title: string; body: string; tag: string }
 ): Promise<boolean> {
   try {
+    const ready = await ensurePushSubscription(userId, true);
+    if (!ready) return false;
+
     const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
     const { data: sessionData } = await supabase.auth.getSession();
     const token = sessionData?.session?.access_token;

@@ -1,6 +1,6 @@
 import { createRoot } from "react-dom/client";
 import { registerSW } from "virtual:pwa-register";
-import { getNotificationServiceWorkerRegistration } from "@/lib/notificationServiceWorker";
+import { getNotificationServiceWorkerRegistration, NOTIFICATION_SW_SCOPE } from "@/lib/notificationServiceWorker";
 import App from "./App.tsx";
 import "./index.css";
 
@@ -12,10 +12,19 @@ const isPreviewHost =
   window.location.hostname.includes("lovableproject.com");
 
 if (isPreviewHost || isInIframe) {
-  // Unregister all service workers in preview/iframe
+  // Keep the notification worker to allow local/test notifications in preview
   navigator.serviceWorker?.getRegistrations().then((regs) =>
-    regs.forEach((r) => r.unregister())
+    regs.forEach((r) => {
+      const isNotificationWorker = r.scope.endsWith(NOTIFICATION_SW_SCOPE);
+      if (!isNotificationWorker) {
+        r.unregister();
+      }
+    })
   );
+
+  window.addEventListener("load", () => {
+    getNotificationServiceWorkerRegistration().catch(() => {});
+  });
 } else if ("serviceWorker" in navigator) {
   // Register PWA service worker (prompt update, no auto-reload)
   const updateSW = registerSW({
