@@ -7,7 +7,8 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const VAPID_PUBLIC_KEY = "BCVb1lthYLrndnmiKr-YAmLL92aNULIeUDICkGw59cEvy4dvSdqdK53hHY3KAOlAaXB8mh9D27OYjYj5mwCZS6I";
+const VAPID_PUBLIC_KEY = "BE16AO5GKJ--Det7TwGpZX9Isz6ListpI61tC1ZeIK-lfWcmXlvcKkUh41lWY5clFIsqB9MfZ0rBhheRqmrkOLE";
+const VAPID_PRIVATE_KEY = "A6t49h7w0ws_ThPN8jynyVqMIK5_J7E_8Tk5Zrnu1m8";
 const VAPID_SUBJECT = "mailto:noreply@mmfluxo.lovable.app";
 
 Deno.serve(async (req: Request) => {
@@ -16,11 +17,10 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    const vapidPrivateKey = "lA51e9AR57PC9SOvv1KiB_XF0gEVzoOTJwlUuraU8TU";
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
-    webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC_KEY, vapidPrivateKey);
+    webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
 
     const supabase = createClient(supabaseUrl, serviceRoleKey);
 
