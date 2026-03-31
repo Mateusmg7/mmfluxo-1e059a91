@@ -8,7 +8,7 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('push', (event) => {
   let data = { title: '💰 Lembrete de Conta', body: 'Você tem contas vencendo!' };
-  
+
   try {
     if (event.data) {
       data = event.data.json();
@@ -17,15 +17,24 @@ self.addEventListener('push', (event) => {
     // use defaults
   }
 
-  event.waitUntil(
-    self.registration.showNotification(data.title, {
+  event.waitUntil((async () => {
+    const clients = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+
+    for (const client of clients) {
+      client.postMessage({
+        type: 'notification-received',
+        payload: data,
+      });
+    }
+
+    await self.registration.showNotification(data.title, {
       body: data.body,
       icon: '/favicon.ico',
       badge: '/favicon.ico',
       tag: data.tag || 'bill-reminder',
       vibrate: [200, 100, 200],
-    })
-  );
+    });
+  })());
 });
 
 self.addEventListener('notificationclick', (event) => {

@@ -84,6 +84,22 @@ export async function requestNotificationPermission(): Promise<boolean> {
   return result === 'granted';
 }
 
+export async function logNotificationHistory(
+  userId: string,
+  notification: { title: string; body: string; type: 'auto' | 'test' | 'received' }
+) {
+  try {
+    await (supabase as any).from('notification_logs').insert({
+      user_id: userId,
+      title: notification.title,
+      body: notification.body,
+      type: notification.type,
+    });
+  } catch (error) {
+    console.error('Notification history error:', error);
+  }
+}
+
 export async function sendTestNotification(reminder: BillReminder): Promise<boolean> {
   const today = new Date().getDate();
   const isToday = reminder.dia_vencimento === today;
