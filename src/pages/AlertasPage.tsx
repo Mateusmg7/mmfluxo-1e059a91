@@ -37,6 +37,7 @@ export default function AlertasPage() {
   const [notifInterval, setNotifInterval] = useState<number>(9);
   const [intervalLoading, setIntervalLoading] = useState(false);
   const [lastPushSentAt, setLastPushSentAt] = useState<string | null>(null);
+  const [countdown, setCountdown] = useState<string>('');
 
   useEffect(() => {
     if (!user) return;
@@ -46,6 +47,36 @@ export default function AlertasPage() {
       if (data?.last_push_sent_at !== undefined) setLastPushSentAt(data.last_push_sent_at);
     });
   }, [user]);
+
+  // Live countdown timer
+  useEffect(() => {
+    if (!lastPushSentAt || !notificationsEnabled) {
+      setCountdown('');
+      return;
+    }
+    const tick = () => {
+      const next = new Date(new Date(lastPushSentAt).getTime() + notifInterval * 3600000);
+      const now = new Date();
+      if (next <= now) {
+        setCountdown('A qualquer momento');
+        return;
+      }
+      const diffMs = next.getTime() - now.getTime();
+      const diffH = Math.floor(diffMs / 3600000);
+      const diffM = Math.floor((diffMs % 3600000) / 60000);
+      const diffS = Math.floor((diffMs % 60000) / 1000);
+      if (diffH > 0) {
+        setCountdown(`${diffH}h ${diffM}min ${diffS}s`);
+      } else if (diffM > 0) {
+        setCountdown(`${diffM}min ${diffS}s`);
+      } else {
+        setCountdown(`${diffS}s`);
+      }
+    };
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, [lastPushSentAt, notifInterval, notificationsEnabled]);
 
   const handleIntervalChange = async (value: string) => {
     const hours = parseFloat(value);
@@ -287,18 +318,10 @@ export default function AlertasPage() {
                   <span className="font-medium text-foreground">
                     {new Date(lastPushSentAt).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
                   </span>
-                  <span className="text-muted-foreground"> · Próxima em: </span>
-                  <span className="font-medium text-primary">
-                    {(() => {
-                      const next = new Date(new Date(lastPushSentAt).getTime() + notifInterval * 3600000);
-                      const now = new Date();
-                      if (next <= now) return 'A qualquer momento';
-                      const diffMs = next.getTime() - now.getTime();
-                      const diffH = Math.floor(diffMs / 3600000);
-                      const diffM = Math.floor((diffMs % 3600000) / 60000);
-                      return diffH > 0 ? `${diffH}h ${diffM}min` : `${diffM}min`;
-                    })()}
-                  </span>
+                   <span className="text-muted-foreground"> · Próxima em: </span>
+                   <span className="font-medium text-primary animate-pulse">
+                     {countdown || 'Calculando...'}
+                   </span>
                 </>
               ) : (
                 <span className="text-muted-foreground">Nenhuma notificação enviada ainda. A próxima será verificada em breve.</span>
