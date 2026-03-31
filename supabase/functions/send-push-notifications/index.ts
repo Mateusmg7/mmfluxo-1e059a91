@@ -74,6 +74,15 @@ Deno.serve(async (req: Request) => {
         }
       }
 
+      if (sent > 0) {
+        await supabase.from("notification_logs").insert({
+          user_id: testUserId,
+          title: testPayload.title,
+          body: testPayload.body,
+          type: "test",
+        });
+      }
+
       return new Response(
         JSON.stringify({ sent }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -165,6 +174,15 @@ Deno.serve(async (req: Request) => {
             }
           }
         }
+
+        // Log each reminder notification
+        const parsedPayload = JSON.parse(payload);
+        await supabase.from("notification_logs").insert({
+          user_id: userId,
+          title: parsedPayload.title,
+          body: parsedPayload.body,
+          type: "auto",
+        });
       }
 
       usersNotified.push(userId);
