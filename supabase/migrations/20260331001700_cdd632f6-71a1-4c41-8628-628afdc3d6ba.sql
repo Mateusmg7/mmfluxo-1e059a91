@@ -1,0 +1,1 @@
+ALTER TABLE profiles ALTER COLUMN notif_interval_hours TYPE numeric USING notif_interval_hours::numeric;
