@@ -263,12 +263,10 @@ export default function AlertasPage() {
                 const r = reminders.find(rem => rem.id === testReminderId);
                 if (!r || !user) return;
 
-                if (!notificationsEnabled) {
-                  const granted = await requestNotificationPermission();
-                  if (!granted) {
-                    toast.error('Permissão de notificação negada. Ative nas configurações do navegador.');
-                    return;
-                  }
+                const granted = await requestNotificationPermission();
+                if (!granted) {
+                  toast.error('Permissão de notificação negada. Ative nas configurações do navegador.');
+                  return;
                 }
 
                 const today = new Date().getDate();
