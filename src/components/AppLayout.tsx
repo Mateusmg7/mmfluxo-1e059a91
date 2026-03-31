@@ -18,6 +18,7 @@ import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import ProfileSwitcher from '@/components/ProfileSwitcher';
 import AlertBadge from '@/components/AlertBadge';
+import NotificationBell from '@/components/NotificationBell';
 
 const navItems = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard },
