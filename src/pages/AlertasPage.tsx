@@ -55,10 +55,15 @@ export default function AlertasPage() {
       return;
     }
     const tick = () => {
-      const next = new Date(new Date(lastPushSentAt).getTime() + notifInterval * 3600000);
-      const now = new Date();
-      if (next <= now) {
-        setCountdown('A qualquer momento');
+      const lastTime = new Date(lastPushSentAt).getTime();
+      const intervalMs = notifInterval * 3600000;
+      const now = Date.now();
+      // Find the next future notification time
+      const cyclesPassed = Math.floor((now - lastTime) / intervalMs);
+      const nextTime = lastTime + (cyclesPassed + 1) * intervalMs;
+      const diffMs = nextTime - now;
+      if (diffMs <= 0) {
+        setCountdown('0s');
         return;
       }
       const diffMs = next.getTime() - now.getTime();
