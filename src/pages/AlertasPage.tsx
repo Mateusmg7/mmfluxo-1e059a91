@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useBillReminders, BillReminder } from '@/hooks/useBillReminders';
 import { requestNotificationPermission, sendTestNotification, logNotificationHistory } from '@/hooks/useNotifications';
-import { sendTestPushNotification } from '@/hooks/usePushSubscription';
+import { sendTestPushNotification, ensurePushSubscription } from '@/hooks/usePushSubscription';
 import { useAuth } from '@/contexts/AuthContext';
+import PushDebugPanel from '@/components/PushDebugPanel';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -55,6 +56,15 @@ export default function AlertasPage() {
   useEffect(() => {
     loadNotificationSettings();
   }, [loadNotificationSettings]);
+
+  // Auto re-subscribe push on page load
+  useEffect(() => {
+    if (!user) return;
+    console.log('[Alertas] Checking push subscription on page load...');
+    ensurePushSubscription(user.id).then((ok) => {
+      console.log('[Alertas] Push subscription check result:', ok);
+    });
+  }, [user]);
 
   useEffect(() => {
     if (!user) return;
@@ -269,6 +279,11 @@ export default function AlertasPage() {
                   return;
                 }
 
+                // Ensure subscription is valid before testing
+                console.log('[Alertas] Ensuring push subscription before test...');
+                const subReady = await ensurePushSubscription(user.id, true);
+                console.log('[Alertas] Subscription ready:', subReady);
+
                 const today = new Date().getDate();
                 const tomorrow = new Date(Date.now() + 86400000).getDate();
                 const isToday = r.dia_vencimento === today;
@@ -282,7 +297,9 @@ export default function AlertasPage() {
                   tag: `test-${r.id}-${Date.now()}`,
                 };
 
+                console.log('[Alertas] Sending test push with payload:', notificationPayload);
                 const pushSent = await sendTestPushNotification(user.id, notificationPayload);
+                console.log('[Alertas] Test push result:', pushSent);
 
                 if (pushSent) {
                   toast.success(`🔔 Notificação push enviada: ${r.nome}`);
@@ -294,7 +311,7 @@ export default function AlertasPage() {
                       body: notificationPayload.body,
                       type: 'test',
                     });
-                    toast.success(`🔔 Notificação enviada: ${r.nome}`);
+                    toast.success(`🔔 Notificação local enviada: ${r.nome}`);
                   } else {
                     toast.error('Não foi possível enviar a notificação. Verifique se as notificações estão ativadas.');
                   }
@@ -496,6 +513,8 @@ export default function AlertasPage() {
         onConfirm={handleDelete}
         description="Tem certeza que deseja excluir este lembrete? Esta ação não pode ser desfeita."
       />
+      {/* Push Debug Panel */}
+      <PushDebugPanel />
     </div>
   );
 }
