@@ -100,12 +100,23 @@ export function usePushSubscription() {
 
   useEffect(() => {
     if (!user || subscribedRef.current) return;
-    if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+      console.warn('[Push] Service Worker or PushManager not supported on this device');
+      return;
+    }
 
     const subscribe = async () => {
-      const success = await ensurePushSubscription(user.id);
-      if (success) {
-        subscribedRef.current = true;
+      try {
+        console.log('[Push] Attempting push subscription for device...');
+        const success = await ensurePushSubscription(user.id);
+        if (success) {
+          subscribedRef.current = true;
+          console.log('[Push] Device push subscription created successfully');
+        } else {
+          console.warn('[Push] Push subscription failed - permission denied or not supported');
+        }
+      } catch (err) {
+        console.error('[Push] Push subscription error:', err);
       }
     };
 
