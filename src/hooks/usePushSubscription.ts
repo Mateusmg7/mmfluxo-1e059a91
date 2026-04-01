@@ -67,10 +67,12 @@ async function createPushSubscription(userId: string, forceResubscribe = false):
   const p256dh = btoa(String.fromCharCode(...new Uint8Array(key)));
   const authKey = btoa(String.fromCharCode(...new Uint8Array(auth)));
 
+  // Remove only subscriptions with the same endpoint (same device), keep other devices
   await (supabase as any)
     .from('push_subscriptions')
     .delete()
-    .eq('user_id', userId);
+    .eq('user_id', userId)
+    .eq('endpoint', subscription.endpoint);
 
   const { error } = await (supabase as any).from('push_subscriptions').insert({
     user_id: userId,
