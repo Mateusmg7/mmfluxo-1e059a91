@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useBillReminders, BillReminder } from '@/hooks/useBillReminders';
 import { requestNotificationPermission, sendTestNotification, logNotificationHistory } from '@/hooks/useNotifications';
-import { sendTestPushNotification } from '@/hooks/usePushSubscription';
+import { sendTestPushNotification, ensurePushSubscription } from '@/hooks/usePushSubscription';
 import { useAuth } from '@/contexts/AuthContext';
+import PushDebugPanel from '@/components/PushDebugPanel';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
