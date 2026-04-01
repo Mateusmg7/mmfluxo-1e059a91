@@ -57,6 +57,15 @@ export default function AlertasPage() {
     loadNotificationSettings();
   }, [loadNotificationSettings]);
 
+  // Auto re-subscribe push on page load
+  useEffect(() => {
+    if (!user) return;
+    console.log('[Alertas] Checking push subscription on page load...');
+    ensurePushSubscription(user.id).then((ok) => {
+      console.log('[Alertas] Push subscription check result:', ok);
+    });
+  }, [user]);
+
   useEffect(() => {
     if (!user) return;
 
