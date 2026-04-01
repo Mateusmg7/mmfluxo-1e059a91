@@ -279,6 +279,11 @@ export default function AlertasPage() {
                   return;
                 }
 
+                // Ensure subscription is valid before testing
+                console.log('[Alertas] Ensuring push subscription before test...');
+                const subReady = await ensurePushSubscription(user.id, true);
+                console.log('[Alertas] Subscription ready:', subReady);
+
                 const today = new Date().getDate();
                 const tomorrow = new Date(Date.now() + 86400000).getDate();
                 const isToday = r.dia_vencimento === today;
@@ -292,7 +297,9 @@ export default function AlertasPage() {
                   tag: `test-${r.id}-${Date.now()}`,
                 };
 
+                console.log('[Alertas] Sending test push with payload:', notificationPayload);
                 const pushSent = await sendTestPushNotification(user.id, notificationPayload);
+                console.log('[Alertas] Test push result:', pushSent);
 
                 if (pushSent) {
                   toast.success(`🔔 Notificação push enviada: ${r.nome}`);
@@ -304,7 +311,7 @@ export default function AlertasPage() {
                       body: notificationPayload.body,
                       type: 'test',
                     });
-                    toast.success(`🔔 Notificação enviada: ${r.nome}`);
+                    toast.success(`🔔 Notificação local enviada: ${r.nome}`);
                   } else {
                     toast.error('Não foi possível enviar a notificação. Verifique se as notificações estão ativadas.');
                   }
