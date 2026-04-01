@@ -513,6 +513,8 @@ export default function AlertasPage() {
         onConfirm={handleDelete}
         description="Tem certeza que deseja excluir este lembrete? Esta ação não pode ser desfeita."
       />
+      {/* Push Debug Panel */}
+      <PushDebugPanel />
     </div>
   );
 }
