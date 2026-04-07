@@ -73,6 +73,7 @@ export function useGamification() {
 
   const celebrateBadge = useCallback((badge: Badge) => {
     fireConfetti();
+    playAchievementSound();
 
     // Special toast
     toast.success(`${badge.icone} ${badge.nome}`, {
