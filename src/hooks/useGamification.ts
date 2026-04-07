@@ -2,8 +2,10 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/contexts/ProfileContext';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { differenceInDays, format, subDays, parseISO } from 'date-fns';
+import { toast } from 'sonner';
+import confetti from 'canvas-confetti';
 
 interface Badge {
   id: string;
@@ -68,6 +70,42 @@ export function useGamification() {
     enabled: !!user,
   });
 
+  const celebrateBadge = useCallback((badge: Badge) => {
+    // Confetti burst
+    const end = Date.now() + 1500;
+    const colors = ['#0C5BA8', '#F59E0B', '#10B981', '#8B5CF6', '#EC4899'];
+    
+    (function frame() {
+      confetti({
+        particleCount: 3,
+        angle: 60,
+        spread: 55,
+        origin: { x: 0, y: 0.7 },
+        colors,
+      });
+      confetti({
+        particleCount: 3,
+        angle: 120,
+        spread: 55,
+        origin: { x: 1, y: 0.7 },
+        colors,
+      });
+      if (Date.now() < end) requestAnimationFrame(frame);
+    })();
+
+    // Special toast
+    toast.success(`${badge.icone} ${badge.nome}`, {
+      description: badge.descricao,
+      duration: 5000,
+      style: {
+        background: 'linear-gradient(135deg, hsl(210, 85%, 35%), hsl(147, 78%, 39%))',
+        color: '#fff',
+        border: 'none',
+        fontWeight: 600,
+      },
+    });
+  }, []);
+
   const unlockBadge = useMutation({
     mutationFn: async ({ badgeId, metadata }: { badgeId: string; metadata?: any }) => {
       const { error } = await supabase.from('user_achievements').insert({
@@ -76,9 +114,12 @@ export function useGamification() {
         metadata: metadata ?? {},
       });
       if (error && !error.message.includes('duplicate')) throw error;
+      // Return the badge for celebration
+      return badges.find(b => b.id === badgeId);
     },
-    onSuccess: () => {
+    onSuccess: (badge) => {
       queryClient.invalidateQueries({ queryKey: ['user_achievements'] });
+      if (badge) celebrateBadge(badge);
     },
   });
 
