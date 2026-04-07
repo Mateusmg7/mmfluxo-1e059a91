@@ -179,7 +179,7 @@ export default function DashboardPage() {
             </div>
             <div>
               <p className="text-xs text-muted-foreground">Nível {level}</p>
-              <p className="text-sm font-bold">{unlockedBadges.length} badges</p>
+              <p className="text-sm font-bold">{unlockedBadges.length} medalhas</p>
             </div>
           </CardContent>
         </Card>
@@ -189,7 +189,7 @@ export default function DashboardPage() {
               <Flame className="text-destructive" size={18} />
             </div>
             <div>
-              <p className="text-xs text-muted-foreground">Streak</p>
+              <p className="text-xs text-muted-foreground">Sequência</p>
               <p className="text-sm font-bold">{streak.current_streak} dias 🔥</p>
             </div>
           </CardContent>
