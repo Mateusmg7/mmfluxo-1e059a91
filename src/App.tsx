@@ -62,10 +62,10 @@ const App = () => (
             <Route path="/categorias" element={<ProtectedRoute><CategoriasPage /></ProtectedRoute>} />
             <Route path="/metas" element={<ProtectedRoute><MetasPage /></ProtectedRoute>} />
             <Route path="/alertas" element={<ProtectedRoute><AlertasPage /></ProtectedRoute>} />
-            <Route path="/relatorios" element={<ProtectedRoute><RelatoriosPage /></ProtectedRoute>} />
-            <Route path="/resumo-geral" element={<ProtectedRoute><ResumoGeralPage /></ProtectedRoute>} />
+            <Route path="/relatorios" element={<Navigate to="/" replace />} />
+            <Route path="/resumo-geral" element={<Navigate to="/" replace />} />
             <Route path="/conquistas" element={<ProtectedRoute><ConquistasPage /></ProtectedRoute>} />
-            <Route path="/ranking" element={<ProtectedRoute><RankingPage /></ProtectedRoute>} />
+            <Route path="/ranking" element={<Navigate to="/conquistas" replace />} />
             <Route path="/configuracoes" element={<ProtectedRoute><ConfiguracoesPage /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
