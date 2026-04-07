@@ -20,7 +20,6 @@ import ConfiguracoesPage from "@/pages/ConfiguracoesPage";
 import ResumoGeralPage from "@/pages/ResumoGeralPage";
 import AlertasPage from "@/pages/AlertasPage";
 import ConquistasPage from "@/pages/ConquistasPage";
-import RankingPage from "@/pages/RankingPage";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();

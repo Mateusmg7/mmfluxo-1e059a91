@@ -7,14 +7,11 @@ import {
   ArrowUpCircle,
   Bell,
   Target,
-  BarChart3,
-  Layers,
   Settings,
   LogOut,
   Menu,
   X,
   Trophy,
-  Medal,
 } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
