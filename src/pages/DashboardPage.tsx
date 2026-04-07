@@ -8,6 +8,7 @@ import { ptBR } from 'date-fns/locale';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowDownCircle, ArrowUpCircle, TrendingUp, ChevronLeft, ChevronRight } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend, Label as ReLabel } from 'recharts';
+import { MonthlyEvolutionChart } from '@/components/MonthlyEvolutionChart';
 import { PieTooltip } from '@/components/PieTooltip';
 import { renderActiveSlice } from '@/components/ActivePieSlice';
 import { Progress } from '@/components/ui/progress';
