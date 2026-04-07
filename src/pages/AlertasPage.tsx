@@ -457,7 +457,7 @@ export default function AlertasPage() {
                     </p>
                     <p className="text-xs text-muted-foreground">
                       Dia {r.dia_vencimento}
-                      {r.valor && ` • R$ ${r.valor.toFixed(2)}`}
+                      {r.valor && ` • ${r.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`}
                     </p>
                   </div>
                   {isUrgent && (
