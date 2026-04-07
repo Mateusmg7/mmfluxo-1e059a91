@@ -14,6 +14,7 @@ import {
   Menu,
   X,
   Trophy,
+  Medal,
 } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
@@ -30,6 +31,7 @@ const navItems = [
   { to: '/relatorios', label: 'Relatórios', icon: BarChart3 },
   { to: '/resumo-geral', label: 'Resumo Geral', icon: Layers },
   { to: '/conquistas', label: 'Conquistas', icon: Trophy },
+  { to: '/ranking', label: 'Ranking', icon: Medal },
   { to: '/configuracoes', label: 'Configurações', icon: Settings },
 ];
 
