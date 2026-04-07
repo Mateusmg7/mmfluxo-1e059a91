@@ -7,14 +7,11 @@ import {
   ArrowUpCircle,
   Bell,
   Target,
-  BarChart3,
-  Layers,
   Settings,
   LogOut,
   Menu,
   X,
   Trophy,
-  Medal,
 } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
@@ -24,14 +21,11 @@ import NotificationBell from '@/components/NotificationBell';
 
 const navItems = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard },
-  { to: '/transacoes', label: 'Despesas', icon: ArrowDownCircle },
+  { to: '/transacoes', label: 'Gastos', icon: ArrowDownCircle },
   { to: '/renda-extra', label: 'Renda Extra', icon: ArrowUpCircle },
   { to: '/alertas', label: 'Alertas', icon: Bell, hasBadge: true },
   { to: '/metas', label: 'Metas', icon: Target },
-  { to: '/relatorios', label: 'Relatórios', icon: BarChart3 },
-  { to: '/resumo-geral', label: 'Resumo Geral', icon: Layers },
   { to: '/conquistas', label: 'Conquistas', icon: Trophy },
-  { to: '/ranking', label: 'Ranking', icon: Medal },
   { to: '/configuracoes', label: 'Configurações', icon: Settings },
 ];
 
