@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useCallback } from 'react';
 import { Input } from '@/components/ui/input';
 
 interface CurrencyInputProps {
@@ -9,85 +9,47 @@ interface CurrencyInputProps {
 }
 
 /**
- * Masked currency input for pt-BR (R$).
- * Internally stores the raw numeric string (e.g. "1234.56")
- * but displays formatted: "1.234,56".
+ * Currency input using cents-based masking for pt-BR.
+ * User types digits only; the component auto-formats as "1.234,56".
+ * The onChange callback receives the raw numeric string with dot decimal (e.g. "1234.56").
  */
 export function CurrencyInput({ value, onChange, placeholder = '0,00', className }: CurrencyInputProps) {
-  const [display, setDisplay] = useState('');
-  const inputRef = useRef<HTMLInputElement>(null);
+  // Convert stored value (e.g. "1234.56") to cents integer
+  const numericValue = value ? Math.round(parseFloat(value) * 100) || 0 : 0;
 
-  // Sync display when value changes externally
-  useEffect(() => {
-    if (value === '' || value === undefined || value === null) {
-      setDisplay('');
-      return;
-    }
-    const num = parseFloat(value);
-    if (isNaN(num)) {
-      setDisplay('');
-      return;
-    }
-    // Format to pt-BR without currency symbol
-    const formatted = num.toLocaleString('pt-BR', {
+  // Format cents to display string
+  const formatCents = (cents: number): string => {
+    if (cents === 0) return '';
+    const reais = (cents / 100).toLocaleString('pt-BR', {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     });
-    setDisplay(formatted);
-  }, [value]);
+    return reais;
+  };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let raw = e.target.value;
+  const displayValue = formatCents(numericValue);
 
-    // Allow only digits, dots, and commas
-    raw = raw.replace(/[^\d.,]/g, '');
-
-    // Replace comma with dot for internal parsing
-    // Remove thousand separators (dots) and treat comma as decimal
-    const cleaned = raw.replace(/\./g, '').replace(',', '.');
-
-    if (raw === '' || raw === ',' || raw === '.') {
-      setDisplay(raw);
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    // Strip everything except digits
+    const digits = e.target.value.replace(/\D/g, '');
+    
+    if (digits === '' || digits === '0' || digits === '00') {
       onChange('');
       return;
     }
 
-    const num = parseFloat(cleaned);
-    if (isNaN(num)) {
-      setDisplay(raw);
-      return;
-    }
-
-    // Store raw numeric value (dot as decimal)
-    onChange(cleaned);
-    setDisplay(raw);
-  };
-
-  const handleBlur = () => {
-    if (value === '' || value === undefined) {
-      setDisplay('');
-      return;
-    }
-    const num = parseFloat(value);
-    if (isNaN(num)) {
-      setDisplay('');
-      return;
-    }
-    const formatted = num.toLocaleString('pt-BR', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    });
-    setDisplay(formatted);
-  };
+    const cents = parseInt(digits, 10);
+    // Convert cents to dot-decimal string for storage
+    const dotValue = (cents / 100).toFixed(2);
+    onChange(dotValue);
+  }, [onChange]);
 
   return (
     <Input
-      ref={inputRef}
       type="text"
-      inputMode="decimal"
-      value={display}
+      inputMode="numeric"
+      value={displayValue}
       onChange={handleChange}
-      onBlur={handleBlur}
       placeholder={placeholder}
       className={className}
     />
