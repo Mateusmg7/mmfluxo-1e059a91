@@ -165,6 +165,8 @@ export default function DashboardPage() {
           </Card>
         ))}
       </div>
+      {/* Evolution chart */}
+      <MonthlyEvolutionChart userId={user!.id} profileId={activeProfile?.id} currentMonth={currentMonth} />
 
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
