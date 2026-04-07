@@ -5,7 +5,7 @@ import { useProfile } from '@/contexts/ProfileContext';
 import { useCallback, useEffect, useRef } from 'react';
 import { differenceInDays, format, subDays, parseISO } from 'date-fns';
 import { toast } from 'sonner';
-import confetti from 'canvas-confetti';
+import { fireConfetti } from '@/lib/confetti';
 
 interface Badge {
   id: string;
