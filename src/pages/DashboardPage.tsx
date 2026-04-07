@@ -39,7 +39,6 @@ export default function DashboardPage() {
   const navigate = useNavigate();
   const { unlockedBadges, streak, level } = useGamification();
   const now = new Date();
-  const now = new Date();
   const monthStart = format(startOfMonth(currentMonth), 'yyyy-MM-dd');
   const monthEnd = format(endOfMonth(currentMonth), 'yyyy-MM-dd');
 
