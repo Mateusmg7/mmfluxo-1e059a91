@@ -141,7 +141,7 @@ export default function RendaExtraPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Valor (R$)</Label>
-                  <Input type="number" step="0.01" value={valor} onChange={(e) => setValor(e.target.value)} />
+                  <CurrencyInput value={valor} onChange={setValor} />
                 </div>
                 <div className="space-y-2">
                   <Label>Data</Label>

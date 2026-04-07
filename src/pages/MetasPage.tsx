@@ -178,7 +178,7 @@ export default function MetasPage() {
                 </div>
                 <div className="space-y-2">
                   <Label>Valor alvo (R$)</Label>
-                  <Input type="number" step="0.01" value={valorAlvo} onChange={(e) => setValorAlvo(e.target.value)} />
+                  <CurrencyInput value={valorAlvo} onChange={setValorAlvo} />
                 </div>
               </div>
               {tipoMeta === 'limite_categoria' && (

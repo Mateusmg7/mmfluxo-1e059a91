@@ -417,7 +417,7 @@ export default function AlertasPage() {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="text-sm font-medium text-muted-foreground">Valor (opcional)</label>
-                <Input type="number" placeholder="0.00" min="0" step="0.01" value={valor} onChange={(e) => setValor(e.target.value)} />
+                <CurrencyInput value={valor} onChange={setValor} />
               </div>
               <div>
                 <label className="text-sm font-medium text-muted-foreground">Dia do vencimento *</label>
