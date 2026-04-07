@@ -13,6 +13,7 @@ import {
   LogOut,
   Menu,
   X,
+  Trophy,
 } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
@@ -28,6 +29,7 @@ const navItems = [
   { to: '/metas', label: 'Metas', icon: Target },
   { to: '/relatorios', label: 'Relatórios', icon: BarChart3 },
   { to: '/resumo-geral', label: 'Resumo Geral', icon: Layers },
+  { to: '/conquistas', label: 'Conquistas', icon: Trophy },
   { to: '/configuracoes', label: 'Configurações', icon: Settings },
 ];
 
