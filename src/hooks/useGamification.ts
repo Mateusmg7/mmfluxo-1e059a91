@@ -199,7 +199,7 @@ export function useGamification() {
               }
               if (goal.tipo_meta === 'limite_categoria') {
                 const catTotal = (txns ?? []).filter(t => t.category_id === goal.category_id).reduce((s, t) => s + Number(t.valor), 0);
-                if (catTotal <= Number(goal.valor_alvo) && catTotal > 0) {
+                if (catTotal <= Number(goal.valor_alvo)) {
                   shouldUnlock = true;
                   break;
                 }
