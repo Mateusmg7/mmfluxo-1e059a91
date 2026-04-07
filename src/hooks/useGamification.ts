@@ -193,7 +193,7 @@ export function useGamification() {
                 shouldUnlock = true;
                 break;
               }
-              if (goal.tipo_meta === 'limite_despesas' && totalDespesas <= Number(goal.valor_alvo) && totalDespesas > 0) {
+              if (goal.tipo_meta === 'limite_despesas' && totalDespesas <= Number(goal.valor_alvo)) {
                 shouldUnlock = true;
                 break;
               }
