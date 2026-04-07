@@ -5,7 +5,7 @@ import { useProfile } from '@/contexts/ProfileContext';
 import { useCallback, useEffect, useRef } from 'react';
 import { differenceInDays, format, subDays, parseISO } from 'date-fns';
 import { toast } from 'sonner';
-import confetti from 'canvas-confetti';
+import { fireConfetti } from '@/lib/confetti';
 
 interface Badge {
   id: string;
@@ -71,27 +71,7 @@ export function useGamification() {
   });
 
   const celebrateBadge = useCallback((badge: Badge) => {
-    // Confetti burst
-    const end = Date.now() + 1500;
-    const colors = ['#0C5BA8', '#F59E0B', '#10B981', '#8B5CF6', '#EC4899'];
-    
-    (function frame() {
-      confetti({
-        particleCount: 3,
-        angle: 60,
-        spread: 55,
-        origin: { x: 0, y: 0.7 },
-        colors,
-      });
-      confetti({
-        particleCount: 3,
-        angle: 120,
-        spread: 55,
-        origin: { x: 1, y: 0.7 },
-        colors,
-      });
-      if (Date.now() < end) requestAnimationFrame(frame);
-    })();
+    fireConfetti();
 
     // Special toast
     toast.success(`${badge.icone} ${badge.nome}`, {
