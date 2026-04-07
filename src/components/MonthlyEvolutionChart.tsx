@@ -105,6 +105,7 @@ export function MonthlyEvolutionChart({ userId, profileId, currentMonth }: Props
                   width={55}
                 />
                 <Tooltip
+                  cursor={{ fill: 'transparent' }}
                   formatter={(v: number, name: string) => [fmt(v), name]}
                   contentStyle={{
                     backgroundColor: 'hsl(var(--card))',
