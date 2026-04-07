@@ -13,7 +13,7 @@ export default function ConquistasPage() {
     <div className="space-y-6">
       <div className="animate-fade-up">
         <h2 className="text-2xl font-bold">Conquistas</h2>
-        <p className="text-muted-foreground text-sm">Suas medalhas, streaks e nível</p>
+        <p className="text-muted-foreground text-sm">Suas medalhas, sequências e nível</p>
       </div>
 
       {/* Level & Streak cards */}
@@ -31,7 +31,7 @@ export default function ConquistasPage() {
             </div>
             <div className="mt-3">
               <Progress value={xpProgress} className="h-1.5" />
-              <p className="text-xs text-muted-foreground mt-1">{unlockedBadges.length} badges — próx. nível: {(level) * 3}</p>
+              <p className="text-xs text-muted-foreground mt-1">{unlockedBadges.length} medalhas — próx. nível: {(level) * 3}</p>
             </div>
           </CardContent>
         </Card>
@@ -43,11 +43,11 @@ export default function ConquistasPage() {
                 <Flame className="text-destructive" size={20} />
               </div>
               <div>
-                <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Streak Atual</p>
+                <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Sequência Atual</p>
                 <p className="text-lg font-bold text-destructive">{streak.current_streak} dias</p>
               </div>
             </div>
-            <p className="text-xs text-muted-foreground mt-2">Sem besteiras consecutivos</p>
+            <p className="text-xs text-muted-foreground mt-2">Dias seguidos sem besteiras</p>
           </CardContent>
         </Card>
 
@@ -71,13 +71,13 @@ export default function ConquistasPage() {
       <Card className="card-glass animate-fade-up" style={{ animationDelay: '0.1s' }}>
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
-            Badges Desbloqueados ({unlockedBadges.length})
+            Medalhas Conquistadas ({unlockedBadges.length})
           </CardTitle>
         </CardHeader>
         <CardContent>
           {unlockedBadges.length === 0 ? (
             <p className="text-muted-foreground text-center py-8 text-sm">
-              Nenhum badge ainda. Continue usando o app para desbloquear!
+              Nenhuma medalha ainda. Continue usando o app para conquistar!
             </p>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
@@ -106,7 +106,7 @@ export default function ConquistasPage() {
         <CardContent>
           {lockedBadges.length === 0 ? (
             <p className="text-muted-foreground text-center py-8 text-sm">
-              🎉 Parabéns! Todos os badges foram desbloqueados!
+              🎉 Parabéns! Todas as medalhas foram conquistadas!
             </p>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
