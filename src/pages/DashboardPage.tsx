@@ -169,6 +169,33 @@ export default function DashboardPage() {
           </Card>
         ))}
       </div>
+
+      {/* Gamification mini */}
+      <div className="grid grid-cols-2 gap-3 animate-fade-up" style={{ animationDelay: '0.2s' }}>
+        <Card className="card-glass cursor-pointer hover:border-primary/30 transition-colors" onClick={() => navigate('/conquistas')}>
+          <CardContent className="pt-4 pb-3 flex items-center gap-3">
+            <div className="p-2 rounded-xl bg-accent/10">
+              <Trophy className="text-accent" size={18} />
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">Nível {level}</p>
+              <p className="text-sm font-bold">{unlockedBadges.length} badges</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="card-glass cursor-pointer hover:border-destructive/30 transition-colors" onClick={() => navigate('/conquistas')}>
+          <CardContent className="pt-4 pb-3 flex items-center gap-3">
+            <div className="p-2 rounded-xl bg-destructive/10">
+              <Flame className="text-destructive" size={18} />
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">Streak</p>
+              <p className="text-sm font-bold">{streak.current_streak} dias 🔥</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
       {/* Evolution chart */}
       <MonthlyEvolutionChart userId={user!.id} profileId={activeProfile?.id} currentMonth={currentMonth} />
 
