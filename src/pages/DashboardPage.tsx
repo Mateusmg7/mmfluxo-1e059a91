@@ -3,16 +3,18 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/contexts/ProfileContext';
 import { useQuery } from '@tanstack/react-query';
+import { useGamification } from '@/hooks/useGamification';
 import { format, startOfMonth, endOfMonth, addMonths, subMonths, isSameMonth } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowDownCircle, ArrowUpCircle, TrendingUp, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowDownCircle, ArrowUpCircle, TrendingUp, ChevronLeft, ChevronRight, Trophy, Flame } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend, Label as ReLabel } from 'recharts';
 import { MonthlyEvolutionChart } from '@/components/MonthlyEvolutionChart';
 import { PieTooltip } from '@/components/PieTooltip';
 import { renderActiveSlice } from '@/components/ActivePieSlice';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
 
 const COLORS_MAP: Record<string, string> = {
   essencial: '#0C5BA8',
