@@ -163,7 +163,7 @@ export default function RankingPage() {
                             profile.economia >= 0 ? 'text-emerald-500' : 'text-destructive'
                           )}
                         >
-                          {profile.economia >= 0 ? '+' : ''}
+                          {profile.economia >= 0 ? '+' : '−'}
                           R$ {Math.abs(profile.economia).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                         </span>
                       </div>
