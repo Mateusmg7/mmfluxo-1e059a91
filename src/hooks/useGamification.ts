@@ -77,12 +77,7 @@ export function useGamification() {
     toast.success(`${badge.icone} ${badge.nome}`, {
       description: badge.descricao,
       duration: 5000,
-      style: {
-        background: 'linear-gradient(135deg, hsl(210, 85%, 35%), hsl(147, 78%, 39%))',
-        color: '#fff',
-        border: 'none',
-        fontWeight: 600,
-      },
+      className: 'achievement-toast',
     });
   }, []);
 
