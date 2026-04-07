@@ -18,7 +18,7 @@ export function MonthlyEvolutionChart({ userId, profileId, currentMonth }: Props
     const m = subMonths(currentMonth, 5 - i);
     return {
       date: m,
-      label: format(m, 'MMM/yy', { locale: ptBR }),
+      label: format(m, 'MMM', { locale: ptBR }),
       start: format(startOfMonth(m), 'yyyy-MM-dd'),
       end: format(endOfMonth(m), 'yyyy-MM-dd'),
     };
