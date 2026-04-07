@@ -6,6 +6,7 @@ import { useCallback, useEffect, useRef } from 'react';
 import { differenceInDays, format, subDays, parseISO } from 'date-fns';
 import { toast } from 'sonner';
 import { fireConfetti } from '@/lib/confetti';
+import { playAchievementSound } from '@/lib/achievementSound';
 
 interface Badge {
   id: string;
@@ -72,6 +73,7 @@ export function useGamification() {
 
   const celebrateBadge = useCallback((badge: Badge) => {
     fireConfetti();
+    playAchievementSound();
 
     // Special toast
     toast.success(`${badge.icone} ${badge.nome}`, {
