@@ -7,6 +7,7 @@ import PushDebugPanel from '@/components/PushDebugPanel';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { CurrencyInput } from '@/components/CurrencyInput';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -417,7 +418,7 @@ export default function AlertasPage() {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="text-sm font-medium text-muted-foreground">Valor (opcional)</label>
-                <Input type="number" placeholder="0.00" min="0" step="0.01" value={valor} onChange={(e) => setValor(e.target.value)} />
+                <CurrencyInput value={valor} onChange={setValor} />
               </div>
               <div>
                 <label className="text-sm font-medium text-muted-foreground">Dia do vencimento *</label>
@@ -456,7 +457,7 @@ export default function AlertasPage() {
                     </p>
                     <p className="text-xs text-muted-foreground">
                       Dia {r.dia_vencimento}
-                      {r.valor && ` • R$ ${r.valor.toFixed(2)}`}
+                      {r.valor && ` • ${r.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`}
                     </p>
                   </div>
                   {isUrgent && (
@@ -491,7 +492,7 @@ export default function AlertasPage() {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="text-sm font-medium text-muted-foreground">Valor (opcional)</label>
-                <Input type="number" placeholder="0.00" min="0" step="0.01" value={valor} onChange={(e) => setValor(e.target.value)} />
+                <CurrencyInput value={valor} onChange={setValor} />
               </div>
               <div>
                 <label className="text-sm font-medium text-muted-foreground">Dia do vencimento *</label>

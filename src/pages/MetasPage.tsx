@@ -8,6 +8,7 @@ import { format, startOfMonth, endOfMonth } from 'date-fns';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { CurrencyInput } from '@/components/CurrencyInput';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -178,7 +179,7 @@ export default function MetasPage() {
                 </div>
                 <div className="space-y-2">
                   <Label>Valor alvo (R$)</Label>
-                  <Input type="number" step="0.01" value={valorAlvo} onChange={(e) => setValorAlvo(e.target.value)} />
+                  <CurrencyInput value={valorAlvo} onChange={setValorAlvo} />
                 </div>
               </div>
               {tipoMeta === 'limite_categoria' && (
