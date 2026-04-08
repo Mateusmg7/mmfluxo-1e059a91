@@ -317,10 +317,36 @@ export default function TransacoesPage() {
                   <Input type="time" value={hora} onChange={(e) => setHora(e.target.value)} />
                 </div>
               </div>
-              <div className="flex items-center gap-2">
-                <Checkbox id="recorrente" checked={recorrente} onCheckedChange={(v) => setRecorrente(!!v)} />
-                <Label htmlFor="recorrente" className="text-sm cursor-pointer">Despesa recorrente</Label>
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <Checkbox id="recorrente" checked={recorrente} onCheckedChange={(v) => setRecorrente(!!v)} />
+                  <Label htmlFor="recorrente" className="text-sm cursor-pointer">Recorrente</Label>
+                </div>
+                {!editId && (
+                  <div className="flex items-center gap-2">
+                    <Checkbox id="parcelado" checked={parcelado} onCheckedChange={(v) => { setParcelado(!!v); if (!v) setTotalParcelas('2'); }} />
+                    <Label htmlFor="parcelado" className="text-sm cursor-pointer">Parcelado</Label>
+                  </div>
+                )}
               </div>
+              {parcelado && !editId && (
+                <div className="space-y-2">
+                  <Label>Número de parcelas</Label>
+                  <Input
+                    type="number"
+                    min="2"
+                    max="48"
+                    value={totalParcelas}
+                    onChange={(e) => setTotalParcelas(e.target.value)}
+                    placeholder="Ex: 12"
+                  />
+                  {valor && parseInt(totalParcelas) >= 2 && (
+                    <p className="text-xs text-muted-foreground">
+                      {parseInt(totalParcelas)}x de {fmt(Math.round((parseFloat(valor) / parseInt(totalParcelas)) * 100) / 100)}
+                    </p>
+                  )}
+                </div>
+              )}
               <Button onClick={handleSave} className="w-full">Salvar</Button>
             </div>
           </DialogContent>
