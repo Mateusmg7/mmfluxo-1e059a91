@@ -214,40 +214,6 @@ export default function TransacoesPage() {
     setDeleteId(null);
   };
 
-  const toggleStatus = async (t: any) => {
-    const newStatus = t.status === 'pago' ? 'previsto' : 'pago';
-    const { error } = await supabase.from('transactions').update({ status: newStatus }).eq('id', t.id);
-    if (error) { toast.error(error.message); return; }
-    toast.success(newStatus === 'pago' ? 'Marcado como pago ✅' : 'Marcado como previsto');
-    qc.invalidateQueries({ queryKey: ['transactions'] });
-  };
-
-  const handleAdvanceInstallments = async () => {
-    if (!advanceGroup) return;
-    const count = Math.max(1, parseInt(advanceCount) || 1);
-    
-    // Fetch all unpaid future installments of this group
-    const { data: allParcelas, error: fetchErr } = await supabase
-      .from('transactions')
-      .select('id, parcela_atual, status')
-      .eq('parcela_grupo_id', advanceGroup.grupoId)
-      .eq('status', 'previsto')
-      .order('parcela_atual', { ascending: true })
-      .limit(count);
-    
-    if (fetchErr) { toast.error(fetchErr.message); return; }
-    if (!allParcelas?.length) { toast.info('Não há parcelas previstas para adiantar'); setAdvanceGroup(null); return; }
-
-    const ids = allParcelas.map(p => p.id);
-    const { error } = await supabase.from('transactions').update({ status: 'pago' }).in('id', ids);
-    if (error) { toast.error(error.message); return; }
-    
-    toast.success(`${ids.length} parcela(s) marcada(s) como paga(s) ✅`);
-    qc.invalidateQueries({ queryKey: ['transactions'] });
-    setAdvanceGroup(null);
-    setAdvanceCount('1');
-  };
-
   const fmt = (v: number) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
   const getLabel = (t: any) => {
@@ -326,21 +292,9 @@ export default function TransacoesPage() {
                 <Label>Motivo</Label>
                 <Input value={motivo} onChange={(e) => setMotivo(e.target.value)} placeholder="Ex: conserto da moto, hambúrguer iFood" />
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Valor (R$)</Label>
-                  <CurrencyInput value={valor} onChange={setValor} />
-                </div>
-                <div className="space-y-2">
-                  <Label>Status</Label>
-                  <Select value={status} onValueChange={setStatus}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="pago">Pago</SelectItem>
-                      <SelectItem value="previsto">Previsto</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+              <div className="space-y-2">
+                <Label>Valor (R$)</Label>
+                <CurrencyInput value={valor} onChange={setValor} />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
@@ -398,14 +352,6 @@ export default function TransacoesPage() {
             <SelectItem value="lazer">Lazer</SelectItem>
             <SelectItem value="imprevisto">Imprevisto</SelectItem>
             <SelectItem value="besteira">Besteira</SelectItem>
-          </SelectContent>
-        </Select>
-        <Select value={filtroStatus} onValueChange={setFiltroStatus}>
-          <SelectTrigger className="w-32"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="todos">Todos</SelectItem>
-            <SelectItem value="pago">Pago</SelectItem>
-            <SelectItem value="previsto">Previsto</SelectItem>
           </SelectContent>
         </Select>
         <Select value={ordem} onValueChange={setOrdem}>
@@ -502,33 +448,6 @@ export default function TransacoesPage() {
         onConfirm={handleDelete}
         description="Tem certeza que deseja excluir esta despesa? Esta ação não pode ser desfeita."
       />
-      <AlertDialog open={!!advanceGroup} onOpenChange={(o) => { if (!o) { setAdvanceGroup(null); setAdvanceCount('1'); } }}>
-        <AlertDialogContent className="bg-card border-border">
-          <AlertDialogHeader>
-            <AlertDialogTitle>Adiantar parcelas</AlertDialogTitle>
-            <AlertDialogDescription>
-              {advanceGroup && (
-                <>
-                  <span className="block mb-2">{advanceGroup.label} — parcela {advanceGroup.parcelaAtual}/{advanceGroup.totalParcelas}</span>
-                  Quantas parcelas previstas deseja marcar como pagas?
-                </>
-              )}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <Input
-            type="number"
-            min="1"
-            max={advanceGroup ? advanceGroup.totalParcelas - advanceGroup.parcelaAtual : 1}
-            value={advanceCount}
-            onChange={(e) => setAdvanceCount(e.target.value)}
-            placeholder="Ex: 3"
-          />
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={handleAdvanceInstallments}>Adiantar</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 }
