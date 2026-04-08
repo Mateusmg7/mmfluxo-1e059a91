@@ -12,6 +12,7 @@ interface FinancialProfile {
   color: string;
   is_default: boolean;
   created_at: string;
+  orcamento_mensal: number;
 }
 
 interface ProfileContextType {

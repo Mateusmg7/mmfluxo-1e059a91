@@ -181,6 +181,7 @@ export type Database = {
           id: string
           is_default: boolean
           name: string
+          orcamento_mensal: number | null
           user_id: string
         }
         Insert: {
@@ -190,6 +191,7 @@ export type Database = {
           id?: string
           is_default?: boolean
           name?: string
+          orcamento_mensal?: number | null
           user_id: string
         }
         Update: {
@@ -199,6 +201,7 @@ export type Database = {
           id?: string
           is_default?: boolean
           name?: string
+          orcamento_mensal?: number | null
           user_id?: string
         }
         Relationships: []

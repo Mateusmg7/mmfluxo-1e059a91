@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useProfile } from '@/contexts/ProfileContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,12 +10,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { Sun, Moon } from 'lucide-react';
+import { Sun, Moon, Wallet } from 'lucide-react';
 import { toast } from 'sonner';
+import { CurrencyInput } from '@/components/CurrencyInput';
 
 export default function ConfiguracoesPage() {
   const { user } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const { activeProfile } = useProfile();
   const qc = useQueryClient();
 
   const { data: profile } = useQuery({
@@ -30,6 +33,7 @@ export default function ConfiguracoesPage() {
   const [email, setEmail] = useState('');
   const [mesInicio, setMesInicio] = useState('1');
   const [fuso, setFuso] = useState('America/Sao_Paulo');
+  const [orcamento, setOrcamento] = useState('');
 
   useEffect(() => {
     if (profile) {
@@ -39,6 +43,12 @@ export default function ConfiguracoesPage() {
       setFuso(profile.fuso_horario);
     }
   }, [profile]);
+
+  useEffect(() => {
+    if (activeProfile) {
+      setOrcamento(activeProfile.orcamento_mensal ? String(activeProfile.orcamento_mensal) : '');
+    }
+  }, [activeProfile]);
 
   const handleSave = async () => {
     const { error } = await supabase.from('profiles').update({
@@ -53,12 +63,43 @@ export default function ConfiguracoesPage() {
     qc.invalidateQueries({ queryKey: ['profile'] });
   };
 
+  const handleSaveBudget = async () => {
+    if (!activeProfile) return;
+    const valor = orcamento ? parseFloat(orcamento) : 0;
+    const { error } = await supabase.from('financial_profiles').update({
+      orcamento_mensal: valor,
+    }).eq('id', activeProfile.id);
+    if (error) { toast.error(error.message); return; }
+    toast.success('Orçamento atualizado');
+    qc.invalidateQueries({ queryKey: ['financial_profiles'] });
+  };
+
   return (
     <div className="space-y-6 max-w-xl">
       <div>
         <h2 className="text-2xl font-bold">Configurações</h2>
         <p className="text-muted-foreground text-sm">Ajuste seu perfil e preferências</p>
       </div>
+
+      <Card className="card-glass">
+        <CardHeader>
+          <CardTitle className="text-base flex items-center gap-2"><Wallet size={18} className="text-primary" /> Orçamento Mensal</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-xs text-muted-foreground">
+            Defina um teto de gastos para o perfil <strong>{activeProfile?.icon} {activeProfile?.name}</strong>. O valor restante será exibido no Dashboard.
+          </p>
+          <div className="flex gap-2">
+            <CurrencyInput
+              value={orcamento}
+              onChange={setOrcamento}
+              placeholder="Ex: 3.000,00"
+              className="flex-1"
+            />
+            <Button onClick={handleSaveBudget} size="sm">Salvar</Button>
+          </div>
+        </CardContent>
+      </Card>
 
       <Card className="card-glass">
         <CardHeader>
