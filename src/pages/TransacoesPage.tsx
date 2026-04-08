@@ -48,6 +48,8 @@ export default function TransacoesPage() {
   const [ordem, setOrdem] = useState('');
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [advanceGroup, setAdvanceGroup] = useState<{ grupoId: string; parcelaAtual: number; totalParcelas: number; label: string } | null>(null);
+  const [advanceCount, setAdvanceCount] = useState('1');
 
   const goToPrevMonth = () => setCurrentMonth(prev => subMonths(prev, 1));
   const goToNextMonth = () => setCurrentMonth(prev => addMonths(prev, 1));
