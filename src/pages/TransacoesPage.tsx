@@ -504,6 +504,33 @@ export default function TransacoesPage() {
         onConfirm={handleDelete}
         description="Tem certeza que deseja excluir esta despesa? Esta ação não pode ser desfeita."
       />
+      <AlertDialog open={!!advanceGroup} onOpenChange={(o) => { if (!o) { setAdvanceGroup(null); setAdvanceCount('1'); } }}>
+        <AlertDialogContent className="bg-card border-border">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Adiantar parcelas</AlertDialogTitle>
+            <AlertDialogDescription>
+              {advanceGroup && (
+                <>
+                  <span className="block mb-2">{advanceGroup.label} — parcela {advanceGroup.parcelaAtual}/{advanceGroup.totalParcelas}</span>
+                  Quantas parcelas previstas deseja marcar como pagas?
+                </>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <Input
+            type="number"
+            min="1"
+            max={advanceGroup ? advanceGroup.totalParcelas - advanceGroup.parcelaAtual : 1}
+            value={advanceCount}
+            onChange={(e) => setAdvanceCount(e.target.value)}
+            placeholder="Ex: 3"
+          />
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleAdvanceInstallments}>Adiantar</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
