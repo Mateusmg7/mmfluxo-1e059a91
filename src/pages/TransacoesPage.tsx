@@ -41,7 +41,7 @@ export default function TransacoesPage() {
 
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [filtroTipo, setFiltroTipo] = useState('todos');
-  const [filtroStatus] = useState('todos');
+  
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [ordem, setOrdem] = useState('');
@@ -98,7 +98,6 @@ export default function TransacoesPage() {
 
   const filtered = transactions.filter((t: any) => {
     if (filtroTipo !== 'todos' && t.tipo_despesa !== filtroTipo) return false;
-    if (filtroStatus !== 'todos' && t.status !== filtroStatus) return false;
     return true;
   }).sort((a: any, b: any) => {
     const [campo, dir] = ordem.split('-');
