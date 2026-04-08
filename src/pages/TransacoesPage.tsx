@@ -65,6 +65,8 @@ export default function TransacoesPage() {
   const [hora, setHora] = useState(format(now, 'HH:mm'));
   const [status, setStatus] = useState('pago');
   const [recorrente, setRecorrente] = useState(false);
+  const [parcelado, setParcelado] = useState(false);
+  const [totalParcelas, setTotalParcelas] = useState('2');
 
   const { data: categories = [] } = useQuery({
     queryKey: ['categories', activeProfile?.id],
