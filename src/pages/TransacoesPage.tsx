@@ -216,6 +216,40 @@ export default function TransacoesPage() {
     setDeleteId(null);
   };
 
+  const toggleStatus = async (t: any) => {
+    const newStatus = t.status === 'pago' ? 'previsto' : 'pago';
+    const { error } = await supabase.from('transactions').update({ status: newStatus }).eq('id', t.id);
+    if (error) { toast.error(error.message); return; }
+    toast.success(newStatus === 'pago' ? 'Marcado como pago ✅' : 'Marcado como previsto');
+    qc.invalidateQueries({ queryKey: ['transactions'] });
+  };
+
+  const handleAdvanceInstallments = async () => {
+    if (!advanceGroup) return;
+    const count = Math.max(1, parseInt(advanceCount) || 1);
+    
+    // Fetch all unpaid future installments of this group
+    const { data: allParcelas, error: fetchErr } = await supabase
+      .from('transactions')
+      .select('id, parcela_atual, status')
+      .eq('parcela_grupo_id', advanceGroup.grupoId)
+      .eq('status', 'previsto')
+      .order('parcela_atual', { ascending: true })
+      .limit(count);
+    
+    if (fetchErr) { toast.error(fetchErr.message); return; }
+    if (!allParcelas?.length) { toast.info('Não há parcelas previstas para adiantar'); setAdvanceGroup(null); return; }
+
+    const ids = allParcelas.map(p => p.id);
+    const { error } = await supabase.from('transactions').update({ status: 'pago' }).in('id', ids);
+    if (error) { toast.error(error.message); return; }
+    
+    toast.success(`${ids.length} parcela(s) marcada(s) como paga(s) ✅`);
+    qc.invalidateQueries({ queryKey: ['transactions'] });
+    setAdvanceGroup(null);
+    setAdvanceCount('1');
+  };
+
   const fmt = (v: number) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
   const getLabel = (t: any) => {
