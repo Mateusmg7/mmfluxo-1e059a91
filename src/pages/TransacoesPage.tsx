@@ -16,7 +16,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Plus, Pencil, Trash2, ArrowUpDown, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Plus, Pencil, Trash2, ArrowUpDown, ChevronLeft, ChevronRight, CreditCard } from 'lucide-react';
 import { toast } from 'sonner';
 
 const TIPO_LABELS: Record<string, string> = {
@@ -65,6 +65,8 @@ export default function TransacoesPage() {
   const [hora, setHora] = useState(format(now, 'HH:mm'));
   const [status, setStatus] = useState('pago');
   const [recorrente, setRecorrente] = useState(false);
+  const [parcelado, setParcelado] = useState(false);
+  const [totalParcelas, setTotalParcelas] = useState('2');
 
   const { data: categories = [] } = useQuery({
     queryKey: ['categories', activeProfile?.id],
@@ -125,6 +127,8 @@ export default function TransacoesPage() {
     setHora(format(now, 'HH:mm'));
     setStatus('pago');
     setRecorrente(false);
+    setParcelado(false);
+    setTotalParcelas('2');
     setEditId(null);
   };
 
@@ -132,13 +136,11 @@ export default function TransacoesPage() {
     if (!valor) { toast.error('Preencha o valor'); return; }
     if (tipoDespesa === 'essencial' && !categoryId) { toast.error('Selecione a categoria'); return; }
 
-    const payload: any = {
+    const valorNum = parseFloat(valor);
+    const basePayload: any = {
       user_id: user!.id,
       tipo_despesa: tipoDespesa,
       motivo,
-      valor: parseFloat(valor),
-      data,
-      hora,
       descricao: motivo,
       status,
       recorrente,
@@ -147,11 +149,33 @@ export default function TransacoesPage() {
     };
 
     if (editId) {
-      const { error } = await supabase.from('transactions').update(payload).eq('id', editId);
+      const { error } = await supabase.from('transactions').update({ ...basePayload, valor: valorNum, data, hora }).eq('id', editId);
       if (error) { toast.error(error.message); return; }
       toast.success('Despesa atualizada');
+    } else if (parcelado && !editId) {
+      const numParcelas = Math.max(2, Math.min(48, parseInt(totalParcelas) || 2));
+      const valorParcela = Math.round((valorNum / numParcelas) * 100) / 100;
+      const grupoId = crypto.randomUUID();
+      const parcelas = [];
+
+      for (let i = 0; i < numParcelas; i++) {
+        const dataParcela = format(addMonths(new Date(data + 'T12:00:00'), i), 'yyyy-MM-dd');
+        parcelas.push({
+          ...basePayload,
+          valor: valorParcela,
+          data: dataParcela,
+          hora,
+          parcela_atual: i + 1,
+          total_parcelas: numParcelas,
+          parcela_grupo_id: grupoId,
+        });
+      }
+
+      const { error } = await supabase.from('transactions').insert(parcelas);
+      if (error) { toast.error(error.message); return; }
+      toast.success(`${numParcelas} parcelas de ${fmt(valorParcela)} criadas`);
     } else {
-      const { error } = await supabase.from('transactions').insert(payload);
+      const { error } = await supabase.from('transactions').insert({ ...basePayload, valor: valorNum, data, hora });
       if (error) { toast.error(error.message); return; }
       toast.success('Despesa adicionada');
     }
@@ -293,10 +317,36 @@ export default function TransacoesPage() {
                   <Input type="time" value={hora} onChange={(e) => setHora(e.target.value)} />
                 </div>
               </div>
-              <div className="flex items-center gap-2">
-                <Checkbox id="recorrente" checked={recorrente} onCheckedChange={(v) => setRecorrente(!!v)} />
-                <Label htmlFor="recorrente" className="text-sm cursor-pointer">Despesa recorrente</Label>
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <Checkbox id="recorrente" checked={recorrente} onCheckedChange={(v) => setRecorrente(!!v)} />
+                  <Label htmlFor="recorrente" className="text-sm cursor-pointer">Recorrente</Label>
+                </div>
+                {!editId && (
+                  <div className="flex items-center gap-2">
+                    <Checkbox id="parcelado" checked={parcelado} onCheckedChange={(v) => { setParcelado(!!v); if (!v) setTotalParcelas('2'); }} />
+                    <Label htmlFor="parcelado" className="text-sm cursor-pointer">Parcelado</Label>
+                  </div>
+                )}
               </div>
+              {parcelado && !editId && (
+                <div className="space-y-2">
+                  <Label>Número de parcelas</Label>
+                  <Input
+                    type="number"
+                    min="2"
+                    max="48"
+                    value={totalParcelas}
+                    onChange={(e) => setTotalParcelas(e.target.value)}
+                    placeholder="Ex: 12"
+                  />
+                  {valor && parseInt(totalParcelas) >= 2 && (
+                    <p className="text-xs text-muted-foreground">
+                      {parseInt(totalParcelas)}x de {fmt(Math.round((parseFloat(valor) / parseInt(totalParcelas)) * 100) / 100)}
+                    </p>
+                  )}
+                </div>
+              )}
               <Button onClick={handleSave} className="w-full">Salvar</Button>
             </div>
           </DialogContent>
@@ -370,6 +420,7 @@ export default function TransacoesPage() {
                     {format(new Date(t.data + 'T00:00'), 'dd/MM', { locale: ptBR })} · {t.hora} · {TIPO_LABELS[t.tipo_despesa] ?? 'Essencial'}
                     {t.categories?.nome ? ` · ${t.categories.nome}` : ''}
                     {t.recorrente ? ' · 🔄 Recorrente' : ''}
+                    {t.total_parcelas ? ` · 💳 ${t.parcela_atual}/${t.total_parcelas}` : ''}
                   </p>
                 </div>
               </div>

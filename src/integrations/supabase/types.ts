@@ -365,10 +365,13 @@ export type Database = {
           hora: string
           id: string
           motivo: string
+          parcela_atual: number | null
+          parcela_grupo_id: string | null
           profile_id: string | null
           recorrente: boolean
           status: string
           tipo_despesa: string
+          total_parcelas: number | null
           user_id: string
           valor: number
         }
@@ -380,10 +383,13 @@ export type Database = {
           hora?: string
           id?: string
           motivo?: string
+          parcela_atual?: number | null
+          parcela_grupo_id?: string | null
           profile_id?: string | null
           recorrente?: boolean
           status?: string
           tipo_despesa?: string
+          total_parcelas?: number | null
           user_id: string
           valor: number
         }
@@ -395,10 +401,13 @@ export type Database = {
           hora?: string
           id?: string
           motivo?: string
+          parcela_atual?: number | null
+          parcela_grupo_id?: string | null
           profile_id?: string | null
           recorrente?: boolean
           status?: string
           tipo_despesa?: string
+          total_parcelas?: number | null
           user_id?: string
           valor?: number
         }
