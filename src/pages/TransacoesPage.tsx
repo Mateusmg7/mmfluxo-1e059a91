@@ -14,11 +14,10 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Badge } from '@/components/ui/badge';
+
 import { Checkbox } from '@/components/ui/checkbox';
-import { Plus, Pencil, Trash2, ArrowUpDown, ChevronLeft, ChevronRight, CreditCard, CheckCircle, Clock, FastForward } from 'lucide-react';
+import { Plus, Pencil, Trash2, ArrowUpDown, ChevronLeft, ChevronRight, CreditCard } from 'lucide-react';
 import { toast } from 'sonner';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 
 const TIPO_LABELS: Record<string, string> = {
   essencial: 'Essencial',
@@ -42,14 +41,12 @@ export default function TransacoesPage() {
 
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [filtroTipo, setFiltroTipo] = useState('todos');
-  const [filtroStatus, setFiltroStatus] = useState('todos');
+  
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [ordem, setOrdem] = useState('');
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [advanceGroup, setAdvanceGroup] = useState<{ grupoId: string; parcelaAtual: number; totalParcelas: number; label: string } | null>(null);
-  const [advanceCount, setAdvanceCount] = useState('1');
 
   const goToPrevMonth = () => setCurrentMonth(prev => subMonths(prev, 1));
   const goToNextMonth = () => setCurrentMonth(prev => addMonths(prev, 1));
@@ -66,7 +63,7 @@ export default function TransacoesPage() {
   const [valor, setValor] = useState('');
   const [data, setData] = useState(format(now, 'yyyy-MM-dd'));
   const [hora, setHora] = useState(format(now, 'HH:mm'));
-  const [status, setStatus] = useState('pago');
+  
   const [recorrente, setRecorrente] = useState(false);
   const [parcelado, setParcelado] = useState(false);
   const [totalParcelas, setTotalParcelas] = useState('2');
@@ -101,7 +98,6 @@ export default function TransacoesPage() {
 
   const filtered = transactions.filter((t: any) => {
     if (filtroTipo !== 'todos' && t.tipo_despesa !== filtroTipo) return false;
-    if (filtroStatus !== 'todos' && t.status !== filtroStatus) return false;
     return true;
   }).sort((a: any, b: any) => {
     const [campo, dir] = ordem.split('-');
@@ -128,7 +124,7 @@ export default function TransacoesPage() {
     setValor('');
     setData(format(now, 'yyyy-MM-dd'));
     setHora(format(now, 'HH:mm'));
-    setStatus('pago');
+    
     setRecorrente(false);
     setParcelado(false);
     setTotalParcelas('2');
@@ -145,7 +141,7 @@ export default function TransacoesPage() {
       tipo_despesa: tipoDespesa,
       motivo,
       descricao: motivo,
-      status,
+      status: 'pago',
       recorrente,
       profile_id: activeProfile?.id,
       category_id: tipoDespesa === 'essencial' ? categoryId : null,
@@ -171,7 +167,7 @@ export default function TransacoesPage() {
           parcela_atual: i + 1,
           total_parcelas: numParcelas,
           parcela_grupo_id: grupoId,
-          status: i === 0 ? status : 'previsto',
+          status: 'pago',
         });
       }
 
@@ -197,7 +193,7 @@ export default function TransacoesPage() {
     setValor(String(t.valor));
     setData(t.data);
     setHora(t.hora);
-    setStatus(t.status);
+    
     setRecorrente(t.recorrente ?? false);
     setDialogOpen(true);
   };
@@ -215,40 +211,6 @@ export default function TransacoesPage() {
     qc.invalidateQueries({ queryKey: ['transactions'] });
     setDeleteDialogOpen(false);
     setDeleteId(null);
-  };
-
-  const toggleStatus = async (t: any) => {
-    const newStatus = t.status === 'pago' ? 'previsto' : 'pago';
-    const { error } = await supabase.from('transactions').update({ status: newStatus }).eq('id', t.id);
-    if (error) { toast.error(error.message); return; }
-    toast.success(newStatus === 'pago' ? 'Marcado como pago ✅' : 'Marcado como previsto');
-    qc.invalidateQueries({ queryKey: ['transactions'] });
-  };
-
-  const handleAdvanceInstallments = async () => {
-    if (!advanceGroup) return;
-    const count = Math.max(1, parseInt(advanceCount) || 1);
-    
-    // Fetch all unpaid future installments of this group
-    const { data: allParcelas, error: fetchErr } = await supabase
-      .from('transactions')
-      .select('id, parcela_atual, status')
-      .eq('parcela_grupo_id', advanceGroup.grupoId)
-      .eq('status', 'previsto')
-      .order('parcela_atual', { ascending: true })
-      .limit(count);
-    
-    if (fetchErr) { toast.error(fetchErr.message); return; }
-    if (!allParcelas?.length) { toast.info('Não há parcelas previstas para adiantar'); setAdvanceGroup(null); return; }
-
-    const ids = allParcelas.map(p => p.id);
-    const { error } = await supabase.from('transactions').update({ status: 'pago' }).in('id', ids);
-    if (error) { toast.error(error.message); return; }
-    
-    toast.success(`${ids.length} parcela(s) marcada(s) como paga(s) ✅`);
-    qc.invalidateQueries({ queryKey: ['transactions'] });
-    setAdvanceGroup(null);
-    setAdvanceCount('1');
   };
 
   const fmt = (v: number) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -329,21 +291,9 @@ export default function TransacoesPage() {
                 <Label>Motivo</Label>
                 <Input value={motivo} onChange={(e) => setMotivo(e.target.value)} placeholder="Ex: conserto da moto, hambúrguer iFood" />
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Valor (R$)</Label>
-                  <CurrencyInput value={valor} onChange={setValor} />
-                </div>
-                <div className="space-y-2">
-                  <Label>Status</Label>
-                  <Select value={status} onValueChange={setStatus}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="pago">Pago</SelectItem>
-                      <SelectItem value="previsto">Previsto</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+              <div className="space-y-2">
+                <Label>Valor (R$)</Label>
+                <CurrencyInput value={valor} onChange={setValor} />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
@@ -403,14 +353,6 @@ export default function TransacoesPage() {
             <SelectItem value="besteira">Besteira</SelectItem>
           </SelectContent>
         </Select>
-        <Select value={filtroStatus} onValueChange={setFiltroStatus}>
-          <SelectTrigger className="w-32"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="todos">Todos</SelectItem>
-            <SelectItem value="pago">Pago</SelectItem>
-            <SelectItem value="previsto">Previsto</SelectItem>
-          </SelectContent>
-        </Select>
         <Select value={ordem} onValueChange={setOrdem}>
           <SelectTrigger className="w-48">
             <div className="flex items-center gap-1 min-w-0">
@@ -463,30 +405,8 @@ export default function TransacoesPage() {
                 </div>
               </div>
               <div className="flex items-center gap-3 flex-shrink-0">
-                <div className="text-right">
-                  <p className="font-semibold text-destructive">{fmt(Number(t.valor))}</p>
-                  <button
-                    onClick={() => toggleStatus(t)}
-                    className="inline-flex items-center gap-1 text-xs cursor-pointer hover:opacity-80 transition-opacity"
-                    title={t.status === 'pago' ? 'Clique para marcar como previsto' : 'Clique para marcar como pago'}
-                  >
-                    {t.status === 'pago' ? (
-                      <Badge variant="default" className="gap-1"><CheckCircle size={10} />pago</Badge>
-                    ) : (
-                      <Badge variant="secondary" className="gap-1"><Clock size={10} />previsto</Badge>
-                    )}
-                  </button>
-                </div>
+                <p className="font-semibold text-destructive">{fmt(Number(t.valor))}</p>
                 <div className="flex gap-1">
-                  {t.parcela_grupo_id && (
-                    <button
-                      onClick={() => setAdvanceGroup({ grupoId: t.parcela_grupo_id!, parcelaAtual: t.parcela_atual!, totalParcelas: t.total_parcelas!, label: getLabel(t) })}
-                      className="p-1.5 rounded hover:bg-secondary text-muted-foreground hover:text-primary"
-                      title="Adiantar parcelas"
-                    >
-                      <FastForward size={14} />
-                    </button>
-                  )}
                   <button onClick={() => handleEdit(t)} className="p-1.5 rounded hover:bg-secondary text-muted-foreground">
                     <Pencil size={14} />
                   </button>
@@ -505,33 +425,6 @@ export default function TransacoesPage() {
         onConfirm={handleDelete}
         description="Tem certeza que deseja excluir esta despesa? Esta ação não pode ser desfeita."
       />
-      <AlertDialog open={!!advanceGroup} onOpenChange={(o) => { if (!o) { setAdvanceGroup(null); setAdvanceCount('1'); } }}>
-        <AlertDialogContent className="bg-card border-border">
-          <AlertDialogHeader>
-            <AlertDialogTitle>Adiantar parcelas</AlertDialogTitle>
-            <AlertDialogDescription>
-              {advanceGroup && (
-                <>
-                  <span className="block mb-2">{advanceGroup.label} — parcela {advanceGroup.parcelaAtual}/{advanceGroup.totalParcelas}</span>
-                  Quantas parcelas previstas deseja marcar como pagas?
-                </>
-              )}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <Input
-            type="number"
-            min="1"
-            max={advanceGroup ? advanceGroup.totalParcelas - advanceGroup.parcelaAtual : 1}
-            value={advanceCount}
-            onChange={(e) => setAdvanceCount(e.target.value)}
-            placeholder="Ex: 3"
-          />
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={handleAdvanceInstallments}>Adiantar</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 }
