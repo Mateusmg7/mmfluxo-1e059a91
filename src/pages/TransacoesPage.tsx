@@ -127,6 +127,8 @@ export default function TransacoesPage() {
     setHora(format(now, 'HH:mm'));
     setStatus('pago');
     setRecorrente(false);
+    setParcelado(false);
+    setTotalParcelas('2');
     setEditId(null);
   };
 
