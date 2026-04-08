@@ -7,7 +7,7 @@ import { useGamification } from '@/hooks/useGamification';
 import { format, startOfMonth, endOfMonth, addMonths, subMonths, isSameMonth } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowDownCircle, ArrowUpCircle, TrendingUp, TrendingDown, ChevronLeft, ChevronRight, Trophy, Flame, Download, FileText, BarChart3, PieChartIcon, Layers } from 'lucide-react';
+import { ArrowDownCircle, ArrowUpCircle, TrendingUp, TrendingDown, ChevronLeft, ChevronRight, Trophy, Flame, Download, FileText, BarChart3, PieChartIcon, Layers, Wallet } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
 import { MonthlyEvolutionChart } from '@/components/MonthlyEvolutionChart';
 import { PieTooltip } from '@/components/PieTooltip';
@@ -258,6 +258,35 @@ export default function DashboardPage() {
 
         {/* ===== VISÃO GERAL ===== */}
         <TabsContent value="visao-geral" className="space-y-6">
+          {/* Budget card */}
+          {activeProfile && activeProfile.orcamento_mensal > 0 && (() => {
+            const orcamento = activeProfile.orcamento_mensal;
+            const restante = orcamento - totalDespesas;
+            const pct = Math.min((totalDespesas / orcamento) * 100, 100);
+            const estourou = restante < 0;
+            const quaseEstourando = !estourou && pct >= 80;
+            return (
+              <Card className={`card-glass border-l-4 ${estourou ? 'border-l-destructive' : quaseEstourando ? 'border-l-warning' : 'border-l-accent'}`}>
+                <CardContent className="pt-5 pb-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <Wallet size={18} className="text-primary" />
+                      <span className="text-sm font-semibold">Orçamento Mensal</span>
+                    </div>
+                    <span className="text-xs text-muted-foreground">{fmt(totalDespesas)} / {fmt(orcamento)}</span>
+                  </div>
+                  <Progress value={pct} className={`h-2.5 ${estourou ? '[&>div]:bg-destructive' : quaseEstourando ? '[&>div]:bg-warning' : '[&>div]:bg-accent'}`} />
+                  <div className="flex items-center justify-between mt-2">
+                    <span className={`text-sm font-bold ${estourou ? 'text-destructive' : 'text-accent'}`}>
+                      {estourou ? `Estourou ${fmt(Math.abs(restante))}` : `Resta ${fmt(restante)}`}
+                    </span>
+                    <span className="text-xs text-muted-foreground">{pct.toFixed(0)}% usado</span>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })()}
+
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
             {[
               { label: 'Despesas', value: fmt(totalDespesas), cls: 'text-destructive', bg: 'bg-destructive/10', Icon: ArrowDownCircle },
