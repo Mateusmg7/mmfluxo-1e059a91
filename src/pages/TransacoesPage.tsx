@@ -406,30 +406,8 @@ export default function TransacoesPage() {
                 </div>
               </div>
               <div className="flex items-center gap-3 flex-shrink-0">
-                <div className="text-right">
-                  <p className="font-semibold text-destructive">{fmt(Number(t.valor))}</p>
-                  <button
-                    onClick={() => toggleStatus(t)}
-                    className="inline-flex items-center gap-1 text-xs cursor-pointer hover:opacity-80 transition-opacity"
-                    title={t.status === 'pago' ? 'Clique para marcar como previsto' : 'Clique para marcar como pago'}
-                  >
-                    {t.status === 'pago' ? (
-                      <Badge variant="default" className="gap-1"><CheckCircle size={10} />pago</Badge>
-                    ) : (
-                      <Badge variant="secondary" className="gap-1"><Clock size={10} />previsto</Badge>
-                    )}
-                  </button>
-                </div>
+                <p className="font-semibold text-destructive">{fmt(Number(t.valor))}</p>
                 <div className="flex gap-1">
-                  {t.parcela_grupo_id && (
-                    <button
-                      onClick={() => setAdvanceGroup({ grupoId: t.parcela_grupo_id!, parcelaAtual: t.parcela_atual!, totalParcelas: t.total_parcelas!, label: getLabel(t) })}
-                      className="p-1.5 rounded hover:bg-secondary text-muted-foreground hover:text-primary"
-                      title="Adiantar parcelas"
-                    >
-                      <FastForward size={14} />
-                    </button>
-                  )}
                   <button onClick={() => handleEdit(t)} className="p-1.5 rounded hover:bg-secondary text-muted-foreground">
                     <Pencil size={14} />
                   </button>
