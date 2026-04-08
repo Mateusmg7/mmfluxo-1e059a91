@@ -41,14 +41,12 @@ export default function TransacoesPage() {
 
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [filtroTipo, setFiltroTipo] = useState('todos');
-  const [filtroStatus, setFiltroStatus] = useState('todos');
+  const [filtroStatus] = useState('todos');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [ordem, setOrdem] = useState('');
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [advanceGroup, setAdvanceGroup] = useState<{ grupoId: string; parcelaAtual: number; totalParcelas: number; label: string } | null>(null);
-  const [advanceCount, setAdvanceCount] = useState('1');
 
   const goToPrevMonth = () => setCurrentMonth(prev => subMonths(prev, 1));
   const goToNextMonth = () => setCurrentMonth(prev => addMonths(prev, 1));
@@ -65,7 +63,7 @@ export default function TransacoesPage() {
   const [valor, setValor] = useState('');
   const [data, setData] = useState(format(now, 'yyyy-MM-dd'));
   const [hora, setHora] = useState(format(now, 'HH:mm'));
-  const [status, setStatus] = useState('pago');
+  
   const [recorrente, setRecorrente] = useState(false);
   const [parcelado, setParcelado] = useState(false);
   const [totalParcelas, setTotalParcelas] = useState('2');
@@ -127,7 +125,7 @@ export default function TransacoesPage() {
     setValor('');
     setData(format(now, 'yyyy-MM-dd'));
     setHora(format(now, 'HH:mm'));
-    setStatus('pago');
+    
     setRecorrente(false);
     setParcelado(false);
     setTotalParcelas('2');
@@ -144,7 +142,7 @@ export default function TransacoesPage() {
       tipo_despesa: tipoDespesa,
       motivo,
       descricao: motivo,
-      status,
+      status: 'pago',
       recorrente,
       profile_id: activeProfile?.id,
       category_id: tipoDespesa === 'essencial' ? categoryId : null,
@@ -170,7 +168,7 @@ export default function TransacoesPage() {
           parcela_atual: i + 1,
           total_parcelas: numParcelas,
           parcela_grupo_id: grupoId,
-          status: i === 0 ? status : 'previsto',
+          status: 'pago',
         });
       }
 
@@ -196,7 +194,7 @@ export default function TransacoesPage() {
     setValor(String(t.valor));
     setData(t.data);
     setHora(t.hora);
-    setStatus(t.status);
+    
     setRecorrente(t.recorrente ?? false);
     setDialogOpen(true);
   };
