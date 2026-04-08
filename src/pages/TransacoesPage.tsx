@@ -420,6 +420,7 @@ export default function TransacoesPage() {
                     {format(new Date(t.data + 'T00:00'), 'dd/MM', { locale: ptBR })} · {t.hora} · {TIPO_LABELS[t.tipo_despesa] ?? 'Essencial'}
                     {t.categories?.nome ? ` · ${t.categories.nome}` : ''}
                     {t.recorrente ? ' · 🔄 Recorrente' : ''}
+                    {t.total_parcelas ? ` · 💳 ${t.parcela_atual}/${t.total_parcelas}` : ''}
                   </p>
                 </div>
               </div>
