@@ -136,13 +136,11 @@ export default function TransacoesPage() {
     if (!valor) { toast.error('Preencha o valor'); return; }
     if (tipoDespesa === 'essencial' && !categoryId) { toast.error('Selecione a categoria'); return; }
 
-    const payload: any = {
+    const valorNum = parseFloat(valor);
+    const basePayload: any = {
       user_id: user!.id,
       tipo_despesa: tipoDespesa,
       motivo,
-      valor: parseFloat(valor),
-      data,
-      hora,
       descricao: motivo,
       status,
       recorrente,
@@ -151,11 +149,33 @@ export default function TransacoesPage() {
     };
 
     if (editId) {
-      const { error } = await supabase.from('transactions').update(payload).eq('id', editId);
+      const { error } = await supabase.from('transactions').update({ ...basePayload, valor: valorNum, data, hora }).eq('id', editId);
       if (error) { toast.error(error.message); return; }
       toast.success('Despesa atualizada');
+    } else if (parcelado && !editId) {
+      const numParcelas = Math.max(2, Math.min(48, parseInt(totalParcelas) || 2));
+      const valorParcela = Math.round((valorNum / numParcelas) * 100) / 100;
+      const grupoId = crypto.randomUUID();
+      const parcelas = [];
+
+      for (let i = 0; i < numParcelas; i++) {
+        const dataParcela = format(addMonths(new Date(data + 'T12:00:00'), i), 'yyyy-MM-dd');
+        parcelas.push({
+          ...basePayload,
+          valor: valorParcela,
+          data: dataParcela,
+          hora,
+          parcela_atual: i + 1,
+          total_parcelas: numParcelas,
+          parcela_grupo_id: grupoId,
+        });
+      }
+
+      const { error } = await supabase.from('transactions').insert(parcelas);
+      if (error) { toast.error(error.message); return; }
+      toast.success(`${numParcelas} parcelas de ${fmt(valorParcela)} criadas`);
     } else {
-      const { error } = await supabase.from('transactions').insert(payload);
+      const { error } = await supabase.from('transactions').insert({ ...basePayload, valor: valorNum, data, hora });
       if (error) { toast.error(error.message); return; }
       toast.success('Despesa adicionada');
     }
