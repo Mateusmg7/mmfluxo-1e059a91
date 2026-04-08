@@ -25,7 +25,7 @@ const navItems = [
   { to: '/renda-extra', label: 'Renda Extra', icon: ArrowUpCircle },
   { to: '/alertas', label: 'Alertas', icon: Bell, hasBadge: true },
   { to: '/metas', label: 'Metas', icon: Target },
-  { to: '/conquistas', label: 'Ranking', icon: Trophy },
+  { to: '/ranking', label: 'Ranking', icon: Trophy },
   { to: '/configuracoes', label: 'Configurações', icon: Settings },
 ];
 

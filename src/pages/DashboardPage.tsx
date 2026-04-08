@@ -3,11 +3,11 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/contexts/ProfileContext';
 import { useQuery } from '@tanstack/react-query';
-import { useGamification } from '@/hooks/useGamification';
+
 import { format, startOfMonth, endOfMonth, addMonths, subMonths, isSameMonth } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowDownCircle, ArrowUpCircle, TrendingUp, TrendingDown, ChevronLeft, ChevronRight, Trophy, Flame, Download, FileText, BarChart3, PieChartIcon, Layers, Wallet } from 'lucide-react';
+import { ArrowDownCircle, ArrowUpCircle, TrendingUp, TrendingDown, ChevronLeft, ChevronRight, Download, FileText, BarChart3, PieChartIcon, Layers, Wallet } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
 import { MonthlyEvolutionChart } from '@/components/MonthlyEvolutionChart';
 import { PieTooltip } from '@/components/PieTooltip';
@@ -42,7 +42,7 @@ export default function DashboardPage() {
   const [activePieIdx, setActivePieIdx] = useState<number | undefined>(undefined);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const navigate = useNavigate();
-  const { unlockedBadges, streak, level } = useGamification();
+  
   const now = new Date();
   const monthStart = format(startOfMonth(currentMonth), 'yyyy-MM-dd');
   const monthEnd = format(endOfMonth(currentMonth), 'yyyy-MM-dd');
@@ -307,26 +307,6 @@ export default function DashboardPage() {
             ))}
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <Card className="card-glass cursor-pointer hover:border-primary/30 transition-colors" onClick={() => navigate('/conquistas')}>
-              <CardContent className="pt-4 pb-3 flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-accent/10"><Trophy className="text-accent" size={18} /></div>
-                <div>
-                  <p className="text-xs text-muted-foreground">Nível {level}</p>
-                  <p className="text-sm font-bold">{unlockedBadges.length} medalhas</p>
-                </div>
-              </CardContent>
-            </Card>
-            <Card className="card-glass cursor-pointer hover:border-destructive/30 transition-colors" onClick={() => navigate('/conquistas')}>
-              <CardContent className="pt-4 pb-3 flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-destructive/10"><Flame className="text-destructive" size={18} /></div>
-                <div>
-                  <p className="text-xs text-muted-foreground">Sequência</p>
-                  <p className="text-sm font-bold">{streak.current_streak} dias 🔥</p>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
 
           <MonthlyEvolutionChart userId={user!.id} profileId={activeProfile?.id} currentMonth={currentMonth} />
 
