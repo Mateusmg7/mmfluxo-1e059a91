@@ -50,7 +50,6 @@ export default function TransacoesPage() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [advanceCount, setAdvanceCount] = useState('1');
   const [pendingCount, setPendingCount] = useState(0);
-  const [pendingCount, setPendingCount] = useState(0);
 
   const goToPrevMonth = () => setCurrentMonth(prev => subMonths(prev, 1));
   const goToNextMonth = () => setCurrentMonth(prev => addMonths(prev, 1));
