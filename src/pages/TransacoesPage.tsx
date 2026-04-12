@@ -435,8 +435,6 @@ export default function TransacoesPage() {
                     {t.categories?.nome ? ` · ${t.categories.nome}` : ''}
                     {t.recorrente ? ' · 🔄 Recorrente' : ''}
                     {t.total_parcelas ? ` · 💳 ${t.parcela_atual}/${t.total_parcelas}` : ''}
-                    {t.total_parcelas && t.status === 'previsto' ? ' · ⏳ Pendente' : ''}
-                    {t.total_parcelas && t.status === 'pago' ? ' · ✅ Pago' : ''}
                   </p>
                 </div>
               </div>
