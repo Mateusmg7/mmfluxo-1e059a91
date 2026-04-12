@@ -202,18 +202,8 @@ export default function TransacoesPage() {
     
     setRecorrente(t.recorrente ?? false);
     setEditGrupoId(t.parcela_grupo_id ?? null);
-    setAdvanceCount('1');
-
-    if (t.parcela_grupo_id) {
-      supabase
-        .from('transactions')
-        .select('id')
-        .eq('parcela_grupo_id', t.parcela_grupo_id)
-        .eq('status', 'previsto')
-        .then(({ data: pending }) => setPendingCount(pending?.length ?? 0));
-    } else {
-      setPendingCount(0);
-    }
+    setEditTotalParcelas(t.total_parcelas ?? 0);
+    setEditParcelaAtual(String(t.parcela_atual ?? 1));
 
     setDialogOpen(true);
   };
