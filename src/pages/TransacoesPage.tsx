@@ -16,7 +16,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 import { Checkbox } from '@/components/ui/checkbox';
-import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from '@/components/ui/alert-dialog';
 import { Plus, Pencil, Trash2, ArrowUpDown, ChevronLeft, ChevronRight, CreditCard, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -45,11 +44,10 @@ export default function TransacoesPage() {
   
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
+  const [editGrupoId, setEditGrupoId] = useState<string | null>(null);
   const [ordem, setOrdem] = useState('');
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [advanceDialogOpen, setAdvanceDialogOpen] = useState(false);
-  const [advanceGrupoId, setAdvanceGrupoId] = useState<string | null>(null);
   const [advanceCount, setAdvanceCount] = useState('1');
   const [pendingCount, setPendingCount] = useState(0);
 
@@ -134,6 +132,9 @@ export default function TransacoesPage() {
     setParcelado(false);
     setTotalParcelas('2');
     setEditId(null);
+    setEditGrupoId(null);
+    setPendingCount(0);
+    setAdvanceCount('1');
   };
 
   const handleSave = async () => {
@@ -200,6 +201,20 @@ export default function TransacoesPage() {
     setHora(t.hora);
     
     setRecorrente(t.recorrente ?? false);
+    setEditGrupoId(t.parcela_grupo_id ?? null);
+    setAdvanceCount('1');
+
+    if (t.parcela_grupo_id) {
+      supabase
+        .from('transactions')
+        .select('id')
+        .eq('parcela_grupo_id', t.parcela_grupo_id)
+        .eq('status', 'previsto')
+        .then(({ data: pending }) => setPendingCount(pending?.length ?? 0));
+    } else {
+      setPendingCount(0);
+    }
+
     setDialogOpen(true);
   };
 
@@ -226,27 +241,13 @@ export default function TransacoesPage() {
     return TIPO_LABELS[t.tipo_despesa] ?? 'Despesa';
   };
 
-  const handleOpenAdvance = async (grupoId: string) => {
-    const { data: pending } = await supabase
-      .from('transactions')
-      .select('id')
-      .eq('parcela_grupo_id', grupoId)
-      .eq('status', 'previsto');
-    const count = pending?.length ?? 0;
-    if (count === 0) { toast.info('Todas as parcelas já estão pagas'); return; }
-    setPendingCount(count);
-    setAdvanceGrupoId(grupoId);
-    setAdvanceCount('1');
-    setAdvanceDialogOpen(true);
-  };
-
   const handleAdvanceConfirm = async () => {
-    if (!advanceGrupoId) return;
+    if (!editGrupoId) return;
     const num = Math.max(1, Math.min(pendingCount, parseInt(advanceCount) || 1));
     const { data: pending } = await supabase
       .from('transactions')
       .select('id, parcela_atual')
-      .eq('parcela_grupo_id', advanceGrupoId)
+      .eq('parcela_grupo_id', editGrupoId)
       .eq('status', 'previsto')
       .order('parcela_atual', { ascending: true })
       .limit(num);
@@ -256,7 +257,8 @@ export default function TransacoesPage() {
     if (error) { toast.error(error.message); return; }
     toast.success(`${ids.length} parcela(s) marcada(s) como paga(s)`);
     qc.invalidateQueries({ queryKey: ['transactions'] });
-    setAdvanceDialogOpen(false);
+    setPendingCount(prev => prev - ids.length);
+    setAdvanceCount('1');
   };
 
   return (
@@ -373,6 +375,29 @@ export default function TransacoesPage() {
                   )}
                 </div>
               )}
+              {editId && editGrupoId && pendingCount > 0 && (
+                <div className="space-y-2 rounded-md border border-border p-3">
+                  <Label className="flex items-center gap-2">
+                    <CheckCircle size={14} className="text-primary" />
+                    Marcar parcelas como pagas
+                  </Label>
+                  <p className="text-xs text-muted-foreground">{pendingCount} parcela(s) pendente(s)</p>
+                  <div className="flex gap-2">
+                    <Input
+                      type="number"
+                      min="1"
+                      max={pendingCount}
+                      value={advanceCount}
+                      onChange={(e) => setAdvanceCount(e.target.value)}
+                      placeholder={`1 a ${pendingCount}`}
+                      className="flex-1"
+                    />
+                    <Button variant="outline" onClick={handleAdvanceConfirm} type="button">
+                      Pagar
+                    </Button>
+                  </div>
+                </div>
+              )}
               <Button onClick={handleSave} className="w-full">Salvar</Button>
             </div>
           </DialogContent>
@@ -447,11 +472,6 @@ export default function TransacoesPage() {
               <div className="flex items-center gap-3 flex-shrink-0">
                 <p className="font-semibold text-destructive">{fmt(Number(t.valor))}</p>
                 <div className="flex gap-1">
-                  {t.parcela_grupo_id && (
-                    <button onClick={() => handleOpenAdvance(t.parcela_grupo_id)} className="p-1.5 rounded hover:bg-secondary text-muted-foreground hover:text-green-500" title="Marcar parcelas como pagas">
-                      <CheckCircle size={14} />
-                    </button>
-                  )}
                   <button onClick={() => handleEdit(t)} className="p-1.5 rounded hover:bg-secondary text-muted-foreground">
                     <Pencil size={14} />
                   </button>
@@ -470,28 +490,6 @@ export default function TransacoesPage() {
         onConfirm={handleDelete}
         description="Tem certeza que deseja excluir esta despesa? Esta ação não pode ser desfeita."
       />
-      <AlertDialog open={advanceDialogOpen} onOpenChange={setAdvanceDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Marcar parcelas como pagas</AlertDialogTitle>
-            <AlertDialogDescription>
-              Existem {pendingCount} parcela(s) pendente(s). Quantas deseja marcar como pagas?
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <Input
-            type="number"
-            min="1"
-            max={pendingCount}
-            value={advanceCount}
-            onChange={(e) => setAdvanceCount(e.target.value)}
-            placeholder={`1 a ${pendingCount}`}
-          />
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={handleAdvanceConfirm}>Confirmar</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 }
