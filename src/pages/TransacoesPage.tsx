@@ -256,7 +256,7 @@ export default function TransacoesPage() {
     const { error } = await supabase.from('transactions').update({ status: 'pago' }).in('id', ids);
     if (error) { toast.error(error.message); return; }
     toast.success(`${ids.length} parcela(s) marcada(s) como paga(s)`);
-    qc.invalidateQueries({ queryKey: ['transactions'] });
+    await qc.refetchQueries({ queryKey: ['transactions'] });
     setPendingCount(prev => prev - ids.length);
     setAdvanceCount('1');
   };
@@ -283,7 +283,7 @@ export default function TransacoesPage() {
             <ChevronRight size={18} />
           </Button>
         </div>
-        <Dialog open={dialogOpen} onOpenChange={(o) => { setDialogOpen(o); if (!o) resetForm(); }}>
+        <Dialog open={dialogOpen} onOpenChange={(o) => { setDialogOpen(o); if (!o) { resetForm(); qc.invalidateQueries({ queryKey: ['transactions'] }); } }}>
           <DialogTrigger asChild>
             <Button><Plus size={16} className="mr-2" />Adicionar despesa</Button>
           </DialogTrigger>
