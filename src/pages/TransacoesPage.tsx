@@ -231,25 +231,8 @@ export default function TransacoesPage() {
     return TIPO_LABELS[t.tipo_despesa] ?? 'Despesa';
   };
 
-  const handleAdvanceConfirm = async () => {
-    if (!editGrupoId) return;
-    const num = Math.max(1, Math.min(pendingCount, parseInt(advanceCount) || 1));
-    const { data: pending } = await supabase
-      .from('transactions')
-      .select('id, parcela_atual')
-      .eq('parcela_grupo_id', editGrupoId)
-      .eq('status', 'previsto')
-      .order('parcela_atual', { ascending: true })
-      .limit(num);
-    if (!pending?.length) { toast.error('Nenhuma parcela pendente'); return; }
-    const ids = pending.map(p => p.id);
-    const { error } = await supabase.from('transactions').update({ status: 'pago' }).in('id', ids);
-    if (error) { toast.error(error.message); return; }
-    toast.success(`${ids.length} parcela(s) marcada(s) como paga(s)`);
-    await qc.refetchQueries({ queryKey: ['transactions'] });
-    setPendingCount(prev => prev - ids.length);
-    setAdvanceCount('1');
-  };
+
+
 
   return (
     <div className="space-y-6">
