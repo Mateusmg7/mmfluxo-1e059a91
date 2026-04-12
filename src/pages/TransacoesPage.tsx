@@ -256,7 +256,7 @@ export default function TransacoesPage() {
     const { error } = await supabase.from('transactions').update({ status: 'pago' }).in('id', ids);
     if (error) { toast.error(error.message); return; }
     toast.success(`${ids.length} parcela(s) marcada(s) como paga(s)`);
-    qc.invalidateQueries({ queryKey: ['transactions'] });
+    await qc.refetchQueries({ queryKey: ['transactions'] });
     setPendingCount(prev => prev - ids.length);
     setAdvanceCount('1');
   };
