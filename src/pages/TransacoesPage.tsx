@@ -16,7 +16,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 import { Checkbox } from '@/components/ui/checkbox';
-import { Plus, Pencil, Trash2, ArrowUpDown, ChevronLeft, ChevronRight, CreditCard, CheckCircle } from 'lucide-react';
+import { Plus, Pencil, Trash2, ArrowUpDown, ChevronLeft, ChevronRight, CreditCard } from 'lucide-react';
 import { toast } from 'sonner';
 
 const TIPO_LABELS: Record<string, string> = {
@@ -45,11 +45,11 @@ export default function TransacoesPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [editGrupoId, setEditGrupoId] = useState<string | null>(null);
+  const [editTotalParcelas, setEditTotalParcelas] = useState(0);
+  const [editParcelaAtual, setEditParcelaAtual] = useState('1');
   const [ordem, setOrdem] = useState('');
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [advanceCount, setAdvanceCount] = useState('1');
-  const [pendingCount, setPendingCount] = useState(0);
 
   const goToPrevMonth = () => setCurrentMonth(prev => subMonths(prev, 1));
   const goToNextMonth = () => setCurrentMonth(prev => addMonths(prev, 1));
@@ -133,8 +133,8 @@ export default function TransacoesPage() {
     setTotalParcelas('2');
     setEditId(null);
     setEditGrupoId(null);
-    setPendingCount(0);
-    setAdvanceCount('1');
+    setEditTotalParcelas(0);
+    setEditParcelaAtual('1');
   };
 
   const handleSave = async () => {
@@ -154,7 +154,11 @@ export default function TransacoesPage() {
     };
 
     if (editId) {
-      const { error } = await supabase.from('transactions').update({ ...basePayload, valor: valorNum, data, hora }).eq('id', editId);
+      const updatePayload: any = { ...basePayload, valor: valorNum, data, hora };
+      if (editGrupoId && editTotalParcelas > 0) {
+        updatePayload.parcela_atual = parseInt(editParcelaAtual) || 1;
+      }
+      const { error } = await supabase.from('transactions').update(updatePayload).eq('id', editId);
       if (error) { toast.error(error.message); return; }
       toast.success('Despesa atualizada');
     } else if (parcelado && !editId) {
@@ -202,18 +206,8 @@ export default function TransacoesPage() {
     
     setRecorrente(t.recorrente ?? false);
     setEditGrupoId(t.parcela_grupo_id ?? null);
-    setAdvanceCount('1');
-
-    if (t.parcela_grupo_id) {
-      supabase
-        .from('transactions')
-        .select('id')
-        .eq('parcela_grupo_id', t.parcela_grupo_id)
-        .eq('status', 'previsto')
-        .then(({ data: pending }) => setPendingCount(pending?.length ?? 0));
-    } else {
-      setPendingCount(0);
-    }
+    setEditTotalParcelas(t.total_parcelas ?? 0);
+    setEditParcelaAtual(String(t.parcela_atual ?? 1));
 
     setDialogOpen(true);
   };
@@ -241,25 +235,8 @@ export default function TransacoesPage() {
     return TIPO_LABELS[t.tipo_despesa] ?? 'Despesa';
   };
 
-  const handleAdvanceConfirm = async () => {
-    if (!editGrupoId) return;
-    const num = Math.max(1, Math.min(pendingCount, parseInt(advanceCount) || 1));
-    const { data: pending } = await supabase
-      .from('transactions')
-      .select('id, parcela_atual')
-      .eq('parcela_grupo_id', editGrupoId)
-      .eq('status', 'previsto')
-      .order('parcela_atual', { ascending: true })
-      .limit(num);
-    if (!pending?.length) { toast.error('Nenhuma parcela pendente'); return; }
-    const ids = pending.map(p => p.id);
-    const { error } = await supabase.from('transactions').update({ status: 'pago' }).in('id', ids);
-    if (error) { toast.error(error.message); return; }
-    toast.success(`${ids.length} parcela(s) marcada(s) como paga(s)`);
-    await qc.refetchQueries({ queryKey: ['transactions'] });
-    setPendingCount(prev => prev - ids.length);
-    setAdvanceCount('1');
-  };
+
+
 
   return (
     <div className="space-y-6">
@@ -375,27 +352,21 @@ export default function TransacoesPage() {
                   )}
                 </div>
               )}
-              {editId && editGrupoId && pendingCount > 0 && (
-                <div className="space-y-2 rounded-md border border-border p-3">
-                  <Label className="flex items-center gap-2">
-                    <CheckCircle size={14} className="text-primary" />
-                    Marcar parcelas como pagas
-                  </Label>
-                  <p className="text-xs text-muted-foreground">{pendingCount} parcela(s) pendente(s)</p>
-                  <div className="flex gap-2">
-                    <Input
-                      type="number"
-                      min="1"
-                      max={pendingCount}
-                      value={advanceCount}
-                      onChange={(e) => setAdvanceCount(e.target.value)}
-                      placeholder={`1 a ${pendingCount}`}
-                      className="flex-1"
-                    />
-                    <Button variant="outline" onClick={handleAdvanceConfirm} type="button">
-                      Pagar
-                    </Button>
-                  </div>
+              {editId && editGrupoId && editTotalParcelas > 0 && (
+                <div className="space-y-2">
+                  <Label>Parcela atual</Label>
+                  <Select value={editParcelaAtual} onValueChange={setEditParcelaAtual}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Array.from({ length: editTotalParcelas }, (_, i) => (
+                        <SelectItem key={i + 1} value={String(i + 1)}>
+                          {i + 1}/{editTotalParcelas}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               )}
               <Button onClick={handleSave} className="w-full">Salvar</Button>
@@ -464,8 +435,6 @@ export default function TransacoesPage() {
                     {t.categories?.nome ? ` · ${t.categories.nome}` : ''}
                     {t.recorrente ? ' · 🔄 Recorrente' : ''}
                     {t.total_parcelas ? ` · 💳 ${t.parcela_atual}/${t.total_parcelas}` : ''}
-                    {t.total_parcelas && t.status === 'previsto' ? ' · ⏳ Pendente' : ''}
-                    {t.total_parcelas && t.status === 'pago' ? ' · ✅ Pago' : ''}
                   </p>
                 </div>
               </div>
