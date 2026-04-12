@@ -154,7 +154,11 @@ export default function TransacoesPage() {
     };
 
     if (editId) {
-      const { error } = await supabase.from('transactions').update({ ...basePayload, valor: valorNum, data, hora }).eq('id', editId);
+      const updatePayload: any = { ...basePayload, valor: valorNum, data, hora };
+      if (editGrupoId && editTotalParcelas > 0) {
+        updatePayload.parcela_atual = parseInt(editParcelaAtual) || 1;
+      }
+      const { error } = await supabase.from('transactions').update(updatePayload).eq('id', editId);
       if (error) { toast.error(error.message); return; }
       toast.success('Despesa atualizada');
     } else if (parcelado && !editId) {
