@@ -447,6 +447,11 @@ export default function TransacoesPage() {
               <div className="flex items-center gap-3 flex-shrink-0">
                 <p className="font-semibold text-destructive">{fmt(Number(t.valor))}</p>
                 <div className="flex gap-1">
+                  {t.parcela_grupo_id && (
+                    <button onClick={() => handleOpenAdvance(t.parcela_grupo_id)} className="p-1.5 rounded hover:bg-secondary text-muted-foreground hover:text-green-500" title="Marcar parcelas como pagas">
+                      <CheckCircle size={14} />
+                    </button>
+                  )}
                   <button onClick={() => handleEdit(t)} className="p-1.5 rounded hover:bg-secondary text-muted-foreground">
                     <Pencil size={14} />
                   </button>
