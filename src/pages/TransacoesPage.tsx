@@ -16,7 +16,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 import { Checkbox } from '@/components/ui/checkbox';
-import { Plus, Pencil, Trash2, ArrowUpDown, ChevronLeft, ChevronRight, CreditCard, CheckCircle } from 'lucide-react';
+import { Plus, Pencil, Trash2, ArrowUpDown, ChevronLeft, ChevronRight, CreditCard } from 'lucide-react';
 import { toast } from 'sonner';
 
 const TIPO_LABELS: Record<string, string> = {
