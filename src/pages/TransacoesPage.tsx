@@ -45,11 +45,11 @@ export default function TransacoesPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [editGrupoId, setEditGrupoId] = useState<string | null>(null);
+  const [editTotalParcelas, setEditTotalParcelas] = useState(0);
+  const [editParcelaAtual, setEditParcelaAtual] = useState('1');
   const [ordem, setOrdem] = useState('');
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [advanceCount, setAdvanceCount] = useState('1');
-  const [pendingCount, setPendingCount] = useState(0);
 
   const goToPrevMonth = () => setCurrentMonth(prev => subMonths(prev, 1));
   const goToNextMonth = () => setCurrentMonth(prev => addMonths(prev, 1));
