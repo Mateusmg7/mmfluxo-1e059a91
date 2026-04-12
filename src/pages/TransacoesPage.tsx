@@ -493,28 +493,6 @@ export default function TransacoesPage() {
         onConfirm={handleDelete}
         description="Tem certeza que deseja excluir esta despesa? Esta ação não pode ser desfeita."
       />
-      <AlertDialog open={advanceDialogOpen} onOpenChange={setAdvanceDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Marcar parcelas como pagas</AlertDialogTitle>
-            <AlertDialogDescription>
-              Existem {pendingCount} parcela(s) pendente(s). Quantas deseja marcar como pagas?
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <Input
-            type="number"
-            min="1"
-            max={pendingCount}
-            value={advanceCount}
-            onChange={(e) => setAdvanceCount(e.target.value)}
-            placeholder={`1 a ${pendingCount}`}
-          />
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={handleAdvanceConfirm}>Confirmar</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 }
