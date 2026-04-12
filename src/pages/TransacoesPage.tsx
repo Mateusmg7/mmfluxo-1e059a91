@@ -172,7 +172,7 @@ export default function TransacoesPage() {
           parcela_atual: i + 1,
           total_parcelas: numParcelas,
           parcela_grupo_id: grupoId,
-          status: 'pago',
+          status: i === 0 ? 'pago' : 'previsto',
         });
       }
 
