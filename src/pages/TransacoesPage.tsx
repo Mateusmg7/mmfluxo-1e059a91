@@ -135,6 +135,9 @@ export default function TransacoesPage() {
     setParcelado(false);
     setTotalParcelas('2');
     setEditId(null);
+    setEditGrupoId(null);
+    setPendingCount(0);
+    setAdvanceCount('1');
   };
 
   const handleSave = async () => {
