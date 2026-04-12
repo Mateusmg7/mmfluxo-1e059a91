@@ -244,27 +244,13 @@ export default function TransacoesPage() {
     return TIPO_LABELS[t.tipo_despesa] ?? 'Despesa';
   };
 
-  const handleOpenAdvance = async (grupoId: string) => {
-    const { data: pending } = await supabase
-      .from('transactions')
-      .select('id')
-      .eq('parcela_grupo_id', grupoId)
-      .eq('status', 'previsto');
-    const count = pending?.length ?? 0;
-    if (count === 0) { toast.info('Todas as parcelas já estão pagas'); return; }
-    setPendingCount(count);
-    setAdvanceGrupoId(grupoId);
-    setAdvanceCount('1');
-    setAdvanceDialogOpen(true);
-  };
-
   const handleAdvanceConfirm = async () => {
-    if (!advanceGrupoId) return;
+    if (!editGrupoId) return;
     const num = Math.max(1, Math.min(pendingCount, parseInt(advanceCount) || 1));
     const { data: pending } = await supabase
       .from('transactions')
       .select('id, parcela_atual')
-      .eq('parcela_grupo_id', advanceGrupoId)
+      .eq('parcela_grupo_id', editGrupoId)
       .eq('status', 'previsto')
       .order('parcela_atual', { ascending: true })
       .limit(num);
@@ -274,7 +260,8 @@ export default function TransacoesPage() {
     if (error) { toast.error(error.message); return; }
     toast.success(`${ids.length} parcela(s) marcada(s) como paga(s)`);
     qc.invalidateQueries({ queryKey: ['transactions'] });
-    setAdvanceDialogOpen(false);
+    setPendingCount(prev => prev - ids.length);
+    setAdvanceCount('1');
   };
 
   return (
