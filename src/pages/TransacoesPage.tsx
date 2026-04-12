@@ -352,27 +352,21 @@ export default function TransacoesPage() {
                   )}
                 </div>
               )}
-              {editId && editGrupoId && pendingCount > 0 && (
-                <div className="space-y-2 rounded-md border border-border p-3">
-                  <Label className="flex items-center gap-2">
-                    <CheckCircle size={14} className="text-primary" />
-                    Marcar parcelas como pagas
-                  </Label>
-                  <p className="text-xs text-muted-foreground">{pendingCount} parcela(s) pendente(s)</p>
-                  <div className="flex gap-2">
-                    <Input
-                      type="number"
-                      min="1"
-                      max={pendingCount}
-                      value={advanceCount}
-                      onChange={(e) => setAdvanceCount(e.target.value)}
-                      placeholder={`1 a ${pendingCount}`}
-                      className="flex-1"
-                    />
-                    <Button variant="outline" onClick={handleAdvanceConfirm} type="button">
-                      Pagar
-                    </Button>
-                  </div>
+              {editId && editGrupoId && editTotalParcelas > 0 && (
+                <div className="space-y-2">
+                  <Label>Parcela atual</Label>
+                  <Select value={editParcelaAtual} onValueChange={setEditParcelaAtual}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Array.from({ length: editTotalParcelas }, (_, i) => (
+                        <SelectItem key={i + 1} value={String(i + 1)}>
+                          {i + 1}/{editTotalParcelas}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               )}
               <Button onClick={handleSave} className="w-full">Salvar</Button>
