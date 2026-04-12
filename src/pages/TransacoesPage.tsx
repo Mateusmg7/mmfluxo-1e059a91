@@ -45,6 +45,7 @@ export default function TransacoesPage() {
   
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
+  const [editGrupoId, setEditGrupoId] = useState<string | null>(null);
   const [ordem, setOrdem] = useState('');
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
