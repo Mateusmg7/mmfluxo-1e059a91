@@ -133,8 +133,8 @@ export default function TransacoesPage() {
     setTotalParcelas('2');
     setEditId(null);
     setEditGrupoId(null);
-    setPendingCount(0);
-    setAdvanceCount('1');
+    setEditTotalParcelas(0);
+    setEditParcelaAtual('1');
   };
 
   const handleSave = async () => {
