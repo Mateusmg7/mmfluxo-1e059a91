@@ -283,7 +283,7 @@ export default function TransacoesPage() {
             <ChevronRight size={18} />
           </Button>
         </div>
-        <Dialog open={dialogOpen} onOpenChange={(o) => { setDialogOpen(o); if (!o) resetForm(); }}>
+        <Dialog open={dialogOpen} onOpenChange={(o) => { setDialogOpen(o); if (!o) { resetForm(); qc.invalidateQueries({ queryKey: ['transactions'] }); } }}>
           <DialogTrigger asChild>
             <Button><Plus size={16} className="mr-2" />Adicionar despesa</Button>
           </DialogTrigger>
