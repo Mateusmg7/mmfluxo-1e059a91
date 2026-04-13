@@ -310,6 +310,7 @@ export default function DashboardPage() {
 
 
           <MonthlyEvolutionChart userId={user!.id} profileId={activeProfile?.id} currentMonth={currentMonth} />
+          <MonthlyComparisonChart userId={user!.id} profileId={activeProfile?.id} currentMonth={currentMonth} />
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <Card className="card-glass">
