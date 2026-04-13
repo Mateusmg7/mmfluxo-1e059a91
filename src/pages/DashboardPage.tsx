@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowDownCircle, ArrowUpCircle, TrendingUp, TrendingDown, ChevronLeft, ChevronRight, Download, FileText, BarChart3, PieChartIcon, Layers, Wallet } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
 import { MonthlyEvolutionChart } from '@/components/MonthlyEvolutionChart';
+import { MonthlyComparisonChart } from '@/components/MonthlyComparisonChart';
 import { PieTooltip } from '@/components/PieTooltip';
 import { renderActiveSlice } from '@/components/ActivePieSlice';
 import { Progress } from '@/components/ui/progress';
