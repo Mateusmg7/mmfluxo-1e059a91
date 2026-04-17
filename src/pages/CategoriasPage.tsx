@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { ConfirmDeleteDialog } from '@/components/dialogs/ConfirmDeleteDialog';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/contexts/ProfileContext';
-import { supabase } from '@/integrations/supabase/client';
+import { fetchCategories, createCategory, updateCategory, deleteCategory } from '@/services/categoriesService';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -26,12 +26,7 @@ export default function CategoriasPage() {
 
   const { data: categories = [] } = useQuery({
     queryKey: ['categories', activeProfile?.id],
-    queryFn: async () => {
-      let q = supabase.from('categories').select('*').eq('grupo', 'essenciais').order('nome');
-      if (activeProfile) q = q.eq('profile_id', activeProfile.id);
-      const { data } = await q;
-      return data ?? [];
-    },
+    queryFn: () => fetchCategories({ profileId: activeProfile?.id, grupo: 'essenciais' }),
     enabled: !!user && !!activeProfile,
   });
 
@@ -41,14 +36,17 @@ export default function CategoriasPage() {
     if (!nome) { toast.error('Informe o nome'); return; }
     const payload = { user_id: user!.id, nome, cor_hex: corHex, grupo: 'essenciais' as const, profile_id: activeProfile?.id };
 
-    if (editId) {
-      const { error } = await supabase.from('categories').update(payload).eq('id', editId);
-      if (error) { toast.error(error.message); return; }
-      toast.success('Categoria atualizada');
-    } else {
-      const { error } = await supabase.from('categories').insert(payload);
-      if (error) { toast.error(error.message); return; }
-      toast.success('Categoria criada');
+    try {
+      if (editId) {
+        await updateCategory(editId, payload);
+        toast.success('Categoria atualizada');
+      } else {
+        await createCategory(payload);
+        toast.success('Categoria criada');
+      }
+    } catch (err: any) {
+      toast.error(err?.message ?? 'Erro ao salvar');
+      return;
     }
     qc.invalidateQueries({ queryKey: ['categories'] });
     setDialogOpen(false);
@@ -68,8 +66,14 @@ export default function CategoriasPage() {
 
   const handleDelete = async () => {
     if (!deleteItem) return;
-    const { error } = await supabase.from('categories').delete().eq('id', deleteItem.id);
-    if (error) { toast.error('Categoria em uso, não pode ser excluída'); setDeleteDialogOpen(false); setDeleteItem(null); return; }
+    try {
+      await deleteCategory(deleteItem.id);
+    } catch {
+      toast.error('Categoria em uso, não pode ser excluída');
+      setDeleteDialogOpen(false);
+      setDeleteItem(null);
+      return;
+    }
     toast.success('Categoria removida');
     qc.invalidateQueries({ queryKey: ['categories'] });
     setDeleteDialogOpen(false);
