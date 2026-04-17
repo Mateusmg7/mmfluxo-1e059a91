@@ -218,7 +218,7 @@ export default function AlertasPage() {
 
     try {
       await (supabase as any).from('profiles').update({ notifications_enabled: newValue }).eq('user_id', user.id);
-      setNotificationsEnabled(newValue);
+      qc.invalidateQueries({ queryKey: qk.profile });
       toast.success(newValue ? 'Notificações ativadas!' : 'Notificações desativadas!');
     } catch {
       toast.error('Erro ao atualizar notificações');
