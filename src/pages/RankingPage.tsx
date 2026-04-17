@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { qk } from '@/lib/queryKeys';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { format, startOfMonth, endOfMonth, subMonths, addMonths } from 'date-fns';
@@ -27,7 +28,7 @@ export default function RankingPage() {
   const mesFim = format(endOfMonth(currentDate), 'yyyy-MM-dd');
 
   const { data: ranking = [], isLoading } = useQuery({
-    queryKey: ['ranking', user?.id, mesInicio],
+    queryKey: qk.ranking(user?.id, mesInicio),
     queryFn: async () => {
       // Fetch all profiles
       const { data: profiles } = await supabase

@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState, ReactNode } from 'react
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { qk } from '@/lib/queryKeys';
 import { toast } from 'sonner';
 
 interface FinancialProfile {
@@ -45,7 +46,7 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
   });
 
   const { data: profiles = [], isLoading } = useQuery({
-    queryKey: ['financial_profiles'],
+    queryKey: qk.financialProfiles,
     queryFn: async () => {
       const { data, error } = await supabase
         .from('financial_profiles')
@@ -71,10 +72,10 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
     setActiveProfileId(id);
     localStorage.setItem('mm_active_profile', id);
     // Invalidate all data queries so they refetch with new profile
-    qc.invalidateQueries({ queryKey: ['transactions'] });
-    qc.invalidateQueries({ queryKey: ['extra_income'] });
-    qc.invalidateQueries({ queryKey: ['categories'] });
-    qc.invalidateQueries({ queryKey: ['goals'] });
+    qc.invalidateQueries({ queryKey: qk.transactions.all });
+    qc.invalidateQueries({ queryKey: qk.extraIncome.all });
+    qc.invalidateQueries({ queryKey: qk.categories.all });
+    qc.invalidateQueries({ queryKey: qk.goals.all });
   };
 
   const createProfile = async (name: string, icon: string, color: string) => {
@@ -103,15 +104,15 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
     );
 
     toast.success('Perfil criado');
-    qc.invalidateQueries({ queryKey: ['financial_profiles'] });
-    qc.invalidateQueries({ queryKey: ['categories'] });
+    qc.invalidateQueries({ queryKey: qk.financialProfiles });
+    qc.invalidateQueries({ queryKey: qk.categories.all });
   };
 
   const updateProfile = async (id: string, name: string, icon: string, color: string) => {
     const { error } = await supabase.from('financial_profiles').update({ name, icon, color }).eq('id', id);
     if (error) { toast.error(error.message); return; }
     toast.success('Perfil atualizado');
-    qc.invalidateQueries({ queryKey: ['financial_profiles'] });
+    qc.invalidateQueries({ queryKey: qk.financialProfiles });
   };
 
   const deleteProfile = async (id: string) => {
@@ -120,7 +121,7 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
     const { error } = await supabase.from('financial_profiles').delete().eq('id', id);
     if (error) { toast.error(error.message); return; }
     toast.success('Perfil removido');
-    qc.invalidateQueries({ queryKey: ['financial_profiles'] });
+    qc.invalidateQueries({ queryKey: qk.financialProfiles });
     if (activeProfileId === id) {
       const def = profiles.find(p => p.is_default);
       if (def) handleSetActive(def.id);

@@ -11,6 +11,7 @@ import { fetchGoals } from '@/services/goalsService';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/contexts/ProfileContext';
 import { useQuery } from '@tanstack/react-query';
+import { qk } from '@/lib/queryKeys';
 
 import { format, startOfMonth, endOfMonth, addMonths, subMonths, isSameMonth } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -63,7 +64,7 @@ export default function DashboardPage() {
 
   // Profile-scoped queries
   const { data: transactions = [] } = useQuery({
-    queryKey: ['transactions', monthStart, monthEnd, activeProfile?.id],
+    queryKey: qk.transactions.byPeriod(activeProfile?.id, monthStart, monthEnd),
     queryFn: () =>
       fetchTransactionsByPeriod({
         profileId: activeProfile?.id,
@@ -74,7 +75,7 @@ export default function DashboardPage() {
   });
 
   const { data: extraIncome = [] } = useQuery({
-    queryKey: ['extra_income', monthStart, monthEnd, activeProfile?.id],
+    queryKey: qk.extraIncome.byPeriod(activeProfile?.id, monthStart, monthEnd),
     queryFn: () =>
       fetchExtraIncomeByPeriod({
         profileId: activeProfile?.id,
@@ -85,20 +86,20 @@ export default function DashboardPage() {
   });
 
   const { data: goals = [] } = useQuery({
-    queryKey: ['goals', activeProfile?.id],
+    queryKey: qk.goals.byProfile(activeProfile?.id),
     queryFn: () => fetchGoals(activeProfile?.id),
     enabled: !!user && !!activeProfile,
   });
 
   // All-profile queries (for Comparativo tab)
   const { data: allTransactions = [] } = useQuery({
-    queryKey: ['all_transactions', monthStart, monthEnd],
+    queryKey: qk.transactions.allProfiles(monthStart, monthEnd),
     queryFn: () => fetchAllTransactionsByPeriod(monthStart, monthEnd),
     enabled: !!user,
   });
 
   const { data: allExtraIncome = [] } = useQuery({
-    queryKey: ['all_extra_income', monthStart, monthEnd],
+    queryKey: qk.extraIncome.allProfiles(monthStart, monthEnd),
     queryFn: () => fetchAllExtraIncomeByPeriod(monthStart, monthEnd),
     enabled: !!user,
   });

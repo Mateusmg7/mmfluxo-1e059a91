@@ -11,6 +11,7 @@ import {
 } from '@/services/transactionsService';
 import { fetchCategories, createCategoryReturnId } from '@/services/categoriesService';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { qk } from '@/lib/queryKeys';
 import { format, startOfMonth, endOfMonth, addMonths, subMonths, isSameMonth } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Card, CardContent } from '@/components/ui/card';
@@ -79,13 +80,13 @@ export default function TransacoesPage() {
   const [totalParcelas, setTotalParcelas] = useState('2');
 
   const { data: categories = [] } = useQuery({
-    queryKey: ['categories', activeProfile?.id],
+    queryKey: qk.categories.byProfile(activeProfile?.id),
     queryFn: () => fetchCategories({ profileId: activeProfile?.id, grupo: 'essenciais' }),
     enabled: !!user && !!activeProfile,
   });
 
   const { data: transactions = [] } = useQuery({
-    queryKey: ['transactions', start, end, activeProfile?.id],
+    queryKey: qk.transactions.byPeriod(activeProfile?.id, start, end),
     queryFn: () =>
       fetchTransactionsByPeriod({
         profileId: activeProfile?.id,
@@ -189,7 +190,7 @@ export default function TransacoesPage() {
       return;
     }
 
-    qc.invalidateQueries({ queryKey: ['transactions'] });
+    qc.invalidateQueries({ queryKey: qk.transactions.all });
     setDialogOpen(false);
     resetForm();
   };
@@ -225,7 +226,7 @@ export default function TransacoesPage() {
       return;
     }
     toast.success('Despesa removida');
-    qc.invalidateQueries({ queryKey: ['transactions'] });
+    qc.invalidateQueries({ queryKey: qk.transactions.all });
     setDeleteDialogOpen(false);
     setDeleteId(null);
   };
@@ -263,7 +264,7 @@ export default function TransacoesPage() {
             <ChevronRight size={18} />
           </Button>
         </div>
-        <Dialog open={dialogOpen} onOpenChange={(o) => { setDialogOpen(o); if (!o) { resetForm(); qc.invalidateQueries({ queryKey: ['transactions'] }); } }}>
+        <Dialog open={dialogOpen} onOpenChange={(o) => { setDialogOpen(o); if (!o) { resetForm(); qc.invalidateQueries({ queryKey: qk.transactions.all }); } }}>
           <DialogTrigger asChild>
             <Button><Plus size={16} className="mr-2" />Adicionar despesa</Button>
           </DialogTrigger>
@@ -300,7 +301,7 @@ export default function TransacoesPage() {
                       userId={user!.id}
                       profileId={activeProfile?.id ?? null}
                       onCreated={(id) => {
-                        qc.invalidateQueries({ queryKey: ['categories'] });
+                        qc.invalidateQueries({ queryKey: qk.categories.all });
                         setCategoryId(id);
                       }}
                     />

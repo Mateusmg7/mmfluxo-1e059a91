@@ -7,6 +7,7 @@ import { fetchCategories } from '@/services/categoriesService';
 import { fetchTransactionValuesByPeriod } from '@/services/transactionsService';
 import { fetchExtraIncomeByPeriod } from '@/services/extraIncomeService';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { qk } from '@/lib/queryKeys';
 import { format, startOfMonth, endOfMonth } from 'date-fns';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -47,19 +48,19 @@ export default function MetasPage() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   const { data: goals = [] } = useQuery({
-    queryKey: ['goals', activeProfile?.id],
+    queryKey: qk.goals.byProfile(activeProfile?.id),
     queryFn: () => fetchGoals(activeProfile?.id),
     enabled: !!user && !!activeProfile,
   });
 
   const { data: categories = [] } = useQuery({
-    queryKey: ['categories', activeProfile?.id],
+    queryKey: qk.categories.byProfile(activeProfile?.id),
     queryFn: () => fetchCategories({ profileId: activeProfile?.id }),
     enabled: !!user && !!activeProfile,
   });
 
   const { data: transactions = [] } = useQuery({
-    queryKey: ['transactions', monthStart, monthEnd, activeProfile?.id],
+    queryKey: qk.transactions.byPeriod(activeProfile?.id, monthStart, monthEnd),
     queryFn: () =>
       fetchTransactionValuesByPeriod({
         profileId: activeProfile?.id,
@@ -70,7 +71,7 @@ export default function MetasPage() {
   });
 
   const { data: extraIncome = [] } = useQuery({
-    queryKey: ['extra_income', monthStart, monthEnd, activeProfile?.id],
+    queryKey: qk.extraIncome.byPeriod(activeProfile?.id, monthStart, monthEnd),
     queryFn: () =>
       fetchExtraIncomeByPeriod({
         profileId: activeProfile?.id,
@@ -107,7 +108,7 @@ export default function MetasPage() {
       return;
     }
     toast.success('Meta criada');
-    qc.invalidateQueries({ queryKey: ['goals'] });
+    qc.invalidateQueries({ queryKey: qk.goals.all });
     setDialogOpen(false);
     resetForm();
   };
@@ -121,7 +122,7 @@ export default function MetasPage() {
     if (!deleteId) return;
     await deleteGoal(deleteId);
     toast.success('Meta removida');
-    qc.invalidateQueries({ queryKey: ['goals'] });
+    qc.invalidateQueries({ queryKey: qk.goals.all });
     setDeleteDialogOpen(false);
     setDeleteId(null);
   };
