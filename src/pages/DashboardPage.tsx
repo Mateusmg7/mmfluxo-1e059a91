@@ -1,5 +1,13 @@
 import { useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import {
+  fetchTransactionsByPeriod,
+  fetchAllTransactionsByPeriod,
+} from '@/services/transactionsService';
+import {
+  fetchExtraIncomeByPeriod,
+  fetchAllExtraIncomeByPeriod,
+} from '@/services/extraIncomeService';
+import { fetchGoals } from '@/services/goalsService';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/contexts/ProfileContext';
 import { useQuery } from '@tanstack/react-query';
@@ -56,58 +64,42 @@ export default function DashboardPage() {
   // Profile-scoped queries
   const { data: transactions = [] } = useQuery({
     queryKey: ['transactions', monthStart, monthEnd, activeProfile?.id],
-    queryFn: async () => {
-      let q = supabase
-        .from('transactions')
-        .select('*, categories(nome, cor_hex)')
-        .gte('data', monthStart)
-        .lte('data', monthEnd)
-        .order('data', { ascending: false });
-      if (activeProfile) q = q.eq('profile_id', activeProfile.id);
-      const { data } = await q;
-      return data ?? [];
-    },
+    queryFn: () =>
+      fetchTransactionsByPeriod({
+        profileId: activeProfile?.id,
+        startDate: monthStart,
+        endDate: monthEnd,
+      }),
     enabled: !!user && !!activeProfile,
   });
 
   const { data: extraIncome = [] } = useQuery({
     queryKey: ['extra_income', monthStart, monthEnd, activeProfile?.id],
-    queryFn: async () => {
-      let q = supabase.from('extra_income').select('*').gte('data', monthStart).lte('data', monthEnd);
-      if (activeProfile) q = q.eq('profile_id', activeProfile.id);
-      const { data } = await q;
-      return data ?? [];
-    },
+    queryFn: () =>
+      fetchExtraIncomeByPeriod({
+        profileId: activeProfile?.id,
+        startDate: monthStart,
+        endDate: monthEnd,
+      }),
     enabled: !!user && !!activeProfile,
   });
 
   const { data: goals = [] } = useQuery({
     queryKey: ['goals', activeProfile?.id],
-    queryFn: async () => {
-      let q = supabase.from('goals').select('*, categories(nome)');
-      if (activeProfile) q = q.eq('profile_id', activeProfile.id);
-      const { data } = await q;
-      return data ?? [];
-    },
+    queryFn: () => fetchGoals(activeProfile?.id),
     enabled: !!user && !!activeProfile,
   });
 
   // All-profile queries (for Comparativo tab)
   const { data: allTransactions = [] } = useQuery({
     queryKey: ['all_transactions', monthStart, monthEnd],
-    queryFn: async () => {
-      const { data } = await supabase.from('transactions').select('*, categories(nome, cor_hex)').gte('data', monthStart).lte('data', monthEnd);
-      return data ?? [];
-    },
+    queryFn: () => fetchAllTransactionsByPeriod(monthStart, monthEnd),
     enabled: !!user,
   });
 
   const { data: allExtraIncome = [] } = useQuery({
     queryKey: ['all_extra_income', monthStart, monthEnd],
-    queryFn: async () => {
-      const { data } = await supabase.from('extra_income').select('*').gte('data', monthStart).lte('data', monthEnd);
-      return data ?? [];
-    },
+    queryFn: () => fetchAllExtraIncomeByPeriod(monthStart, monthEnd),
     enabled: !!user,
   });
 
