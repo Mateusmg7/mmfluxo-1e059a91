@@ -176,18 +176,7 @@ export default function NotificationBell() {
     <>
       <Popover open={open} onOpenChange={handleOpen}>
         <PopoverTrigger asChild>
-          <button
-            type="button"
-            className="relative p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
-            aria-label="Abrir histórico de notificações"
-          >
-            <Bell size={20} />
-            {unseenCount > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 bg-destructive text-destructive-foreground text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1">
-                {unseenCount > 9 ? '9+' : unseenCount}
-              </span>
-            )}
-          </button>
+          <BellTriggerButton unseenCount={unseenCount} />
         </PopoverTrigger>
         <PopoverContent align="end" className="w-80 p-0">
           <div className="px-4 py-3 border-b border-border flex items-center justify-between gap-3">
