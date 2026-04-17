@@ -27,8 +27,8 @@ import NotFound from "@/pages/NotFound";
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 30 * 1000, // 30 segundos como fresco
-      gcTime: 5 * 60 * 1000, // 5 minutos guardado em memória
+      staleTime: 5 * 60 * 1000, // 5 minutos como fresco (sem refetch ao voltar p/ tela)
+      gcTime: 10 * 60 * 1000, // 10 minutos guardado em memória
       refetchOnWindowFocus: false,
       retry: 1,
     },

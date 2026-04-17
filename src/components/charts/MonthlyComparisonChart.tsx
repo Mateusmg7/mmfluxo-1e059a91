@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { qk } from '@/lib/queryKeys';
 import { format, startOfMonth, endOfMonth, subMonths } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -26,7 +27,7 @@ export function MonthlyComparisonChart({ userId, profileId, currentMonth }: Prop
   const prevLabel = format(prevMonth, 'MMM', { locale: ptBR });
 
   const { data: curTx = [] } = useQuery({
-    queryKey: ['comparison-cur-tx', curStart, curEnd, profileId],
+    queryKey: qk.comparison.current(profileId, curStart, curEnd),
     queryFn: async () => {
       let q = supabase
         .from('transactions')
@@ -41,7 +42,7 @@ export function MonthlyComparisonChart({ userId, profileId, currentMonth }: Prop
   });
 
   const { data: prevTx = [] } = useQuery({
-    queryKey: ['comparison-prev-tx', prevStart, prevEnd, profileId],
+    queryKey: qk.comparison.previous(profileId, prevStart, prevEnd),
     queryFn: async () => {
       let q = supabase
         .from('transactions')
