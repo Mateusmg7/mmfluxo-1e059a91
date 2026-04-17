@@ -17,9 +17,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { CurrencyInput } from '@/components/CurrencyInput';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Plus, Pencil, Trash2, ArrowUpCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Plus, Pencil, Trash2, ArrowUpCircle, ChevronLeft, ChevronRight, Search, X, SlidersHorizontal, ArrowUpDown } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function RendaExtraPage() {
@@ -38,6 +39,13 @@ export default function RendaExtraPage() {
   const [data, setData] = useState(format(now, 'yyyy-MM-dd'));
   const [hora, setHora] = useState(format(now, 'HH:mm'));
   const [observacao, setObservacao] = useState('');
+
+  // 🔎 Filtros e busca
+  const [busca, setBusca] = useState('');
+  const [valorMin, setValorMin] = useState('');
+  const [valorMax, setValorMax] = useState('');
+  const [ordem, setOrdem] = useState('');
+  const [filtrosAvancadosAbertos, setFiltrosAvancadosAbertos] = useState(false);
 
   const goToPrevMonth = () => setCurrentMonth(prev => subMonths(prev, 1));
   const goToNextMonth = () => setCurrentMonth(prev => addMonths(prev, 1));
@@ -59,8 +67,47 @@ export default function RendaExtraPage() {
     enabled: !!user && !!activeProfile,
   });
 
-  const total = records.reduce((s, r) => s + Number(r.valor), 0);
+  // 🔎 Aplica busca + faixa de valor + ordenação
+  const normalizar = (s: string) =>
+    s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  const buscaNorm = normalizar(busca.trim());
+  const minNum = valorMin ? parseFloat(valorMin.replace(',', '.')) : null;
+  const maxNum = valorMax ? parseFloat(valorMax.replace(',', '.')) : null;
+
+  const filtered = records.filter((r: any) => {
+    const v = Number(r.valor);
+    if (minNum !== null && !isNaN(minNum) && v < minNum) return false;
+    if (maxNum !== null && !isNaN(maxNum) && v > maxNum) return false;
+    if (buscaNorm) {
+      const texto = normalizar(`${r.origem ?? ''} ${r.observacao ?? ''}`);
+      if (!texto.includes(buscaNorm)) return false;
+    }
+    return true;
+  }).sort((a: any, b: any) => {
+    const [campo, dir] = ordem.split('-');
+    const mult = dir === 'asc' ? 1 : -1;
+    if (campo === 'data') {
+      const cmp = a.data.localeCompare(b.data) || a.hora.localeCompare(b.hora);
+      return cmp * mult;
+    }
+    if (campo === 'valor') return (Number(a.valor) - Number(b.valor)) * mult;
+    if (campo === 'nome') {
+      return (a.origem || '').toLowerCase().localeCompare((b.origem || '').toLowerCase()) * mult;
+    }
+    return 0;
+  });
+
+  const total = filtered.reduce((s, r) => s + Number(r.valor), 0);
   const fmt = (v: number) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+  const filtrosAtivos =
+    (busca ? 1 : 0) + (valorMin ? 1 : 0) + (valorMax ? 1 : 0);
+
+  const limparFiltros = () => {
+    setBusca('');
+    setValorMin('');
+    setValorMax('');
+  };
 
   const resetForm = () => {
     setOrigem(''); setValor(''); setData(format(now, 'yyyy-MM-dd'));
