@@ -1,10 +1,12 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useBillReminders, BillReminder } from '@/hooks/useBillReminders';
 import { requestNotificationPermission, sendTestNotification, logNotificationHistory } from '@/hooks/useNotifications';
 import { sendTestPushNotification, ensurePushSubscription } from '@/hooks/usePushSubscription';
 import { useAuth } from '@/contexts/AuthContext';
 import PushDebugPanel from '@/components/notifications/PushDebugPanel';
 import { supabase } from '@/integrations/supabase/client';
+import { qk } from '@/lib/queryKeys';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { CurrencyInput } from '@/components/CurrencyInput';
@@ -18,8 +20,8 @@ import { toast } from 'sonner';
 
 export default function AlertasPage() {
   const { user } = useAuth();
+  const qc = useQueryClient();
   const { reminders, isLoading, addReminder, updateReminder, deleteReminder, urgentReminders } = useBillReminders();
-  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [notifLoading, setNotifLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [nome, setNome] = useState('');
@@ -35,28 +37,33 @@ export default function AlertasPage() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
-  // Notification interval state
-  const [notifInterval, setNotifInterval] = useState<number>(9);
   const [intervalLoading, setIntervalLoading] = useState(false);
-  const [lastPushSentAt, setLastPushSentAt] = useState<string | null>(null);
   const [countdown, setCountdown] = useState<string>('');
 
-  const loadNotificationSettings = useCallback(async () => {
-    if (!user) return;
-    const { data } = await (supabase as any)
-      .from('profiles')
-      .select('notif_interval_hours, notifications_enabled, last_push_sent_at')
-      .eq('user_id', user.id)
-      .single();
+  // Configurações de notificação via React Query.
+  // Antes: setInterval de 10s recarregando manualmente. Agora: refetchInterval do cache.
+  const { data: notifSettings } = useQuery({
+    queryKey: qk.profile,
+    queryFn: async () => {
+      const { data } = await (supabase as any)
+        .from('profiles')
+        .select('notif_interval_hours, notifications_enabled, last_push_sent_at')
+        .eq('user_id', user!.id)
+        .single();
+      return data as {
+        notif_interval_hours: number;
+        notifications_enabled: boolean;
+        last_push_sent_at: string | null;
+      } | null;
+    },
+    enabled: !!user,
+    refetchInterval: 10000,
+    staleTime: 5000,
+  });
 
-    if (typeof data?.notif_interval_hours === 'number') setNotifInterval(data.notif_interval_hours);
-    if (typeof data?.notifications_enabled === 'boolean') setNotificationsEnabled(data.notifications_enabled);
-    if (data?.last_push_sent_at !== undefined) setLastPushSentAt(data.last_push_sent_at);
-  }, [user]);
-
-  useEffect(() => {
-    loadNotificationSettings();
-  }, [loadNotificationSettings]);
+  const notifInterval = notifSettings?.notif_interval_hours ?? 9;
+  const notificationsEnabled = notifSettings?.notifications_enabled ?? true;
+  const lastPushSentAt = notifSettings?.last_push_sent_at ?? null;
 
   // Auto re-subscribe push on page load
   useEffect(() => {
@@ -66,16 +73,6 @@ export default function AlertasPage() {
       console.log('[Alertas] Push subscription check result:', ok);
     });
   }, [user]);
-
-  useEffect(() => {
-    if (!user) return;
-
-    const intervalId = window.setInterval(() => {
-      loadNotificationSettings();
-    }, 10000);
-
-    return () => window.clearInterval(intervalId);
-  }, [loadNotificationSettings, user]);
 
   // Live countdown timer
   useEffect(() => {
@@ -87,7 +84,6 @@ export default function AlertasPage() {
       const lastTime = new Date(lastPushSentAt).getTime();
       const intervalMs = notifInterval * 3600000;
       const now = Date.now();
-      // Find the next future notification time
       const cyclesPassed = Math.floor((now - lastTime) / intervalMs);
       const nextTime = lastTime + (cyclesPassed + 1) * intervalMs;
       const diffMs = nextTime - now;
@@ -113,10 +109,10 @@ export default function AlertasPage() {
 
   const handleIntervalChange = async (value: string) => {
     const hours = parseFloat(value);
-    setNotifInterval(hours);
     setIntervalLoading(true);
     try {
       await (supabase as any).from('profiles').update({ notif_interval_hours: hours }).eq('user_id', user!.id);
+      qc.invalidateQueries({ queryKey: qk.profile });
       toast.success(`Intervalo de notificação atualizado para ${hours}h`);
     } catch {
       toast.error('Erro ao atualizar intervalo');
@@ -222,7 +218,7 @@ export default function AlertasPage() {
 
     try {
       await (supabase as any).from('profiles').update({ notifications_enabled: newValue }).eq('user_id', user.id);
-      setNotificationsEnabled(newValue);
+      qc.invalidateQueries({ queryKey: qk.profile });
       toast.success(newValue ? 'Notificações ativadas!' : 'Notificações desativadas!');
     } catch {
       toast.error('Erro ao atualizar notificações');

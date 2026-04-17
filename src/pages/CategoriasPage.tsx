@@ -4,6 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/contexts/ProfileContext';
 import { fetchCategories, createCategory, updateCategory, deleteCategory } from '@/services/categoriesService';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { qk } from '@/lib/queryKeys';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -25,7 +26,7 @@ export default function CategoriasPage() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   const { data: categories = [] } = useQuery({
-    queryKey: ['categories', activeProfile?.id],
+    queryKey: qk.categories.byProfile(activeProfile?.id),
     queryFn: () => fetchCategories({ profileId: activeProfile?.id, grupo: 'essenciais' }),
     enabled: !!user && !!activeProfile,
   });
@@ -48,7 +49,7 @@ export default function CategoriasPage() {
       toast.error(err?.message ?? 'Erro ao salvar');
       return;
     }
-    qc.invalidateQueries({ queryKey: ['categories'] });
+    qc.invalidateQueries({ queryKey: qk.categories.all });
     setDialogOpen(false);
     resetForm();
   };
@@ -75,7 +76,7 @@ export default function CategoriasPage() {
       return;
     }
     toast.success('Categoria removida');
-    qc.invalidateQueries({ queryKey: ['categories'] });
+    qc.invalidateQueries({ queryKey: qk.categories.all });
     setDeleteDialogOpen(false);
     setDeleteItem(null);
   };

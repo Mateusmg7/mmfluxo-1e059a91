@@ -20,7 +20,20 @@ import AlertasPage from "@/pages/AlertasPage";
 import RankingPage from "@/pages/RankingPage";
 import NotFound from "@/pages/NotFound";
 
-const queryClient = new QueryClient();
+// Configuração da "central de memória" do app.
+// staleTime: por quanto tempo um dado é considerado "fresco" (sem precisar buscar de novo)
+// gcTime: por quanto tempo um dado fica guardado depois que ninguém mais o usa
+// refetchOnWindowFocus: false → não busca de novo só por trocar de aba
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 30 * 1000, // 30 segundos como fresco
+      gcTime: 5 * 60 * 1000, // 5 minutos guardado em memória
+      refetchOnWindowFocus: false,
+      retry: 1,
+    },
+  },
+});
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();

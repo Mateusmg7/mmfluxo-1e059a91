@@ -4,6 +4,7 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { useProfile } from '@/contexts/ProfileContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { qk } from '@/lib/queryKeys';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -21,7 +22,7 @@ export default function ConfiguracoesPage() {
   const qc = useQueryClient();
 
   const { data: profile } = useQuery({
-    queryKey: ['profile'],
+    queryKey: qk.profile,
     queryFn: async () => {
       const { data } = await supabase.from('profiles').select('*').eq('user_id', user!.id).single();
       return data;
@@ -60,7 +61,7 @@ export default function ConfiguracoesPage() {
 
     if (error) { toast.error(error.message); return; }
     toast.success('Configurações salvas');
-    qc.invalidateQueries({ queryKey: ['profile'] });
+    qc.invalidateQueries({ queryKey: qk.profile });
   };
 
   const handleSaveBudget = async () => {
@@ -71,7 +72,7 @@ export default function ConfiguracoesPage() {
     }).eq('id', activeProfile.id);
     if (error) { toast.error(error.message); return; }
     toast.success('Orçamento atualizado');
-    qc.invalidateQueries({ queryKey: ['financial_profiles'] });
+    qc.invalidateQueries({ queryKey: qk.financialProfiles });
   };
 
   return (

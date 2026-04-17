@@ -9,6 +9,7 @@ import {
   deleteExtraIncome,
 } from '@/services/extraIncomeService';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { qk } from '@/lib/queryKeys';
 import { format, startOfMonth, endOfMonth, addMonths, subMonths, isSameMonth } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Card, CardContent } from '@/components/ui/card';
@@ -47,7 +48,7 @@ export default function RendaExtraPage() {
   const end = format(endOfMonth(currentMonth), 'yyyy-MM-dd');
 
   const { data: records = [] } = useQuery({
-    queryKey: ['extra_income', start, end, activeProfile?.id],
+    queryKey: qk.extraIncome.byPeriod(activeProfile?.id, start, end),
     queryFn: () =>
       fetchExtraIncomeByPeriod({
         profileId: activeProfile?.id,
@@ -82,7 +83,7 @@ export default function RendaExtraPage() {
       toast.error(err?.message ?? 'Erro ao salvar');
       return;
     }
-    qc.invalidateQueries({ queryKey: ['extra_income'] });
+    qc.invalidateQueries({ queryKey: qk.extraIncome.all });
     setDialogOpen(false);
     resetForm();
   };
@@ -102,7 +103,7 @@ export default function RendaExtraPage() {
     if (!deleteId) return;
     await deleteExtraIncome(deleteId);
     toast.success('Removido');
-    qc.invalidateQueries({ queryKey: ['extra_income'] });
+    qc.invalidateQueries({ queryKey: qk.extraIncome.all });
     setDeleteDialogOpen(false);
     setDeleteId(null);
   };
