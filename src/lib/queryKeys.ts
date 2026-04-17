@@ -58,4 +58,20 @@ export const qk = {
   // 🏆 Ranking mensal (despesas + renda de todos os perfis)
   ranking: (userId: string | undefined, monthStart: string) =>
     ['ranking', userId, monthStart] as const,
+
+  // 📊 Gráfico de Evolução Mensal (6 meses) — despesas e receitas
+  evolution: {
+    transactions: (profileId: string | null | undefined, start: string, end: string) =>
+      ['evolution-tx', start, end, profileId ?? null] as const,
+    income: (profileId: string | null | undefined, start: string, end: string) =>
+      ['evolution-income', start, end, profileId ?? null] as const,
+  },
+
+  // 📊 Gráfico Comparativo Mensal (mês atual vs anterior)
+  comparison: {
+    current: (profileId: string | null | undefined, start: string, end: string) =>
+      ['comparison-cur-tx', start, end, profileId ?? null] as const,
+    previous: (profileId: string | null | undefined, start: string, end: string) =>
+      ['comparison-prev-tx', start, end, profileId ?? null] as const,
+  },
 } as const;

@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { qk } from '@/lib/queryKeys';
 import { format, subMonths, startOfMonth, endOfMonth } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -28,7 +29,7 @@ export function MonthlyEvolutionChart({ userId, profileId, currentMonth }: Props
   const rangeEnd = months[5].end;
 
   const { data: txData = [] } = useQuery({
-    queryKey: ['evolution-tx', rangeStart, rangeEnd, profileId],
+    queryKey: qk.evolution.transactions(profileId, rangeStart, rangeEnd),
     queryFn: async () => {
       let q = supabase
         .from('transactions')
@@ -43,7 +44,7 @@ export function MonthlyEvolutionChart({ userId, profileId, currentMonth }: Props
   });
 
   const { data: incomeData = [] } = useQuery({
-    queryKey: ['evolution-income', rangeStart, rangeEnd, profileId],
+    queryKey: qk.evolution.income(profileId, rangeStart, rangeEnd),
     queryFn: async () => {
       let q = supabase
         .from('extra_income')
