@@ -17,9 +17,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { CurrencyInput } from '@/components/CurrencyInput';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Plus, Pencil, Trash2, ArrowUpCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Plus, Pencil, Trash2, ArrowUpCircle, ChevronLeft, ChevronRight, Search, X, SlidersHorizontal, ArrowUpDown } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function RendaExtraPage() {
@@ -38,6 +39,13 @@ export default function RendaExtraPage() {
   const [data, setData] = useState(format(now, 'yyyy-MM-dd'));
   const [hora, setHora] = useState(format(now, 'HH:mm'));
   const [observacao, setObservacao] = useState('');
+
+  // 🔎 Filtros e busca
+  const [busca, setBusca] = useState('');
+  const [valorMin, setValorMin] = useState('');
+  const [valorMax, setValorMax] = useState('');
+  const [ordem, setOrdem] = useState('');
+  const [filtrosAvancadosAbertos, setFiltrosAvancadosAbertos] = useState(false);
 
   const goToPrevMonth = () => setCurrentMonth(prev => subMonths(prev, 1));
   const goToNextMonth = () => setCurrentMonth(prev => addMonths(prev, 1));
@@ -59,8 +67,47 @@ export default function RendaExtraPage() {
     enabled: !!user && !!activeProfile,
   });
 
-  const total = records.reduce((s, r) => s + Number(r.valor), 0);
+  // 🔎 Aplica busca + faixa de valor + ordenação
+  const normalizar = (s: string) =>
+    s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  const buscaNorm = normalizar(busca.trim());
+  const minNum = valorMin ? parseFloat(valorMin.replace(',', '.')) : null;
+  const maxNum = valorMax ? parseFloat(valorMax.replace(',', '.')) : null;
+
+  const filtered = records.filter((r: any) => {
+    const v = Number(r.valor);
+    if (minNum !== null && !isNaN(minNum) && v < minNum) return false;
+    if (maxNum !== null && !isNaN(maxNum) && v > maxNum) return false;
+    if (buscaNorm) {
+      const texto = normalizar(`${r.origem ?? ''} ${r.observacao ?? ''}`);
+      if (!texto.includes(buscaNorm)) return false;
+    }
+    return true;
+  }).sort((a: any, b: any) => {
+    const [campo, dir] = ordem.split('-');
+    const mult = dir === 'asc' ? 1 : -1;
+    if (campo === 'data') {
+      const cmp = a.data.localeCompare(b.data) || a.hora.localeCompare(b.hora);
+      return cmp * mult;
+    }
+    if (campo === 'valor') return (Number(a.valor) - Number(b.valor)) * mult;
+    if (campo === 'nome') {
+      return (a.origem || '').toLowerCase().localeCompare((b.origem || '').toLowerCase()) * mult;
+    }
+    return 0;
+  });
+
+  const total = filtered.reduce((s, r) => s + Number(r.valor), 0);
   const fmt = (v: number) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+  const filtrosAtivos =
+    (busca ? 1 : 0) + (valorMin ? 1 : 0) + (valorMax ? 1 : 0);
+
+  const limparFiltros = () => {
+    setBusca('');
+    setValorMin('');
+    setValorMax('');
+  };
 
   const resetForm = () => {
     setOrigem(''); setValor(''); setData(format(now, 'yyyy-MM-dd'));
@@ -170,19 +217,129 @@ export default function RendaExtraPage() {
       </div>
 
 
+      {/* 🔎 Caixa de busca + filtros avançados */}
+      <div className="space-y-3">
+        <div className="flex flex-wrap gap-2 items-center">
+          <div className="relative flex-1 min-w-[200px]">
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+            <Input
+              value={busca}
+              onChange={(e) => setBusca(e.target.value)}
+              placeholder="Buscar por origem ou observação..."
+              className="pl-9 pr-9"
+            />
+            {busca && (
+              <button
+                type="button"
+                onClick={() => setBusca('')}
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded hover:bg-secondary text-muted-foreground"
+                aria-label="Limpar busca"
+              >
+                <X size={14} />
+              </button>
+            )}
+          </div>
+          <Select value={ordem} onValueChange={setOrdem}>
+            <SelectTrigger className="w-44">
+              <div className="flex items-center gap-1 min-w-0">
+                <ArrowUpDown size={14} className="flex-shrink-0" />
+                <span className="truncate">Ordenar por</span>
+              </div>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="data-desc">Data (recente → antiga)</SelectItem>
+              <SelectItem value="data-asc">Data (antiga → recente)</SelectItem>
+              <SelectItem value="valor-desc">Valor (maior → menor)</SelectItem>
+              <SelectItem value="valor-asc">Valor (menor → maior)</SelectItem>
+              <SelectItem value="nome-asc">Origem (A → Z)</SelectItem>
+              <SelectItem value="nome-desc">Origem (Z → A)</SelectItem>
+            </SelectContent>
+          </Select>
+          <Button
+            variant={filtrosAvancadosAbertos ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setFiltrosAvancadosAbertos((v) => !v)}
+            className="gap-2"
+          >
+            <SlidersHorizontal size={14} />
+            Filtros
+            {filtrosAtivos > 0 && (
+              <span className="ml-1 px-1.5 py-0.5 rounded-full bg-primary text-primary-foreground text-[10px] font-bold leading-none">
+                {filtrosAtivos}
+              </span>
+            )}
+          </Button>
+          {filtrosAtivos > 0 && (
+            <Button variant="ghost" size="sm" onClick={limparFiltros} className="gap-1 text-muted-foreground">
+              <X size={14} />
+              Limpar
+            </Button>
+          )}
+        </div>
+
+        {filtrosAvancadosAbertos && (
+          <Card className="card-glass">
+            <CardContent className="py-4">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-muted-foreground">Valor mínimo (R$)</Label>
+                  <Input
+                    type="number"
+                    inputMode="decimal"
+                    min="0"
+                    step="0.01"
+                    placeholder="0,00"
+                    value={valorMin}
+                    onChange={(e) => setValorMin(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-muted-foreground">Valor máximo (R$)</Label>
+                  <Input
+                    type="number"
+                    inputMode="decimal"
+                    min="0"
+                    step="0.01"
+                    placeholder="Sem limite"
+                    value={valorMax}
+                    onChange={(e) => setValorMax(e.target.value)}
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+
       <Card className="card-glass">
         <CardContent className="py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <ArrowUpCircle className="text-accent" size={24} />
-            <span className="text-muted-foreground">Total no período</span>
+            <span className="text-muted-foreground">
+              {filtrosAtivos > 0 ? 'Total filtrado' : 'Total no período'}
+            </span>
           </div>
           <span className="text-xl font-bold text-accent">{fmt(total)}</span>
         </CardContent>
       </Card>
 
       <div className="space-y-2">
-        {records.length === 0 && <p className="text-center text-muted-foreground py-12">Nenhuma renda extra registrada.</p>}
-        {records.map((r) => (
+        {filtered.length === 0 && (
+          <div className="text-center py-12 space-y-3">
+            <p className="text-muted-foreground">
+              {records.length === 0
+                ? 'Nenhuma renda extra neste mês.'
+                : 'Nenhuma renda encontrada com esses filtros.'}
+            </p>
+            {records.length > 0 && filtrosAtivos > 0 && (
+              <Button variant="outline" size="sm" onClick={limparFiltros} className="gap-1">
+                <X size={14} />
+                Limpar filtros
+              </Button>
+            )}
+          </div>
+        )}
+        {filtered.map((r: any) => (
           <Card key={r.id} className="card-glass">
             <CardContent className="py-3 flex items-center justify-between gap-4">
               <div className="min-w-0">
