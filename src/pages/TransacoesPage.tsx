@@ -567,7 +567,19 @@ export default function TransacoesPage() {
       {/* List */}
       <div className="space-y-2">
         {filtered.length === 0 && (
-          <p className="text-center text-muted-foreground py-12">Nenhuma despesa encontrada.</p>
+          <div className="text-center py-12 space-y-3">
+            <p className="text-muted-foreground">
+              {transactions.length === 0
+                ? 'Nenhuma despesa neste mês.'
+                : 'Nenhuma despesa encontrada com esses filtros.'}
+            </p>
+            {transactions.length > 0 && filtrosAtivos > 0 && (
+              <Button variant="outline" size="sm" onClick={limparFiltros} className="gap-1">
+                <X size={14} />
+                Limpar filtros
+              </Button>
+            )}
+          </div>
         )}
         {filtered.map((t: any) => (
           <Card key={t.id} className="card-glass">
