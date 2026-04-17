@@ -24,7 +24,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 import { Checkbox } from '@/components/ui/checkbox';
-import { Plus, Pencil, Trash2, ArrowUpDown, ChevronLeft, ChevronRight, CreditCard } from 'lucide-react';
+import { Plus, Pencil, Trash2, ArrowUpDown, ChevronLeft, ChevronRight, CreditCard, Search, X, SlidersHorizontal } from 'lucide-react';
 import { toast } from 'sonner';
 
 const TIPO_LABELS: Record<string, string> = {
@@ -49,6 +49,15 @@ export default function TransacoesPage() {
 
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [filtroTipo, setFiltroTipo] = useState('todos');
+  // 🔎 Caixa de busca em tempo real (procura no motivo + nome da categoria)
+  const [busca, setBusca] = useState('');
+  // 🏷️ Filtro por categoria específica (id da categoria ou 'todas')
+  const [filtroCategoria, setFiltroCategoria] = useState('todas');
+  // 💰 Faixa de valor (texto livre, vazio = sem limite)
+  const [valorMin, setValorMin] = useState('');
+  const [valorMax, setValorMax] = useState('');
+  // 🎛️ Painel de filtros avançados (mostra/esconde)
+  const [filtrosAvancadosAbertos, setFiltrosAvancadosAbertos] = useState(false);
   
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
@@ -79,9 +88,17 @@ export default function TransacoesPage() {
   const [parcelado, setParcelado] = useState(false);
   const [totalParcelas, setTotalParcelas] = useState('2');
 
+  // Categorias essenciais (para o formulário de cadastro)
   const { data: categories = [] } = useQuery({
     queryKey: qk.categories.byProfile(activeProfile?.id),
     queryFn: () => fetchCategories({ profileId: activeProfile?.id, grupo: 'essenciais' }),
+    enabled: !!user && !!activeProfile,
+  });
+
+  // Todas as categorias do perfil (para o filtro avançado por categoria)
+  const { data: allCategories = [] } = useQuery({
+    queryKey: [...qk.categories.byProfile(activeProfile?.id), 'all-groups'],
+    queryFn: () => fetchCategories({ profileId: activeProfile?.id }),
     enabled: !!user && !!activeProfile,
   });
 
@@ -97,8 +114,27 @@ export default function TransacoesPage() {
     enabled: !!user && !!activeProfile,
   });
 
+  // 🔎 Normaliza texto para busca (remove acentos, lowercase) — assim "café" acha "cafe"
+  const normalizar = (s: string) =>
+    s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  const buscaNorm = normalizar(busca.trim());
+  const minNum = valorMin ? parseFloat(valorMin.replace(',', '.')) : null;
+  const maxNum = valorMax ? parseFloat(valorMax.replace(',', '.')) : null;
+
   const filtered = transactions.filter((t: any) => {
+    // Filtro de tipo (essencial/lazer/...)
     if (filtroTipo !== 'todos' && t.tipo_despesa !== filtroTipo) return false;
+    // Filtro de categoria específica
+    if (filtroCategoria !== 'todas' && t.category_id !== filtroCategoria) return false;
+    // Faixa de valor
+    const v = Number(t.valor);
+    if (minNum !== null && !isNaN(minNum) && v < minNum) return false;
+    if (maxNum !== null && !isNaN(maxNum) && v > maxNum) return false;
+    // Busca em motivo + categoria
+    if (buscaNorm) {
+      const texto = normalizar(`${t.motivo ?? ''} ${t.categories?.nome ?? ''}`);
+      if (!texto.includes(buscaNorm)) return false;
+    }
     return true;
   }).sort((a: any, b: any) => {
     const [campo, dir] = ordem.split('-');
@@ -115,6 +151,22 @@ export default function TransacoesPage() {
     }
     return 0;
   });
+
+  // Conta quantos filtros avançados estão ativos (para mostrar badge)
+  const filtrosAtivos =
+    (busca ? 1 : 0) +
+    (filtroTipo !== 'todos' ? 1 : 0) +
+    (filtroCategoria !== 'todas' ? 1 : 0) +
+    (valorMin ? 1 : 0) +
+    (valorMax ? 1 : 0);
+
+  const limparFiltros = () => {
+    setBusca('');
+    setFiltroTipo('todos');
+    setFiltroCategoria('todas');
+    setValorMin('');
+    setValorMax('');
+  };
 
   const total = filtered.reduce((s, t) => s + Number(t.valor), 0);
 
@@ -379,34 +431,127 @@ export default function TransacoesPage() {
         </Dialog>
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-wrap gap-3">
-        <Select value={filtroTipo} onValueChange={setFiltroTipo}>
-          <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="todos">Todos os tipos</SelectItem>
-            <SelectItem value="essencial">Essencial</SelectItem>
-            <SelectItem value="lazer">Lazer</SelectItem>
-            <SelectItem value="imprevisto">Imprevisto</SelectItem>
-            <SelectItem value="besteira">Besteira</SelectItem>
-          </SelectContent>
-        </Select>
-        <Select value={ordem} onValueChange={setOrdem}>
-          <SelectTrigger className="w-48">
-            <div className="flex items-center gap-1 min-w-0">
-              <ArrowUpDown size={14} className="flex-shrink-0" />
-              <span className="truncate">Ordenar Por</span>
-            </div>
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="data-desc">Data (recente → antiga)</SelectItem>
-            <SelectItem value="data-asc">Data (antiga → recente)</SelectItem>
-            <SelectItem value="valor-desc">Valor (maior → menor)</SelectItem>
-            <SelectItem value="valor-asc">Valor (menor → maior)</SelectItem>
-            <SelectItem value="nome-asc">Nome (A → Z)</SelectItem>
-            <SelectItem value="nome-desc">Nome (Z → A)</SelectItem>
-          </SelectContent>
-        </Select>
+      {/* 🔎 Caixa de busca + filtros avançados */}
+      <div className="space-y-3">
+        {/* Linha 1: busca em tempo real + ordenação + botão de filtros */}
+        <div className="flex flex-wrap gap-2 items-center">
+          <div className="relative flex-1 min-w-[200px]">
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+            <Input
+              value={busca}
+              onChange={(e) => setBusca(e.target.value)}
+              placeholder="Buscar por motivo ou categoria..."
+              className="pl-9 pr-9"
+            />
+            {busca && (
+              <button
+                type="button"
+                onClick={() => setBusca('')}
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded hover:bg-secondary text-muted-foreground"
+                aria-label="Limpar busca"
+              >
+                <X size={14} />
+              </button>
+            )}
+          </div>
+          <Select value={ordem} onValueChange={setOrdem}>
+            <SelectTrigger className="w-44">
+              <div className="flex items-center gap-1 min-w-0">
+                <ArrowUpDown size={14} className="flex-shrink-0" />
+                <span className="truncate">Ordenar por</span>
+              </div>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="data-desc">Data (recente → antiga)</SelectItem>
+              <SelectItem value="data-asc">Data (antiga → recente)</SelectItem>
+              <SelectItem value="valor-desc">Valor (maior → menor)</SelectItem>
+              <SelectItem value="valor-asc">Valor (menor → maior)</SelectItem>
+              <SelectItem value="nome-asc">Nome (A → Z)</SelectItem>
+              <SelectItem value="nome-desc">Nome (Z → A)</SelectItem>
+            </SelectContent>
+          </Select>
+          <Button
+            variant={filtrosAvancadosAbertos ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setFiltrosAvancadosAbertos((v) => !v)}
+            className="gap-2"
+          >
+            <SlidersHorizontal size={14} />
+            Filtros
+            {filtrosAtivos > 0 && (
+              <span className="ml-1 px-1.5 py-0.5 rounded-full bg-primary text-primary-foreground text-[10px] font-bold leading-none">
+                {filtrosAtivos}
+              </span>
+            )}
+          </Button>
+          {filtrosAtivos > 0 && (
+            <Button variant="ghost" size="sm" onClick={limparFiltros} className="gap-1 text-muted-foreground">
+              <X size={14} />
+              Limpar
+            </Button>
+          )}
+        </div>
+
+        {/* Linha 2: painel de filtros avançados (mostra/esconde) */}
+        {filtrosAvancadosAbertos && (
+          <Card className="card-glass">
+            <CardContent className="py-4 space-y-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-muted-foreground">Tipo de despesa</Label>
+                  <Select value={filtroTipo} onValueChange={setFiltroTipo}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="todos">Todos os tipos</SelectItem>
+                      <SelectItem value="essencial">Essencial</SelectItem>
+                      <SelectItem value="lazer">Lazer</SelectItem>
+                      <SelectItem value="imprevisto">Imprevisto</SelectItem>
+                      <SelectItem value="besteira">Besteira</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-muted-foreground">Categoria</Label>
+                  <Select value={filtroCategoria} onValueChange={setFiltroCategoria}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="todas">Todas as categorias</SelectItem>
+                      {allCategories.map((c) => (
+                        <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-muted-foreground">Valor mínimo (R$)</Label>
+                  <Input
+                    type="number"
+                    inputMode="decimal"
+                    min="0"
+                    step="0.01"
+                    placeholder="0,00"
+                    value={valorMin}
+                    onChange={(e) => setValorMin(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-muted-foreground">Valor máximo (R$)</Label>
+                  <Input
+                    type="number"
+                    inputMode="decimal"
+                    min="0"
+                    step="0.01"
+                    placeholder="Sem limite"
+                    value={valorMax}
+                    onChange={(e) => setValorMax(e.target.value)}
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
 
       {/* Total */}
@@ -422,7 +567,19 @@ export default function TransacoesPage() {
       {/* List */}
       <div className="space-y-2">
         {filtered.length === 0 && (
-          <p className="text-center text-muted-foreground py-12">Nenhuma despesa encontrada.</p>
+          <div className="text-center py-12 space-y-3">
+            <p className="text-muted-foreground">
+              {transactions.length === 0
+                ? 'Nenhuma despesa neste mês.'
+                : 'Nenhuma despesa encontrada com esses filtros.'}
+            </p>
+            {transactions.length > 0 && filtrosAtivos > 0 && (
+              <Button variant="outline" size="sm" onClick={limparFiltros} className="gap-1">
+                <X size={14} />
+                Limpar filtros
+              </Button>
+            )}
+          </div>
         )}
         {filtered.map((t: any) => (
           <Card key={t.id} className="card-glass">
