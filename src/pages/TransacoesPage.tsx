@@ -2,7 +2,14 @@ import { useState } from 'react';
 import { ConfirmDeleteDialog } from '@/components/dialogs/ConfirmDeleteDialog';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/contexts/ProfileContext';
-import { supabase } from '@/integrations/supabase/client';
+import {
+  fetchTransactionsByPeriod,
+  createTransaction,
+  createTransactionsBatch,
+  updateTransaction,
+  deleteTransaction,
+} from '@/services/transactionsService';
+import { fetchCategories, createCategoryReturnId } from '@/services/categoriesService';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { format, startOfMonth, endOfMonth, addMonths, subMonths, isSameMonth } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -73,29 +80,19 @@ export default function TransacoesPage() {
 
   const { data: categories = [] } = useQuery({
     queryKey: ['categories', activeProfile?.id],
-    queryFn: async () => {
-      let q = supabase.from('categories').select('*').eq('grupo', 'essenciais').order('nome');
-      if (activeProfile) q = q.eq('profile_id', activeProfile.id);
-      const { data } = await q;
-      return data ?? [];
-    },
+    queryFn: () => fetchCategories({ profileId: activeProfile?.id, grupo: 'essenciais' }),
     enabled: !!user && !!activeProfile,
   });
 
   const { data: transactions = [] } = useQuery({
     queryKey: ['transactions', start, end, activeProfile?.id],
-    queryFn: async () => {
-      let q = supabase
-        .from('transactions')
-        .select('*, categories(nome, cor_hex)')
-        .gte('data', start)
-        .lte('data', end)
-        .order('data', { ascending: false })
-        .order('hora', { ascending: false });
-      if (activeProfile) q = q.eq('profile_id', activeProfile.id);
-      const { data } = await q;
-      return data ?? [];
-    },
+    queryFn: () =>
+      fetchTransactionsByPeriod({
+        profileId: activeProfile?.id,
+        startDate: start,
+        endDate: end,
+        withHourOrder: true,
+      }),
     enabled: !!user && !!activeProfile,
   });
 
