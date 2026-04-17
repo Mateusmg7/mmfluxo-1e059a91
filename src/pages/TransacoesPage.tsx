@@ -431,34 +431,127 @@ export default function TransacoesPage() {
         </Dialog>
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-wrap gap-3">
-        <Select value={filtroTipo} onValueChange={setFiltroTipo}>
-          <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="todos">Todos os tipos</SelectItem>
-            <SelectItem value="essencial">Essencial</SelectItem>
-            <SelectItem value="lazer">Lazer</SelectItem>
-            <SelectItem value="imprevisto">Imprevisto</SelectItem>
-            <SelectItem value="besteira">Besteira</SelectItem>
-          </SelectContent>
-        </Select>
-        <Select value={ordem} onValueChange={setOrdem}>
-          <SelectTrigger className="w-48">
-            <div className="flex items-center gap-1 min-w-0">
-              <ArrowUpDown size={14} className="flex-shrink-0" />
-              <span className="truncate">Ordenar Por</span>
-            </div>
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="data-desc">Data (recente → antiga)</SelectItem>
-            <SelectItem value="data-asc">Data (antiga → recente)</SelectItem>
-            <SelectItem value="valor-desc">Valor (maior → menor)</SelectItem>
-            <SelectItem value="valor-asc">Valor (menor → maior)</SelectItem>
-            <SelectItem value="nome-asc">Nome (A → Z)</SelectItem>
-            <SelectItem value="nome-desc">Nome (Z → A)</SelectItem>
-          </SelectContent>
-        </Select>
+      {/* 🔎 Caixa de busca + filtros avançados */}
+      <div className="space-y-3">
+        {/* Linha 1: busca em tempo real + ordenação + botão de filtros */}
+        <div className="flex flex-wrap gap-2 items-center">
+          <div className="relative flex-1 min-w-[200px]">
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+            <Input
+              value={busca}
+              onChange={(e) => setBusca(e.target.value)}
+              placeholder="Buscar por motivo ou categoria..."
+              className="pl-9 pr-9"
+            />
+            {busca && (
+              <button
+                type="button"
+                onClick={() => setBusca('')}
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded hover:bg-secondary text-muted-foreground"
+                aria-label="Limpar busca"
+              >
+                <X size={14} />
+              </button>
+            )}
+          </div>
+          <Select value={ordem} onValueChange={setOrdem}>
+            <SelectTrigger className="w-44">
+              <div className="flex items-center gap-1 min-w-0">
+                <ArrowUpDown size={14} className="flex-shrink-0" />
+                <span className="truncate">Ordenar por</span>
+              </div>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="data-desc">Data (recente → antiga)</SelectItem>
+              <SelectItem value="data-asc">Data (antiga → recente)</SelectItem>
+              <SelectItem value="valor-desc">Valor (maior → menor)</SelectItem>
+              <SelectItem value="valor-asc">Valor (menor → maior)</SelectItem>
+              <SelectItem value="nome-asc">Nome (A → Z)</SelectItem>
+              <SelectItem value="nome-desc">Nome (Z → A)</SelectItem>
+            </SelectContent>
+          </Select>
+          <Button
+            variant={filtrosAvancadosAbertos ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setFiltrosAvancadosAbertos((v) => !v)}
+            className="gap-2"
+          >
+            <SlidersHorizontal size={14} />
+            Filtros
+            {filtrosAtivos > 0 && (
+              <span className="ml-1 px-1.5 py-0.5 rounded-full bg-primary text-primary-foreground text-[10px] font-bold leading-none">
+                {filtrosAtivos}
+              </span>
+            )}
+          </Button>
+          {filtrosAtivos > 0 && (
+            <Button variant="ghost" size="sm" onClick={limparFiltros} className="gap-1 text-muted-foreground">
+              <X size={14} />
+              Limpar
+            </Button>
+          )}
+        </div>
+
+        {/* Linha 2: painel de filtros avançados (mostra/esconde) */}
+        {filtrosAvancadosAbertos && (
+          <Card className="card-glass">
+            <CardContent className="py-4 space-y-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-muted-foreground">Tipo de despesa</Label>
+                  <Select value={filtroTipo} onValueChange={setFiltroTipo}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="todos">Todos os tipos</SelectItem>
+                      <SelectItem value="essencial">Essencial</SelectItem>
+                      <SelectItem value="lazer">Lazer</SelectItem>
+                      <SelectItem value="imprevisto">Imprevisto</SelectItem>
+                      <SelectItem value="besteira">Besteira</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-muted-foreground">Categoria</Label>
+                  <Select value={filtroCategoria} onValueChange={setFiltroCategoria}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="todas">Todas as categorias</SelectItem>
+                      {allCategories.map((c) => (
+                        <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-muted-foreground">Valor mínimo (R$)</Label>
+                  <Input
+                    type="number"
+                    inputMode="decimal"
+                    min="0"
+                    step="0.01"
+                    placeholder="0,00"
+                    value={valorMin}
+                    onChange={(e) => setValorMin(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-muted-foreground">Valor máximo (R$)</Label>
+                  <Input
+                    type="number"
+                    inputMode="decimal"
+                    min="0"
+                    step="0.01"
+                    placeholder="Sem limite"
+                    value={valorMax}
+                    onChange={(e) => setValorMax(e.target.value)}
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
 
       {/* Total */}
