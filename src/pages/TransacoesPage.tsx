@@ -24,7 +24,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 import { Checkbox } from '@/components/ui/checkbox';
-import { Plus, Pencil, Trash2, ArrowUpDown, ChevronLeft, ChevronRight, CreditCard } from 'lucide-react';
+import { Plus, Pencil, Trash2, ArrowUpDown, ChevronLeft, ChevronRight, CreditCard, Search, X, SlidersHorizontal } from 'lucide-react';
 import { toast } from 'sonner';
 
 const TIPO_LABELS: Record<string, string> = {
@@ -49,6 +49,15 @@ export default function TransacoesPage() {
 
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [filtroTipo, setFiltroTipo] = useState('todos');
+  // 🔎 Caixa de busca em tempo real (procura no motivo + nome da categoria)
+  const [busca, setBusca] = useState('');
+  // 🏷️ Filtro por categoria específica (id da categoria ou 'todas')
+  const [filtroCategoria, setFiltroCategoria] = useState('todas');
+  // 💰 Faixa de valor (texto livre, vazio = sem limite)
+  const [valorMin, setValorMin] = useState('');
+  const [valorMax, setValorMax] = useState('');
+  // 🎛️ Painel de filtros avançados (mostra/esconde)
+  const [filtrosAvancadosAbertos, setFiltrosAvancadosAbertos] = useState(false);
   
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
@@ -79,9 +88,17 @@ export default function TransacoesPage() {
   const [parcelado, setParcelado] = useState(false);
   const [totalParcelas, setTotalParcelas] = useState('2');
 
+  // Categorias essenciais (para o formulário de cadastro)
   const { data: categories = [] } = useQuery({
     queryKey: qk.categories.byProfile(activeProfile?.id),
     queryFn: () => fetchCategories({ profileId: activeProfile?.id, grupo: 'essenciais' }),
+    enabled: !!user && !!activeProfile,
+  });
+
+  // Todas as categorias do perfil (para o filtro avançado por categoria)
+  const { data: allCategories = [] } = useQuery({
+    queryKey: [...qk.categories.byProfile(activeProfile?.id), 'all-groups'],
+    queryFn: () => fetchCategories({ profileId: activeProfile?.id }),
     enabled: !!user && !!activeProfile,
   });
 
@@ -97,8 +114,27 @@ export default function TransacoesPage() {
     enabled: !!user && !!activeProfile,
   });
 
+  // 🔎 Normaliza texto para busca (remove acentos, lowercase) — assim "café" acha "cafe"
+  const normalizar = (s: string) =>
+    s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  const buscaNorm = normalizar(busca.trim());
+  const minNum = valorMin ? parseFloat(valorMin.replace(',', '.')) : null;
+  const maxNum = valorMax ? parseFloat(valorMax.replace(',', '.')) : null;
+
   const filtered = transactions.filter((t: any) => {
+    // Filtro de tipo (essencial/lazer/...)
     if (filtroTipo !== 'todos' && t.tipo_despesa !== filtroTipo) return false;
+    // Filtro de categoria específica
+    if (filtroCategoria !== 'todas' && t.category_id !== filtroCategoria) return false;
+    // Faixa de valor
+    const v = Number(t.valor);
+    if (minNum !== null && !isNaN(minNum) && v < minNum) return false;
+    if (maxNum !== null && !isNaN(maxNum) && v > maxNum) return false;
+    // Busca em motivo + categoria
+    if (buscaNorm) {
+      const texto = normalizar(`${t.motivo ?? ''} ${t.categories?.nome ?? ''}`);
+      if (!texto.includes(buscaNorm)) return false;
+    }
     return true;
   }).sort((a: any, b: any) => {
     const [campo, dir] = ordem.split('-');
@@ -115,6 +151,22 @@ export default function TransacoesPage() {
     }
     return 0;
   });
+
+  // Conta quantos filtros avançados estão ativos (para mostrar badge)
+  const filtrosAtivos =
+    (busca ? 1 : 0) +
+    (filtroTipo !== 'todos' ? 1 : 0) +
+    (filtroCategoria !== 'todas' ? 1 : 0) +
+    (valorMin ? 1 : 0) +
+    (valorMax ? 1 : 0);
+
+  const limparFiltros = () => {
+    setBusca('');
+    setFiltroTipo('todos');
+    setFiltroCategoria('todas');
+    setValorMin('');
+    setValorMax('');
+  };
 
   const total = filtered.reduce((s, t) => s + Number(t.valor), 0);
 
