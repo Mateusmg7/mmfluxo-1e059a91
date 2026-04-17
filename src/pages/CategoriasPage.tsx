@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ConfirmDeleteDialog } from '@/components/ConfirmDeleteDialog';
+import { ConfirmDeleteDialog } from '@/components/dialogs/ConfirmDeleteDialog';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/contexts/ProfileContext';
 import { supabase } from '@/integrations/supabase/client';

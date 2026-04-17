@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { ConfirmDeleteDialog } from '@/components/ConfirmDeleteDialog';
+import { ConfirmDeleteDialog } from '@/components/dialogs/ConfirmDeleteDialog';
 import { logNotificationHistory } from '@/hooks/useNotifications';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';

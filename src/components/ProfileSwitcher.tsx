@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useProfile } from '@/contexts/ProfileContext';
 import { Button } from '@/components/ui/button';
-import DuplicateDataDialog from '@/components/DuplicateDataDialog';
+import DuplicateDataDialog from '@/components/dialogs/DuplicateDataDialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
