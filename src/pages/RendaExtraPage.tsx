@@ -2,7 +2,12 @@ import { useState } from 'react';
 import { ConfirmDeleteDialog } from '@/components/dialogs/ConfirmDeleteDialog';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/contexts/ProfileContext';
-import { supabase } from '@/integrations/supabase/client';
+import {
+  fetchExtraIncomeByPeriod,
+  createExtraIncome,
+  updateExtraIncome,
+  deleteExtraIncome,
+} from '@/services/extraIncomeService';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { format, startOfMonth, endOfMonth, addMonths, subMonths, isSameMonth } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -43,18 +48,13 @@ export default function RendaExtraPage() {
 
   const { data: records = [] } = useQuery({
     queryKey: ['extra_income', start, end, activeProfile?.id],
-    queryFn: async () => {
-      let q = supabase
-        .from('extra_income')
-        .select('*')
-        .gte('data', start)
-        .lte('data', end)
-        .order('data', { ascending: false })
-        .order('hora', { ascending: false });
-      if (activeProfile) q = q.eq('profile_id', activeProfile.id);
-      const { data } = await q;
-      return data ?? [];
-    },
+    queryFn: () =>
+      fetchExtraIncomeByPeriod({
+        profileId: activeProfile?.id,
+        startDate: start,
+        endDate: end,
+        withHourOrder: true,
+      }),
     enabled: !!user && !!activeProfile,
   });
 
@@ -70,14 +70,17 @@ export default function RendaExtraPage() {
     if (!origem || !valor) { toast.error('Preencha origem e valor'); return; }
     const payload = { user_id: user!.id, origem, valor: parseFloat(valor), data, hora, observacao: observacao || null, profile_id: activeProfile?.id };
 
-    if (editId) {
-      const { error } = await supabase.from('extra_income').update(payload).eq('id', editId);
-      if (error) { toast.error(error.message); return; }
-      toast.success('Renda atualizada');
-    } else {
-      const { error } = await supabase.from('extra_income').insert(payload);
-      if (error) { toast.error(error.message); return; }
-      toast.success('Renda adicionada');
+    try {
+      if (editId) {
+        await updateExtraIncome(editId, payload);
+        toast.success('Renda atualizada');
+      } else {
+        await createExtraIncome(payload);
+        toast.success('Renda adicionada');
+      }
+    } catch (err: any) {
+      toast.error(err?.message ?? 'Erro ao salvar');
+      return;
     }
     qc.invalidateQueries({ queryKey: ['extra_income'] });
     setDialogOpen(false);
@@ -97,7 +100,7 @@ export default function RendaExtraPage() {
 
   const handleDelete = async () => {
     if (!deleteId) return;
-    await supabase.from('extra_income').delete().eq('id', deleteId);
+    await deleteExtraIncome(deleteId);
     toast.success('Removido');
     qc.invalidateQueries({ queryKey: ['extra_income'] });
     setDeleteDialogOpen(false);
