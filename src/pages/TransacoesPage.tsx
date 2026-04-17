@@ -150,41 +150,43 @@ export default function TransacoesPage() {
       category_id: tipoDespesa === 'essencial' ? categoryId : null,
     };
 
-    if (editId) {
-      const updatePayload: any = { ...basePayload, valor: valorNum, data, hora };
-      if (editGrupoId && editTotalParcelas > 0) {
-        updatePayload.parcela_atual = parseInt(editParcelaAtual) || 1;
-      }
-      const { error } = await supabase.from('transactions').update(updatePayload).eq('id', editId);
-      if (error) { toast.error(error.message); return; }
-      toast.success('Despesa atualizada');
-    } else if (parcelado && !editId) {
-      const numParcelas = Math.max(2, Math.min(48, parseInt(totalParcelas) || 2));
-      const valorParcela = Math.round((valorNum / numParcelas) * 100) / 100;
-      const grupoId = crypto.randomUUID();
-      const parcelas = [];
+    try {
+      if (editId) {
+        const updatePayload: any = { ...basePayload, valor: valorNum, data, hora };
+        if (editGrupoId && editTotalParcelas > 0) {
+          updatePayload.parcela_atual = parseInt(editParcelaAtual) || 1;
+        }
+        await updateTransaction(editId, updatePayload);
+        toast.success('Despesa atualizada');
+      } else if (parcelado && !editId) {
+        const numParcelas = Math.max(2, Math.min(48, parseInt(totalParcelas) || 2));
+        const valorParcela = Math.round((valorNum / numParcelas) * 100) / 100;
+        const grupoId = crypto.randomUUID();
+        const parcelas = [];
 
-      for (let i = 0; i < numParcelas; i++) {
-        const dataParcela = format(addMonths(new Date(data + 'T12:00:00'), i), 'yyyy-MM-dd');
-        parcelas.push({
-          ...basePayload,
-          valor: valorParcela,
-          data: dataParcela,
-          hora,
-          parcela_atual: i + 1,
-          total_parcelas: numParcelas,
-          parcela_grupo_id: grupoId,
-          status: i === 0 ? 'pago' : 'previsto',
-        });
-      }
+        for (let i = 0; i < numParcelas; i++) {
+          const dataParcela = format(addMonths(new Date(data + 'T12:00:00'), i), 'yyyy-MM-dd');
+          parcelas.push({
+            ...basePayload,
+            valor: valorParcela,
+            data: dataParcela,
+            hora,
+            parcela_atual: i + 1,
+            total_parcelas: numParcelas,
+            parcela_grupo_id: grupoId,
+            status: i === 0 ? 'pago' : 'previsto',
+          });
+        }
 
-      const { error } = await supabase.from('transactions').insert(parcelas);
-      if (error) { toast.error(error.message); return; }
-      toast.success(`${numParcelas} parcelas de ${fmt(valorParcela)} criadas`);
-    } else {
-      const { error } = await supabase.from('transactions').insert({ ...basePayload, valor: valorNum, data, hora });
-      if (error) { toast.error(error.message); return; }
-      toast.success('Despesa adicionada');
+        await createTransactionsBatch(parcelas);
+        toast.success(`${numParcelas} parcelas de ${fmt(valorParcela)} criadas`);
+      } else {
+        await createTransaction({ ...basePayload, valor: valorNum, data, hora });
+        toast.success('Despesa adicionada');
+      }
+    } catch (err: any) {
+      toast.error(err?.message ?? 'Erro ao salvar');
+      return;
     }
 
     qc.invalidateQueries({ queryKey: ['transactions'] });
@@ -216,8 +218,12 @@ export default function TransacoesPage() {
 
   const handleDelete = async () => {
     if (!deleteId) return;
-    const { error } = await supabase.from('transactions').delete().eq('id', deleteId);
-    if (error) { toast.error(error.message); return; }
+    try {
+      await deleteTransaction(deleteId);
+    } catch (err: any) {
+      toast.error(err?.message ?? 'Erro ao excluir');
+      return;
+    }
     toast.success('Despesa removida');
     qc.invalidateQueries({ queryKey: ['transactions'] });
     setDeleteDialogOpen(false);
@@ -468,18 +474,24 @@ function NewCategoryPopover({ userId, profileId, onCreated }: { userId: string; 
   const handleSave = async () => {
     if (!nome.trim()) { toast.error('Digite o nome da categoria'); return; }
     setSaving(true);
-    const { data, error } = await supabase.from('categories').insert({
-      user_id: userId,
-      profile_id: profileId,
-      nome: nome.trim(),
-      grupo: 'essenciais' as const,
-    }).select('id').single();
+    let newId: string;
+    try {
+      newId = await createCategoryReturnId({
+        user_id: userId,
+        profile_id: profileId,
+        nome: nome.trim(),
+        grupo: 'essenciais' as const,
+      });
+    } catch (err: any) {
+      setSaving(false);
+      toast.error(err?.message ?? 'Erro ao criar');
+      return;
+    }
     setSaving(false);
-    if (error) { toast.error(error.message); return; }
     toast.success('Categoria criada');
     setNome('');
     setOpen(false);
-    onCreated(data.id);
+    onCreated(newId);
   };
 
   return (
