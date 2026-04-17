@@ -2,7 +2,10 @@ import { useState } from 'react';
 import { ConfirmDeleteDialog } from '@/components/dialogs/ConfirmDeleteDialog';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/contexts/ProfileContext';
-import { supabase } from '@/integrations/supabase/client';
+import { fetchGoals, createGoal, deleteGoal } from '@/services/goalsService';
+import { fetchCategories } from '@/services/categoriesService';
+import { fetchTransactionValuesByPeriod } from '@/services/transactionsService';
+import { fetchExtraIncomeByPeriod } from '@/services/extraIncomeService';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { format, startOfMonth, endOfMonth } from 'date-fns';
 import { Card, CardContent } from '@/components/ui/card';
@@ -45,45 +48,35 @@ export default function MetasPage() {
 
   const { data: goals = [] } = useQuery({
     queryKey: ['goals', activeProfile?.id],
-    queryFn: async () => {
-      let q = supabase.from('goals').select('*, categories(nome)');
-      if (activeProfile) q = q.eq('profile_id', activeProfile.id);
-      const { data } = await q;
-      return data ?? [];
-    },
+    queryFn: () => fetchGoals(activeProfile?.id),
     enabled: !!user && !!activeProfile,
   });
 
   const { data: categories = [] } = useQuery({
     queryKey: ['categories', activeProfile?.id],
-    queryFn: async () => {
-      let q = supabase.from('categories').select('*').order('nome');
-      if (activeProfile) q = q.eq('profile_id', activeProfile.id);
-      const { data } = await q;
-      return data ?? [];
-    },
+    queryFn: () => fetchCategories({ profileId: activeProfile?.id }),
     enabled: !!user && !!activeProfile,
   });
 
   const { data: transactions = [] } = useQuery({
     queryKey: ['transactions', monthStart, monthEnd, activeProfile?.id],
-    queryFn: async () => {
-      let q = supabase.from('transactions').select('*').gte('data', monthStart).lte('data', monthEnd);
-      if (activeProfile) q = q.eq('profile_id', activeProfile.id);
-      const { data } = await q;
-      return data ?? [];
-    },
+    queryFn: () =>
+      fetchTransactionValuesByPeriod({
+        profileId: activeProfile?.id,
+        startDate: monthStart,
+        endDate: monthEnd,
+      }),
     enabled: !!user && !!activeProfile,
   });
 
   const { data: extraIncome = [] } = useQuery({
     queryKey: ['extra_income', monthStart, monthEnd, activeProfile?.id],
-    queryFn: async () => {
-      let q = supabase.from('extra_income').select('*').gte('data', monthStart).lte('data', monthEnd);
-      if (activeProfile) q = q.eq('profile_id', activeProfile.id);
-      const { data } = await q;
-      return data ?? [];
-    },
+    queryFn: () =>
+      fetchExtraIncomeByPeriod({
+        profileId: activeProfile?.id,
+        startDate: monthStart,
+        endDate: monthEnd,
+      }),
     enabled: !!user && !!activeProfile,
   });
 
@@ -99,16 +92,20 @@ export default function MetasPage() {
 
   const handleSave = async () => {
     if (!nomeMeta || !valorAlvo) { toast.error('Preencha nome e valor'); return; }
-    const { error } = await supabase.from('goals').insert({
-      user_id: user!.id,
-      nome_meta: nomeMeta,
-      tipo_meta: tipoMeta,
-      valor_alvo: parseFloat(valorAlvo),
-      category_id: tipoMeta === 'limite_categoria' ? categoryId || null : null,
-      periodo_tipo: periodoTipo,
-      profile_id: activeProfile?.id,
-    });
-    if (error) { toast.error(error.message); return; }
+    try {
+      await createGoal({
+        user_id: user!.id,
+        nome_meta: nomeMeta,
+        tipo_meta: tipoMeta,
+        valor_alvo: parseFloat(valorAlvo),
+        category_id: tipoMeta === 'limite_categoria' ? categoryId || null : null,
+        periodo_tipo: periodoTipo,
+        profile_id: activeProfile?.id,
+      });
+    } catch (err: any) {
+      toast.error(err?.message ?? 'Erro ao salvar');
+      return;
+    }
     toast.success('Meta criada');
     qc.invalidateQueries({ queryKey: ['goals'] });
     setDialogOpen(false);
@@ -122,7 +119,7 @@ export default function MetasPage() {
 
   const handleDelete = async () => {
     if (!deleteId) return;
-    await supabase.from('goals').delete().eq('id', deleteId);
+    await deleteGoal(deleteId);
     toast.success('Meta removida');
     qc.invalidateQueries({ queryKey: ['goals'] });
     setDeleteDialogOpen(false);
