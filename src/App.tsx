@@ -8,6 +8,7 @@ import { ThemeProvider } from "@/contexts/ThemeContext";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { ProfileProvider } from "@/contexts/ProfileContext";
 import AppLayout from "@/components/layout/AppLayout";
+import ErrorBoundary from "@/components/ErrorBoundary";
 import InstallPWA from "@/components/InstallPWA";
 import AuthPage from "@/pages/AuthPage";
 import DashboardPage from "@/pages/DashboardPage";
@@ -42,6 +43,7 @@ function AuthRoute() {
 }
 
 const App = () => (
+  <ErrorBoundary>
   <ThemeProvider>
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -72,6 +74,7 @@ const App = () => (
     </TooltipProvider>
   </QueryClientProvider>
   </ThemeProvider>
+  </ErrorBoundary>
 );
 
 export default App;
