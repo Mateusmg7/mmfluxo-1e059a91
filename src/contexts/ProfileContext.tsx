@@ -87,16 +87,16 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
     }).select().single();
     if (error) { toast.error(error.message); return; }
 
-    // Create default categories for the new profile
+    // Default categories are created by the database trigger (handle_new_user) for the
+    // first profile only. For additional profiles, create the same essential set here
+    // to keep behavior consistent.
     const defaultCats = [
-      { nome: 'Moradia', cor_hex: '#3B82F6', grupo: 'essenciais' as const, is_default: true },
-      { nome: 'Mercado', cor_hex: '#F59E0B', grupo: 'essenciais' as const, is_default: true },
+      { nome: 'Moradia',    cor_hex: '#3B82F6', grupo: 'essenciais' as const, is_default: true },
+      { nome: 'Mercado',    cor_hex: '#F59E0B', grupo: 'essenciais' as const, is_default: true },
       { nome: 'Transporte', cor_hex: '#8B5CF6', grupo: 'essenciais' as const, is_default: true },
-      { nome: 'Contas', cor_hex: '#EC4899', grupo: 'essenciais' as const, is_default: true },
-      { nome: 'Saúde', cor_hex: '#10B981', grupo: 'essenciais' as const, is_default: true },
-      { nome: 'Lazer', cor_hex: '#8B5CF6', grupo: 'lazer' as const, is_default: true },
-      { nome: 'Imprevistos', cor_hex: '#EAB308', grupo: 'imprevistos' as const, is_default: true },
-      { nome: 'Besteiras', cor_hex: '#F97316', grupo: 'besteiras' as const, is_default: true },
+      { nome: 'Contas',     cor_hex: '#EC4899', grupo: 'essenciais' as const, is_default: true },
+      { nome: 'Saúde',      cor_hex: '#10B981', grupo: 'essenciais' as const, is_default: true },
+      { nome: 'Educação',   cor_hex: '#06B6D4', grupo: 'essenciais' as const, is_default: true },
     ];
     await supabase.from('categories').insert(
       defaultCats.map(c => ({ ...c, user_id: user!.id, profile_id: data.id }))
