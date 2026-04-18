@@ -115,6 +115,8 @@ Deno.serve(async (req: Request) => {
     const maxDay = lastDayOfMonth(year, month);
     let generated = 0;
     const errors: string[] = [];
+    // Acumula por usuário pra notificar no fim
+    const perUser = new Map<string, { count: number; total: number }>();
 
     for (const r of rules as RecurringRule[]) {
       // Se a regra cair em dia 31 e o mês só tem 30 (ou 28/29 em fev),
@@ -152,6 +154,65 @@ Deno.serve(async (req: Request) => {
         errors.push(`Falha ao marcar regra ${r.id}: ${updErr.message}`);
       } else {
         generated++;
+        const prev = perUser.get(r.user_id) ?? { count: 0, total: 0 };
+        perUser.set(r.user_id, {
+          count: prev.count + 1,
+          total: prev.total + Number(r.valor || 0),
+        });
+      }
+    }
+
+    // === Envio de push por usuário ===
+    let pushSent = 0;
+    if (perUser.size > 0) {
+      try {
+        webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
+      } catch (e) {
+        console.warn("[generate-recurring-expenses] setVapidDetails falhou", e);
+      }
+
+      for (const [userId, { count, total }] of perUser.entries()) {
+        const title = "🔄 Despesas fixas criadas";
+        const body = `${count} ${count === 1 ? "despesa recorrente foi criada" : "despesas recorrentes foram criadas"} — total ${formatBRL(total)}`;
+
+        // Busca assinaturas push do usuário
+        const { data: subs } = await supabase
+          .from("push_subscriptions")
+          .select("*")
+          .eq("user_id", userId);
+
+        if (subs && subs.length > 0) {
+          const payload = JSON.stringify({
+            title,
+            body,
+            tag: `recurring-${yearMonth}-${userId}`,
+          });
+          for (const sub of subs) {
+            try {
+              await webpush.sendNotification(
+                {
+                  endpoint: sub.endpoint,
+                  keys: { p256dh: sub.p256dh, auth: sub.auth },
+                },
+                payload
+              );
+              pushSent++;
+            } catch (err: any) {
+              console.error("[generate-recurring-expenses] push error:", err?.statusCode, err?.body);
+              if (err?.statusCode === 410 || err?.statusCode === 404) {
+                await supabase.from("push_subscriptions").delete().eq("id", sub.id);
+              }
+            }
+          }
+        }
+
+        // Sempre registra no histórico (sino), mesmo sem push ativo
+        await supabase.from("notification_logs").insert({
+          user_id: userId,
+          title,
+          body,
+          type: "auto",
+        });
       }
     }
 
@@ -163,6 +224,8 @@ Deno.serve(async (req: Request) => {
         errors,
         year_month: yearMonth,
         forced: force,
+        push_sent: pushSent,
+        users_notified: perUser.size,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
