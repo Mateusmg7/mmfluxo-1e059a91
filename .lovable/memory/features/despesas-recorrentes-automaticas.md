@@ -29,6 +29,7 @@ Liga a despesa à regra que a gerou (FK com `ON DELETE SET NULL` — apagar a re
 4. Se for dia 1, busca todas as regras `ativo = true` cujo `ultima_geracao_ano_mes != 'YYYY-MM' atual`.
 5. Para cada regra, insere uma linha em `transactions` com a data `YYYY-MM-DD` correta. Se o dia for maior que o último dia do mês (ex: 31 em fevereiro), usa o último dia disponível.
 6. Marca a regra com `ultima_geracao_ano_mes = yearMonth` para nunca duplicar mesmo se o cron rodar 2x.
+7. **Notificação push automática:** ao final, agrupa por usuário (qtd + soma) e envia 1 push por usuário com título "🔄 Despesas fixas criadas" e corpo "X despesas recorrentes foram criadas — total R$ Y". Também grava em `notification_logs` (sino) mesmo se o push falhar. Reusa o mesmo VAPID hardcoded da função `send-push-notifications`.
 
 ## Geração manual (botão "Gerar agora")
 Na página `/recorrentes`, o botão "Gerar agora (mês atual)" chama a edge function com `{ force: true, user_id }`. Útil para:
