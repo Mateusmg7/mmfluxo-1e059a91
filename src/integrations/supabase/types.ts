@@ -359,6 +359,69 @@ export type Database = {
         }
         Relationships: []
       }
+      recurring_expenses: {
+        Row: {
+          ativo: boolean
+          category_id: string | null
+          created_at: string
+          dia_vencimento: number
+          id: string
+          motivo: string
+          nome: string
+          profile_id: string | null
+          tipo_despesa: string
+          ultima_geracao_ano_mes: string | null
+          updated_at: string
+          user_id: string
+          valor: number
+        }
+        Insert: {
+          ativo?: boolean
+          category_id?: string | null
+          created_at?: string
+          dia_vencimento: number
+          id?: string
+          motivo?: string
+          nome: string
+          profile_id?: string | null
+          tipo_despesa?: string
+          ultima_geracao_ano_mes?: string | null
+          updated_at?: string
+          user_id: string
+          valor: number
+        }
+        Update: {
+          ativo?: boolean
+          category_id?: string | null
+          created_at?: string
+          dia_vencimento?: number
+          id?: string
+          motivo?: string
+          nome?: string
+          profile_id?: string | null
+          tipo_despesa?: string
+          ultima_geracao_ano_mes?: string | null
+          updated_at?: string
+          user_id?: string
+          valor?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recurring_expenses_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recurring_expenses_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "financial_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       transactions: {
         Row: {
           category_id: string | null
@@ -372,6 +435,7 @@ export type Database = {
           parcela_grupo_id: string | null
           profile_id: string | null
           recorrente: boolean
+          recurring_id: string | null
           status: string
           tipo_despesa: string
           total_parcelas: number | null
@@ -390,6 +454,7 @@ export type Database = {
           parcela_grupo_id?: string | null
           profile_id?: string | null
           recorrente?: boolean
+          recurring_id?: string | null
           status?: string
           tipo_despesa?: string
           total_parcelas?: number | null
@@ -408,6 +473,7 @@ export type Database = {
           parcela_grupo_id?: string | null
           profile_id?: string | null
           recorrente?: boolean
+          recurring_id?: string | null
           status?: string
           tipo_despesa?: string
           total_parcelas?: number | null
@@ -427,6 +493,13 @@ export type Database = {
             columns: ["profile_id"]
             isOneToOne: false
             referencedRelation: "financial_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_recurring_id_fkey"
+            columns: ["recurring_id"]
+            isOneToOne: false
+            referencedRelation: "recurring_expenses"
             referencedColumns: ["id"]
           },
         ]

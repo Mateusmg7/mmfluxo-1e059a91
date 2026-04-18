@@ -55,6 +55,13 @@ export const qk = {
   // 🔔 Lembretes de contas (Alertas)
   billReminders: ['bill_reminders'] as const,
 
+  // 🔄 Despesas recorrentes (regras de repetição mensal)
+  recurringExpenses: {
+    all: ['recurring_expenses'] as const,
+    byProfile: (profileId: string | null | undefined) =>
+      ['recurring_expenses', profileId ?? null] as const,
+  },
+
   // 🏆 Ranking mensal (despesas + renda de todos os perfis)
   ranking: (userId: string | undefined, monthStart: string) =>
     ['ranking', userId, monthStart] as const,
