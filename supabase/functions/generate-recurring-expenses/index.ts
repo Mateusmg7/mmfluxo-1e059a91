@@ -9,12 +9,27 @@
 //   imediatamente (útil para testes ou primeiro uso após cadastrar regras).
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.100.1";
+import webpush from "npm:web-push@3.6.7";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type",
 };
+
+// Mesmas chaves VAPID usadas em send-push-notifications
+const VAPID_PUBLIC_KEY = "BFgXjTf8wlHBEE_kHZ2pjnoH_c5ejwYbxfq6Thwgt99m4_dJjqXEjcUR94Ju9P2j42kSI4B3JQpTwK7m18_ScBs";
+const VAPID_PRIVATE_KEY = "svvw9UKjU3GQwOlHfD7Ym_qv7iupJtW46JcRlVCxJVA";
+const VAPID_SUBJECT = "mailto:noreply@mmfluxo.lovable.app";
+
+function formatBRL(value: number): string {
+  return value.toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+}
 
 interface RecurringRule {
   id: string;
