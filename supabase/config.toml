@@ -1,1 +1,4 @@
 project_id = "futidralyhtqqhpahwrg"
+
+[functions.generate-recurring-expenses]
+verify_jwt = false
