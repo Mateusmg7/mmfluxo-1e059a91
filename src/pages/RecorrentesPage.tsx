@@ -66,6 +66,7 @@ export default function RecorrentesPage() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   const [generating, setGenerating] = useState(false);
+  const [sendingTest, setSendingTest] = useState(false);
 
   const { data: categorias = [] } = useQuery({
     queryKey: qk.categories.byProfile(activeProfile?.id),
