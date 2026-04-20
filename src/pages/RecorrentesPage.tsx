@@ -257,10 +257,18 @@ export default function RecorrentesPage() {
             <p className="text-sm text-foreground">
               Roda no dia <strong>1</strong> de cada mês. Use o botão para gerar agora as deste mês.
             </p>
-            <Button size="sm" variant="outline" onClick={handleGenerateNow} disabled={generating}>
-              <Zap size={14} />
-              {generating ? 'Gerando...' : 'Gerar agora (mês atual)'}
-            </Button>
+            <div className="flex flex-wrap gap-2">
+              <Button size="sm" variant="outline" onClick={handleGenerateNow} disabled={generating}>
+                <Zap size={14} />
+                {generating ? 'Gerando...' : 'Gerar agora (mês atual)'}
+              </Button>
+              <Button size="sm" variant="outline" onClick={handleSendTestPush} disabled={sendingTest}>
+                <BellRing size={14} />
+                {sendingTest ? 'Enviando...' : 'Enviar push de teste'}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
           </CardContent>
         </Card>
       </div>
