@@ -15,8 +15,9 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ConfirmDeleteDialog } from '@/components/dialogs/ConfirmDeleteDialog';
-import { Plus, Pencil, Trash2, Repeat, PauseCircle, PlayCircle, Zap } from 'lucide-react';
+import { Plus, Pencil, Trash2, Repeat, PauseCircle, PlayCircle, Zap, BellRing } from 'lucide-react';
 import { toast } from 'sonner';
+import { sendTestPushNotification } from '@/hooks/usePushSubscription';
 
 const TIPO_LABELS: Record<string, string> = {
   essencial: 'Essencial',
