@@ -269,8 +269,6 @@ export default function RecorrentesPage() {
             </div>
           </CardContent>
         </Card>
-          </CardContent>
-        </Card>
       </div>
 
       {/* Lista */}
