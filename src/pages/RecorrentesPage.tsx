@@ -15,8 +15,9 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ConfirmDeleteDialog } from '@/components/dialogs/ConfirmDeleteDialog';
-import { Plus, Pencil, Trash2, Repeat, PauseCircle, PlayCircle, Zap } from 'lucide-react';
+import { Plus, Pencil, Trash2, Repeat, PauseCircle, PlayCircle, Zap, BellRing } from 'lucide-react';
 import { toast } from 'sonner';
+import { sendTestPushNotification } from '@/hooks/usePushSubscription';
 
 const TIPO_LABELS: Record<string, string> = {
   essencial: 'Essencial',
@@ -65,6 +66,7 @@ export default function RecorrentesPage() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   const [generating, setGenerating] = useState(false);
+  const [sendingTest, setSendingTest] = useState(false);
 
   const { data: categorias = [] } = useQuery({
     queryKey: qk.categories.byProfile(activeProfile?.id),
@@ -196,6 +198,28 @@ export default function RecorrentesPage() {
     setGenerating(false);
   };
 
+  // 🔔 Envia um push de teste imediato pra validar se a notificação chega no dispositivo
+  const handleSendTestPush = async () => {
+    if (!user) return;
+    setSendingTest(true);
+    try {
+      const ok = await sendTestPushNotification(user.id, {
+        title: '🔔 Teste de notificação',
+        body: 'Se você está vendo isso, o push está funcionando! 🎉',
+        tag: `test-push-${Date.now()}`,
+      });
+      if (ok) {
+        toast.success('Push de teste enviado! Veja a notificação no seu dispositivo.');
+      } else {
+        toast.error('Não foi possível enviar. Verifique permissões e re-assinatura.');
+      }
+    } catch (e) {
+      console.error(e);
+      toast.error('Erro ao enviar push de teste.');
+    }
+    setSendingTest(false);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
@@ -233,10 +257,16 @@ export default function RecorrentesPage() {
             <p className="text-sm text-foreground">
               Roda no dia <strong>1</strong> de cada mês. Use o botão para gerar agora as deste mês.
             </p>
-            <Button size="sm" variant="outline" onClick={handleGenerateNow} disabled={generating}>
-              <Zap size={14} />
-              {generating ? 'Gerando...' : 'Gerar agora (mês atual)'}
-            </Button>
+            <div className="flex flex-wrap gap-2">
+              <Button size="sm" variant="outline" onClick={handleGenerateNow} disabled={generating}>
+                <Zap size={14} />
+                {generating ? 'Gerando...' : 'Gerar agora (mês atual)'}
+              </Button>
+              <Button size="sm" variant="outline" onClick={handleSendTestPush} disabled={sendingTest}>
+                <BellRing size={14} />
+                {sendingTest ? 'Enviando...' : 'Enviar push de teste'}
+              </Button>
+            </div>
           </CardContent>
         </Card>
       </div>
