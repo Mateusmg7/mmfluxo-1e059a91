@@ -17,10 +17,11 @@ export default defineConfig(({ mode }) => ({
     react(),
     mode === "development" && componentTagger(),
     VitePWA({
-      registerType: "prompt",
+      registerType: "autoUpdate",
       devOptions: {
         enabled: false,
       },
+      selfDestroying: false,
       includeAssets: ["pwa-icon-192.png", "pwa-icon-512.png", "placeholder.svg"],
       manifest: {
         name: "MM Fluxo - Fluxo de Caixa",
