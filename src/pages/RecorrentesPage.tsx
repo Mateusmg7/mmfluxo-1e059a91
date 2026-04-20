@@ -198,6 +198,28 @@ export default function RecorrentesPage() {
     setGenerating(false);
   };
 
+  // 🔔 Envia um push de teste imediato pra validar se a notificação chega no dispositivo
+  const handleSendTestPush = async () => {
+    if (!user) return;
+    setSendingTest(true);
+    try {
+      const ok = await sendTestPushNotification(user.id, {
+        title: '🔔 Teste de notificação',
+        body: 'Se você está vendo isso, o push está funcionando! 🎉',
+        tag: `test-push-${Date.now()}`,
+      });
+      if (ok) {
+        toast.success('Push de teste enviado! Veja a notificação no seu dispositivo.');
+      } else {
+        toast.error('Não foi possível enviar. Verifique permissões e re-assinatura.');
+      }
+    } catch (e) {
+      console.error(e);
+      toast.error('Erro ao enviar push de teste.');
+    }
+    setSendingTest(false);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
