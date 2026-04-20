@@ -26,12 +26,20 @@ if (isPreviewHost || isInIframe) {
     getNotificationServiceWorkerRegistration().catch(() => {});
   });
 } else if ("serviceWorker" in navigator) {
-  // Register PWA service worker (prompt update, no auto-reload)
-  const updateSW = registerSW({
+  // Register PWA SW with auto-update: new versions activate immediately
+  registerSW({
     immediate: true,
+    onRegisteredSW(_url, registration) {
+      // Check for updates every 60 seconds
+      if (registration) {
+        setInterval(() => {
+          registration.update();
+        }, 60 * 1000);
+      }
+    },
     onNeedRefresh() {
-      // Silently update without reloading
-      updateSW(true);
+      // Auto-reload to apply the new version
+      window.location.reload();
     },
   });
 
