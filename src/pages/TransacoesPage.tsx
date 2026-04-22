@@ -727,7 +727,7 @@ function RecurringSection() {
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <p className="text-sm text-muted-foreground">
-          Cadastre suas contas fixas e o app gera as despesas automaticamente todo mês.
+          Cadastre suas contas fixas e o app gera os gastos automaticamente todo mês.
         </p>
         <Button onClick={handleOpenNew} size="sm">
           <Plus size={16} />
@@ -748,7 +748,7 @@ function RecurringSection() {
         </Card>
         <Card className="border-primary/20 bg-primary/5">
           <CardContent className="py-4 flex flex-col gap-2">
-            <div className="text-xs text-muted-foreground uppercase tracking-wide">Geração automática</div>
+              <div className="text-xs text-muted-foreground uppercase tracking-wide">Geração recorrente</div>
             <p className="text-sm text-foreground">
               Roda no dia <strong>1</strong> de cada mês. Use o botão para gerar agora.
             </p>
@@ -774,7 +774,7 @@ function RecurringSection() {
           <Card>
             <CardContent className="py-10 text-center">
               <Repeat size={40} className="mx-auto text-muted-foreground/40 mb-2" />
-              <p className="text-muted-foreground">Nenhuma despesa recorrente cadastrada</p>
+              <p className="text-muted-foreground">Nenhum gasto recorrente cadastrado</p>
               <p className="text-xs text-muted-foreground mt-1">Adicione contas fixas como aluguel, internet, streaming, academia...</p>
             </CardContent>
           </Card>
@@ -824,7 +824,7 @@ function RecurringSection() {
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label>Nome da despesa *</Label>
+              <Label>Nome do gasto *</Label>
               <Input placeholder="Ex: Aluguel, Netflix, Academia" value={form.nome} onChange={(e) => setForm({ ...form, nome: e.target.value })} />
             </div>
             <div className="grid grid-cols-2 gap-3">
@@ -869,7 +869,7 @@ function RecurringSection() {
             <div className="flex items-center justify-between rounded-lg border border-border p-3">
               <div>
                 <Label className="cursor-pointer">Ativa</Label>
-                <p className="text-xs text-muted-foreground">Quando desativada, não gera despesas automáticas.</p>
+                <p className="text-xs text-muted-foreground">Quando desativada, não gera gastos recorrentes.</p>
               </div>
               <Switch checked={form.ativo} onCheckedChange={(v) => setForm({ ...form, ativo: v })} />
             </div>
@@ -888,7 +888,7 @@ function RecurringSection() {
         onOpenChange={setDeleteDialogOpen}
         onConfirm={handleDelete}
         title="Excluir recorrente?"
-        description="A regra será removida e não gerará mais despesas. As despesas já criadas continuam intactas."
+        description="A regra será removida e não gerará mais gastos. Os gastos já criados continuam intactos."
       />
     </div>
   );
