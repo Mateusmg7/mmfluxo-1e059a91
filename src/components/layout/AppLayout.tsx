@@ -5,7 +5,7 @@ import {
   LayoutDashboard,
   ArrowDownCircle,
   ArrowUpCircle,
-  Repeat,
+  
   Bell,
   Target,
   Settings,
@@ -24,7 +24,7 @@ const navItems = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/transacoes', label: 'Gastos', icon: ArrowDownCircle },
   { to: '/renda-extra', label: 'Renda Extra', icon: ArrowUpCircle },
-  { to: '/recorrentes', label: 'Recorrentes', icon: Repeat },
+  
   { to: '/alertas', label: 'Alertas', icon: Bell, hasBadge: true },
   { to: '/metas', label: 'Metas', icon: Target },
   { to: '/ranking', label: 'Ranking', icon: Trophy },
