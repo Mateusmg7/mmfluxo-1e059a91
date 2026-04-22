@@ -17,7 +17,7 @@ import CategoriasPage from "@/pages/CategoriasPage";
 import MetasPage from "@/pages/MetasPage";
 import ConfiguracoesPage from "@/pages/ConfiguracoesPage";
 import AlertasPage from "@/pages/AlertasPage";
-import RecorrentesPage from "@/pages/RecorrentesPage";
+
 import RankingPage from "@/pages/RankingPage";
 import NotFound from "@/pages/NotFound";
 
