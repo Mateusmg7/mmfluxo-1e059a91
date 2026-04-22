@@ -201,7 +201,7 @@ export default function TransacoesPage() {
           updatePayload.parcela_atual = parseInt(editParcelaAtual) || 1;
         }
         await updateTransaction(editId, updatePayload);
-        toast.success('Despesa atualizada');
+        toast.success('Gasto atualizado');
       } else if (parcelado && !editId) {
         const numParcelas = Math.max(2, Math.min(48, parseInt(totalParcelas) || 2));
         const valorParcela = Math.round((valorNum / numParcelas) * 100) / 100;
@@ -226,7 +226,7 @@ export default function TransacoesPage() {
         toast.success(`${numParcelas} parcelas de ${fmt(valorParcela)} criadas`);
       } else {
         await createTransaction({ ...basePayload, valor: valorNum, data, hora });
-        toast.success('Despesa adicionada');
+        toast.success('Gasto adicionado');
       }
     } catch (err: any) {
       toast.error(err?.message ?? 'Erro ao salvar');
@@ -265,7 +265,7 @@ export default function TransacoesPage() {
       toast.error(err?.message ?? 'Erro ao excluir');
       return;
     }
-    toast.success('Despesa removida');
+    toast.success('Gasto removido');
     qc.invalidateQueries({ queryKey: qk.transactions.all });
     setDeleteDialogOpen(false);
     setDeleteId(null);
@@ -276,14 +276,14 @@ export default function TransacoesPage() {
   const getLabel = (t: any) => {
     if (t.motivo) return t.motivo;
     if (t.categories?.nome) return t.categories.nome;
-    return TIPO_LABELS[t.tipo_despesa] ?? 'Despesa';
+    return TIPO_LABELS[t.tipo_despesa] ?? 'Gasto';
   };
 
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold">Despesas</h2>
-        <p className="text-muted-foreground text-sm">Gerencie seus gastos e despesas automáticas</p>
+        <h2 className="text-2xl font-bold">Gastos</h2>
+        <p className="text-muted-foreground text-sm">Gerencie seus gastos e recorrentes</p>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
@@ -291,7 +291,7 @@ export default function TransacoesPage() {
           <TabsTrigger value="gastos" className="flex-1 sm:flex-auto">Gastos</TabsTrigger>
           <TabsTrigger value="automaticas" className="flex-1 sm:flex-auto gap-1">
             <Repeat size={14} />
-            Automáticas
+            Recorrentes
           </TabsTrigger>
         </TabsList>
 
@@ -316,15 +316,15 @@ export default function TransacoesPage() {
             </div>
             <Dialog open={dialogOpen} onOpenChange={(o) => { setDialogOpen(o); if (!o) { resetForm(); qc.invalidateQueries({ queryKey: qk.transactions.all }); } }}>
               <DialogTrigger asChild>
-                <Button><Plus size={16} className="mr-2" />Adicionar despesa</Button>
+                <Button><Plus size={16} className="mr-2" />Adicionar gasto</Button>
               </DialogTrigger>
               <DialogContent className="bg-card border-border">
                 <DialogHeader>
-                  <DialogTitle>{editId ? 'Editar' : 'Nova'} Despesa</DialogTitle>
+                  <DialogTitle>{editId ? 'Editar' : 'Novo'} Gasto</DialogTitle>
                 </DialogHeader>
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <Label>Tipo de despesa</Label>
+                    <Label>Tipo de gasto</Label>
                     <Select value={tipoDespesa} onValueChange={(v) => { setTipoDespesa(v); if (v !== 'essencial') setCategoryId(''); }}>
                       <SelectTrigger><SelectValue /></SelectTrigger>
                       <SelectContent>
@@ -488,7 +488,7 @@ export default function TransacoesPage() {
                 <CardContent className="py-4 space-y-3">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div className="space-y-1.5">
-                      <Label className="text-xs text-muted-foreground">Tipo de despesa</Label>
+                      <Label className="text-xs text-muted-foreground">Tipo de gasto</Label>
                       <Select value={filtroTipo} onValueChange={setFiltroTipo}>
                         <SelectTrigger><SelectValue /></SelectTrigger>
                         <SelectContent>
@@ -544,8 +544,8 @@ export default function TransacoesPage() {
               <div className="text-center py-12 space-y-3">
                 <p className="text-muted-foreground">
                   {transactions.length === 0
-                    ? 'Nenhuma despesa neste mês.'
-                    : 'Nenhuma despesa encontrada com esses filtros.'}
+                    ? 'Nenhum gasto neste mês.'
+                    : 'Nenhum gasto encontrado com esses filtros.'}
                 </p>
                 {transactions.length > 0 && filtrosAtivos > 0 && (
                   <Button variant="outline" size="sm" onClick={limparFiltros} className="gap-1">
@@ -568,7 +568,7 @@ export default function TransacoesPage() {
                       <p className="text-xs text-muted-foreground">
                         {format(new Date(t.data + 'T00:00'), 'dd/MM', { locale: ptBR })} · {t.hora} · {TIPO_LABELS[t.tipo_despesa] ?? 'Essencial'}
                         {t.categories?.nome ? ` · ${t.categories.nome}` : ''}
-                        {t.recurring_id ? ' · 🔄 Automática' : ''}
+                        {t.recurring_id ? ' · 🔄 Recorrente' : ''}
                         {t.total_parcelas ? ` · 💳 ${t.parcela_atual}/${t.total_parcelas}` : ''}
                       </p>
                     </div>
@@ -592,7 +592,7 @@ export default function TransacoesPage() {
             open={deleteDialogOpen}
             onOpenChange={setDeleteDialogOpen}
             onConfirm={handleDelete}
-            description="Tem certeza que deseja excluir esta despesa? Esta ação não pode ser desfeita."
+            description="Tem certeza que deseja excluir este gasto? Esta ação não pode ser desfeita."
           />
         </TabsContent>
 
@@ -727,7 +727,7 @@ function RecurringSection() {
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <p className="text-sm text-muted-foreground">
-          Cadastre suas contas fixas e o app gera as despesas automaticamente todo mês.
+          Cadastre suas contas fixas e o app gera os gastos automaticamente todo mês.
         </p>
         <Button onClick={handleOpenNew} size="sm">
           <Plus size={16} />
@@ -748,7 +748,7 @@ function RecurringSection() {
         </Card>
         <Card className="border-primary/20 bg-primary/5">
           <CardContent className="py-4 flex flex-col gap-2">
-            <div className="text-xs text-muted-foreground uppercase tracking-wide">Geração automática</div>
+              <div className="text-xs text-muted-foreground uppercase tracking-wide">Geração recorrente</div>
             <p className="text-sm text-foreground">
               Roda no dia <strong>1</strong> de cada mês. Use o botão para gerar agora.
             </p>
@@ -774,7 +774,7 @@ function RecurringSection() {
           <Card>
             <CardContent className="py-10 text-center">
               <Repeat size={40} className="mx-auto text-muted-foreground/40 mb-2" />
-              <p className="text-muted-foreground">Nenhuma despesa recorrente cadastrada</p>
+              <p className="text-muted-foreground">Nenhum gasto recorrente cadastrado</p>
               <p className="text-xs text-muted-foreground mt-1">Adicione contas fixas como aluguel, internet, streaming, academia...</p>
             </CardContent>
           </Card>
@@ -824,7 +824,7 @@ function RecurringSection() {
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label>Nome da despesa *</Label>
+              <Label>Nome do gasto *</Label>
               <Input placeholder="Ex: Aluguel, Netflix, Academia" value={form.nome} onChange={(e) => setForm({ ...form, nome: e.target.value })} />
             </div>
             <div className="grid grid-cols-2 gap-3">
@@ -869,7 +869,7 @@ function RecurringSection() {
             <div className="flex items-center justify-between rounded-lg border border-border p-3">
               <div>
                 <Label className="cursor-pointer">Ativa</Label>
-                <p className="text-xs text-muted-foreground">Quando desativada, não gera despesas automáticas.</p>
+                <p className="text-xs text-muted-foreground">Quando desativada, não gera gastos recorrentes.</p>
               </div>
               <Switch checked={form.ativo} onCheckedChange={(v) => setForm({ ...form, ativo: v })} />
             </div>
@@ -888,7 +888,7 @@ function RecurringSection() {
         onOpenChange={setDeleteDialogOpen}
         onConfirm={handleDelete}
         title="Excluir recorrente?"
-        description="A regra será removida e não gerará mais despesas. As despesas já criadas continuam intactas."
+        description="A regra será removida e não gerará mais gastos. Os gastos já criados continuam intactos."
       />
     </div>
   );
