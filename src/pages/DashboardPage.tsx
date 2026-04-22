@@ -21,7 +21,7 @@ const TIPO_LABELS: Record<string, string> = {
 
 const TIPO_DOT_CLASSES: Record<string, string> = {
   essencial: 'bg-primary',
-  lazer: 'bg-info',
+  lazer: 'bg-secondary',
   imprevisto: 'bg-warning',
   besteira: 'bg-destructive',
 };
