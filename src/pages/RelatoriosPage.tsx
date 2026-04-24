@@ -1,3 +1,4 @@
+import { MonthSelector } from '@/components/layout/MonthSelector';
 import { useState } from 'react';
 import {
   fetchTransactionsByPeriod,
@@ -46,20 +47,17 @@ const DISTINCT_CAT_COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF
 
 export default function RelatoriosPage() {
   const { user } = useAuth();
-  const { activeProfile, profiles } = useProfile();
+  const { activeProfile, profiles, currentMonth } = useProfile();
   const [activeGroupIdx, setActiveGroupIdx] = useState<number | undefined>(undefined);
   const [activeCatIdx, setActiveCatIdx] = useState<number | undefined>(undefined);
   const [activePieIdx, setActivePieIdx] = useState<number | undefined>(undefined);
-  const [currentMonth, setCurrentMonth] = useState(new Date());
   const navigate = useNavigate();
   
   const now = new Date();
   const monthStart = format(startOfMonth(currentMonth), 'yyyy-MM-dd');
   const monthEnd = format(endOfMonth(currentMonth), 'yyyy-MM-dd');
 
-  const goToPrevMonth = () => setCurrentMonth(prev => subMonths(prev, 1));
-  const goToNextMonth = () => setCurrentMonth(prev => addMonths(prev, 1));
-  const goToCurrentMonth = () => setCurrentMonth(new Date());
+  // Month navigation removed as it's now in MonthSelector context
   const isCurrentMonth = isSameMonth(currentMonth, now);
 
   // Profile-scoped queries
@@ -225,21 +223,8 @@ export default function RelatoriosPage() {
       <div className="flex items-center justify-between animate-fade-up">
         <div>
           <h2 className="text-2xl font-bold">Relatórios</h2>
-          <p className="text-muted-foreground text-sm capitalize">
-            {format(currentMonth, "MMMM 'de' yyyy", { locale: ptBR })}
-          </p>
         </div>
-        <div className="flex items-center gap-1">
-          <Button variant="ghost" size="icon" onClick={goToPrevMonth} className="h-8 w-8">
-            <ChevronLeft size={18} />
-          </Button>
-          {!isCurrentMonth && (
-            <Button variant="outline" size="sm" onClick={goToCurrentMonth} className="h-8 text-xs px-2">Hoje</Button>
-          )}
-          <Button variant="ghost" size="icon" onClick={goToNextMonth} className="h-8 w-8">
-            <ChevronRight size={18} />
-          </Button>
-        </div>
+        <MonthSelector />
       </div>
 
       {/* Tabs */}
