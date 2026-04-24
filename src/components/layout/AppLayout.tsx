@@ -25,6 +25,7 @@ const navItems = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/transacoes', label: 'Gastos', icon: ArrowDownCircle },
   { to: '/renda-extra', label: 'Renda Extra', icon: ArrowUpCircle },
+  { to: '/relatorios', label: 'Relatórios', icon: FileText },
   
   { to: '/alertas', label: 'Alertas', icon: Bell, hasBadge: true },
   { to: '/metas', label: 'Metas', icon: Target },
