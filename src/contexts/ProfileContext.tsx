@@ -24,6 +24,8 @@ interface ProfileContextType {
   updateProfile: (id: string, name: string, icon: string, color: string) => Promise<void>;
   deleteProfile: (id: string) => Promise<void>;
   loading: boolean;
+  currentMonth: Date;
+  setCurrentMonth: (date: Date) => void;
 }
 
 const ProfileContext = createContext<ProfileContextType>({
@@ -34,6 +36,8 @@ const ProfileContext = createContext<ProfileContextType>({
   updateProfile: async () => {},
   deleteProfile: async () => {},
   loading: true,
+  currentMonth: new Date(),
+  setCurrentMonth: () => {},
 });
 
 export const useProfile = () => useContext(ProfileContext);
@@ -41,6 +45,7 @@ export const useProfile = () => useContext(ProfileContext);
 export function ProfileProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
   const qc = useQueryClient();
+  const [currentMonth, setCurrentMonth] = useState(new Date());
   const [activeProfileId, setActiveProfileId] = useState<string | null>(() => {
     return localStorage.getItem('mm_active_profile');
   });
@@ -139,6 +144,8 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
       updateProfile,
       deleteProfile,
       loading: isLoading,
+      currentMonth,
+      setCurrentMonth,
     }}>
       {children}
     </ProfileContext.Provider>
