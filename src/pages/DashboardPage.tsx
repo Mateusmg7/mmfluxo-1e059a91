@@ -1,3 +1,4 @@
+import { MonthSelector } from '@/components/layout/MonthSelector';
 import { useState } from 'react';
 import { fetchTransactionsByPeriod } from '@/services/transactionsService';
 import { fetchExtraIncomeByPeriod } from '@/services/extraIncomeService';
@@ -28,9 +29,8 @@ const TIPO_DOT_CLASSES: Record<string, string> = {
 
 export default function DashboardPage() {
   const { user } = useAuth();
-  const { activeProfile } = useProfile();
+  const { activeProfile, currentMonth } = useProfile();
   const now = new Date();
-  const [currentMonth, setCurrentMonth] = useState(new Date());
 
   const monthStart = format(startOfMonth(currentMonth), 'yyyy-MM-dd');
   const monthEnd = format(endOfMonth(currentMonth), 'yyyy-MM-dd');
@@ -62,23 +62,8 @@ export default function DashboardPage() {
       <div className="flex items-center justify-between animate-fade-up">
         <div>
           <h2 className="text-2xl font-bold">Dashboard</h2>
-          <p className="text-muted-foreground text-sm capitalize">
-            {format(currentMonth, "MMMM 'de' yyyy", { locale: ptBR })}
-          </p>
         </div>
-        <div className="flex items-center gap-1">
-          <Button variant="ghost" size="icon" onClick={() => setCurrentMonth((prev) => subMonths(prev, 1))} className="h-8 w-8">
-            <ChevronLeft size={18} />
-          </Button>
-          {!isCurrentMonth && (
-            <Button variant="outline" size="sm" onClick={() => setCurrentMonth(new Date())} className="h-8 px-2 text-xs">
-              Hoje
-            </Button>
-          )}
-          <Button variant="ghost" size="icon" onClick={() => setCurrentMonth((prev) => addMonths(prev, 1))} className="h-8 w-8">
-            <ChevronRight size={18} />
-          </Button>
-        </div>
+        <MonthSelector />
       </div>
 
       {orcamento > 0 && (
