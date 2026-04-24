@@ -1,6 +1,6 @@
-import { format, addMonths, subMonths, isSameMonth, startOfYear, addMonths as addMonthsDate } from 'date-fns';
+import { format, addMonths, subMonths, isSameMonth, startOfYear } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { ChevronLeft, ChevronRight, Calendar as CalendarIcon } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useProfile } from '@/contexts/ProfileContext';
 import {
@@ -23,7 +23,7 @@ export function MonthSelector() {
 
   // Generate last 12 months and next 3 months for the selector
   const months = Array.from({ length: 18 }, (_, i) => {
-    return addMonthsDate(startOfYear(subMonths(now, 12)), i);
+    return addMonths(startOfYear(subMonths(now, 12)), i);
   });
 
   return (
