@@ -31,23 +31,16 @@ if (isPreviewHost || isInIframe) {
     immediate: true,
     onRegisteredSW(_url, registration) {
       if (registration) {
+        // Poll for updates every minute
         setInterval(() => {
           registration.update();
         }, 60 * 1000);
       }
     },
     onNeedRefresh() {
-      // Version detected from vite.config.ts define
-      const currentBuildId = (window as any).__BUILD_TIMESTAMP__ || (import.meta as any).env.VITE_BUILD_ID;
-      const storedBuildId = localStorage.getItem('app-build-id');
-      
-      if (storedBuildId && currentBuildId && storedBuildId !== String(currentBuildId)) {
-        console.log('Nova versão detectada:', currentBuildId);
-        localStorage.setItem('app-build-id', String(currentBuildId));
-        updateSW(true); // Force reload
-      } else if (!storedBuildId && currentBuildId) {
-        localStorage.setItem('app-build-id', String(currentBuildId));
-      }
+      console.log('Nova versão detectada! Atualizando agora...');
+      // Force update immediately
+      updateSW(true);
     },
   });
 
