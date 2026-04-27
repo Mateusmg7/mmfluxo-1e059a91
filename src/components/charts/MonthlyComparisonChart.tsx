@@ -99,24 +99,29 @@ export function MonthlyComparisonChart({ userId, profileId, currentMonth }: Prop
     .slice(0, 3);
 
   return (
-    <Card className="card-glass animate-scale-up" style={{ animationDelay: '0.25s' }}>
-      <CardHeader className="pb-2">
+    <Card className="card-glass border-none shadow-lg animate-scale-up" style={{ animationDelay: '0.25s' }}>
+      <CardHeader className="pb-4 border-b border-white/5">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
-            Comparativo Mensal
-          </CardTitle>
+          <div>
+            <CardTitle className="text-lg font-bold tracking-tight text-foreground flex items-center gap-2">
+              <TrendingUp className="h-5 w-5 text-primary" /> Análise Comparativa
+            </CardTitle>
+            {hasData && (
+              <p className="text-xs text-muted-foreground mt-1">
+                Comparação detalhada de gastos: <span className="font-semibold text-foreground">{format(currentMonth, 'MMMM', { locale: ptBR })}</span> vs {format(prevMonth, 'MMMM', { locale: ptBR })}
+              </p>
+            )}
+          </div>
           {hasData && totalPrev > 0 && (
-            <div className={`flex items-center gap-1 text-xs font-semibold ${diffPct > 0 ? 'text-destructive' : diffPct < 0 ? 'text-accent' : 'text-muted-foreground'}`}>
-              {diffPct > 0 ? <TrendingUp size={14} /> : diffPct < 0 ? <TrendingDown size={14} /> : <Minus size={14} />}
-              {diffPct > 0 ? '+' : ''}{diffPct.toFixed(1)}%
+            <div className={`flex flex-col items-end`}>
+              <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${diffPct > 0 ? 'bg-destructive/10 text-destructive' : diffPct < 0 ? 'bg-accent/10 text-accent' : 'bg-muted text-muted-foreground'}`}>
+                {diffPct > 0 ? <TrendingUp size={14} /> : diffPct < 0 ? <TrendingDown size={14} /> : <Minus size={14} />}
+                {diffPct > 0 ? '+' : ''}{diffPct.toFixed(1)}%
+              </div>
+              <span className="text-[10px] text-muted-foreground mt-1 uppercase tracking-tighter font-medium">Variação Total</span>
             </div>
           )}
         </div>
-        {hasData && (
-          <p className="text-xs text-muted-foreground mt-1">
-            {format(currentMonth, 'MMMM', { locale: ptBR })} vs {format(prevMonth, 'MMMM', { locale: ptBR })}
-          </p>
-        )}
       </CardHeader>
       <CardContent>
         {!hasData ? (
@@ -125,10 +130,10 @@ export function MonthlyComparisonChart({ userId, profileId, currentMonth }: Prop
           </p>
         ) : (
           <>
-            <div className="h-72">
+            <div className="h-[400px]">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartData} barGap={2} layout="vertical">
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" horizontal={false} />
+                <BarChart data={chartData} barGap={4} layout="vertical" margin={{ left: 10, right: 30, top: 10, bottom: 10 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" horizontal={false} opacity={0.4} />
                   <XAxis
                     type="number"
                     tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 11 }}
@@ -141,34 +146,49 @@ export function MonthlyComparisonChart({ userId, profileId, currentMonth }: Prop
                   <YAxis
                     type="category"
                     dataKey="categoria"
-                    tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 11 }}
+                    tick={{ fill: 'hsl(var(--foreground))', fontSize: 12, fontWeight: 500 }}
                     axisLine={false}
                     tickLine={false}
-                    width={90}
+                    width={110}
                   />
                   <Tooltip
-                    cursor={{ fill: 'transparent' }}
+                    cursor={{ fill: 'hsl(var(--muted))', opacity: 0.2 }}
                     formatter={(v: number, name: string) => [fmt(v), name]}
                     contentStyle={{
                       backgroundColor: 'hsl(var(--card))',
                       border: '1px solid hsl(var(--border))',
-                      borderRadius: '10px',
+                      borderRadius: '12px',
                       color: 'hsl(var(--card-foreground))',
-                      fontSize: '12px',
-                      boxShadow: '0 8px 24px rgba(0,0,0,0.3)',
+                      fontSize: '13px',
+                      boxShadow: '0 10px 30px rgba(0,0,0,0.4)',
+                      padding: '10px'
                     }}
-                    itemStyle={{ color: 'hsl(var(--card-foreground))' }}
-                    labelStyle={{ color: 'hsl(var(--card-foreground))', fontWeight: 600 }}
+                    itemStyle={{ padding: '2px 0' }}
+                    labelStyle={{ marginBottom: '5px', fontWeight: 700, color: 'hsl(var(--primary))' }}
                   />
                   <Legend
-                    verticalAlign="bottom"
-                    wrapperStyle={{ paddingTop: 12 }}
+                    verticalAlign="top"
+                    align="right"
+                    wrapperStyle={{ paddingBottom: 20 }}
                     formatter={(value) => (
-                      <span className="text-xs text-foreground">{value}</span>
+                      <span className="text-xs font-medium text-muted-foreground ml-1">{value}</span>
                     )}
                   />
-                  <Bar dataKey="anterior" name={`${prevLabel.charAt(0).toUpperCase() + prevLabel.slice(1)}`} fill="hsl(var(--muted-foreground))" radius={[0, 4, 4, 0]} opacity={0.5} />
-                  <Bar dataKey="atual" name={`${curLabel.charAt(0).toUpperCase() + curLabel.slice(1)}`} fill="hsl(var(--primary))" radius={[0, 4, 4, 0]} />
+                  <Bar 
+                    dataKey="anterior" 
+                    name={`Gasto em ${prevLabel}`} 
+                    fill="hsl(var(--muted-foreground))" 
+                    radius={[0, 4, 4, 0]} 
+                    opacity={0.3} 
+                    barSize={20}
+                  />
+                  <Bar 
+                    dataKey="atual" 
+                    name={`Gasto em ${curLabel}`} 
+                    fill="hsl(var(--primary))" 
+                    radius={[0, 4, 4, 0]} 
+                    barSize={20}
+                  />
                 </BarChart>
               </ResponsiveContainer>
             </div>
