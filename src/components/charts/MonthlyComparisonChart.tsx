@@ -194,10 +194,9 @@ export function MonthlyComparisonChart({ userId, profileId, currentMonth }: Prop
                             setSelectedCategories(allCategoriesList);
                             setSearchTerm("");
                           }
-                          }
                         }}
                       >
-                        {selectedCategories.length > 0 || searchTerm !== "" ? 'Limpar Filtros' : 'Selecionar Tudo'}
+                        {selectedCategories.length === allCategoriesList.length ? 'Limpar Filtros' : 'Selecionar Tudo'}
                       </Button>
                     </div>
                     <div className="relative">
