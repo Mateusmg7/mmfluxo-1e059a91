@@ -25,6 +25,7 @@ interface Props {
 }
 
 export function MonthlyComparisonChart({ userId, profileId, currentMonth }: Props) {
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const prevMonth = subMonths(currentMonth, 1);
 
   const curStart = format(startOfMonth(currentMonth), 'yyyy-MM-dd');
@@ -78,14 +79,28 @@ export function MonthlyComparisonChart({ userId, profileId, currentMonth }: Prop
   const curMap = aggregate(curTx);
   const prevMap = aggregate(prevTx);
 
-  const allCategories = new Set([...curMap.keys(), ...prevMap.keys()]);
-  const chartData = Array.from(allCategories)
-    .map((cat) => ({
-      categoria: cat,
-      atual: curMap.get(cat) ?? 0,
-      anterior: prevMap.get(cat) ?? 0,
-    }))
-    .sort((a, b) => (b.atual + b.anterior) - (a.atual + a.anterior));
+  const allCategoriesList = useMemo(() => {
+    const set = new Set([...curMap.keys(), ...prevMap.keys()]);
+    return Array.from(set).sort();
+  }, [curMap, prevMap]);
+
+  // Initial state: select all
+  useMemo(() => {
+    if (selectedCategories.length === 0 && allCategoriesList.length > 0) {
+      setSelectedCategories(allCategoriesList);
+    }
+  }, [allCategoriesList]);
+
+  const chartData = useMemo(() => {
+    return allCategoriesList
+      .filter(cat => selectedCategories.includes(cat))
+      .map((cat) => ({
+        categoria: cat,
+        atual: curMap.get(cat) ?? 0,
+        anterior: prevMap.get(cat) ?? 0,
+      }))
+      .sort((a, b) => (b.atual + b.anterior) - (a.atual + a.anterior));
+  }, [allCategoriesList, selectedCategories, curMap, prevMap]);
 
   const hasData = chartData.some((d) => d.atual > 0 || d.anterior > 0);
 
@@ -106,6 +121,14 @@ export function MonthlyComparisonChart({ userId, profileId, currentMonth }: Prop
     .filter((v) => Math.abs(v.diff) > 0)
     .sort((a, b) => Math.abs(b.diff) - Math.abs(a.diff))
     .slice(0, 3);
+
+  const toggleCategory = (cat: string) => {
+    setSelectedCategories(prev => 
+      prev.includes(cat) 
+        ? prev.filter(c => c !== cat) 
+        : [...prev, cat]
+    );
+  };
 
   return (
     <Card className="card-glass border-none shadow-lg animate-scale-up" style={{ animationDelay: '0.25s' }}>
