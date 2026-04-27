@@ -20,10 +20,8 @@ const BuildStatus = () => {
     const swActive = !!navigator.serviceWorker?.controller;
     const cacheNames = await window.caches?.keys() || [];
     
-    // Attempt to find build hash from script tags
-    const scripts = Array.from(document.getElementsByTagName('script'));
-    const mainScript = scripts.find(s => s.src.includes('index-') || s.src.includes('main-'));
-    const buildId = mainScript ? mainScript.src.split('/').pop() || "unknown" : "not found (dev mode?)";
+    // Use the build ID from environment variables defined in vite.config.ts
+    const buildId = (import.meta as any).env.VITE_BUILD_ID || "development";
 
     setCacheInfo({
       swActive,
