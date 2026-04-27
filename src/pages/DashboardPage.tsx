@@ -150,28 +150,36 @@ export default function DashboardPage() {
           </div>
           
           <div className="grid gap-4">
-            {ultimosGastos.length === 0 ? (
+            {ultimasAtividades.length === 0 ? (
               <div className="bg-muted/30 rounded-xl p-8 border border-dashed border-muted flex flex-col items-center justify-center text-center">
-                <p className="text-sm text-muted-foreground italic font-medium">Nenhum gasto recente.</p>
+                <p className="text-sm text-muted-foreground italic font-medium">Nenhuma atividade recente.</p>
               </div>
             ) : (
-              ultimosGastos.map((item) => (
+              ultimasAtividades.map((item) => (
                 <Card key={item.id} className="card-glass border-none overflow-hidden transition-all duration-300 hover:shadow-md hover:-translate-y-0.5">
                   <CardContent className="p-4 flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                      <div className={`h-10 w-10 rounded-xl flex items-center justify-center bg-muted/50 ${TIPO_DOT_CLASSES[item.tipo_despesa] ?? 'bg-muted'} bg-opacity-15 text-xs font-bold shadow-inner`}>
-                        {TIPO_LABELS[item.tipo_despesa]?.charAt(0)}
+                      <div className={`h-10 w-10 rounded-xl flex items-center justify-center bg-muted/50 ${item.activityType === 'expense' ? (TIPO_DOT_CLASSES[item.tipo_despesa] ?? 'bg-muted') : 'bg-accent'} bg-opacity-15 text-xs font-bold shadow-inner`}>
+                        {item.activityType === 'expense' 
+                          ? (TIPO_LABELS[item.tipo_despesa]?.charAt(0) || 'G')
+                          : 'R'
+                        }
                       </div>
                       <div>
                         <p className="text-sm font-semibold tracking-tight">
-                          {item.motivo || item.categories?.nome || TIPO_LABELS[item.tipo_despesa]}
+                          {item.activityType === 'expense' 
+                            ? (item.motivo || item.categories?.nome || TIPO_LABELS[item.tipo_despesa])
+                            : (item.motivo || 'Renda Extra')
+                          }
                         </p>
                         <p className="text-xs text-muted-foreground font-medium">
                           {format(new Date(`${item.data}T00:00`), 'dd/MM', { locale: ptBR })}
                         </p>
                       </div>
                     </div>
-                    <span className="text-sm font-bold text-destructive tabular-nums">-{fmt(Number(item.valor))}</span>
+                    <span className={`text-sm font-bold tabular-nums ${item.activityType === 'expense' ? 'text-destructive' : 'text-accent'}`}>
+                      {item.activityType === 'expense' ? '-' : '+'}{fmt(Number(item.valor))}
+                    </span>
                   </CardContent>
                 </Card>
               ))
