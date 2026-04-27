@@ -174,8 +174,13 @@ export function MonthlyComparisonChart({ userId, profileId, currentMonth }: Prop
                       size="sm" 
                       className="h-auto p-0 text-[10px] hover:bg-transparent text-primary"
                       onClick={(e) => {
+                        e.preventDefault();
                         e.stopPropagation();
-                        setSelectedCategories(selectedCategories.length === allCategoriesList.length ? [] : allCategoriesList);
+                        if (selectedCategories.length === allCategoriesList.length) {
+                          setSelectedCategories([]);
+                        } else {
+                          setSelectedCategories(allCategoriesList);
+                        }
                       }}
                     >
                       {selectedCategories.length === allCategoriesList.length ? 'Limpar' : 'Todos'}
