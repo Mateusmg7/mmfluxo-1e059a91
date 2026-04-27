@@ -27,22 +27,28 @@ if (isPreviewHost || isInIframe) {
     getNotificationServiceWorkerRegistration().catch(() => {});
   });
 } else if ("serviceWorker" in navigator) {
-  // Register PWA SW with auto-update
+  // Register PWA SW with prompt mode but forcing update
   const updateSW = registerSW({
-    immediate: true,
-    onRegisteredSW(_url, registration) {
-      if (registration) {
-        // Poll for updates every minute
-        setInterval(() => {
-          registration.update();
-        }, 60 * 1000);
-      }
-    },
     onNeedRefresh() {
-      console.log('Nova versão detectada! Atualizando agora...');
-      // Force update immediately
+      console.log('Nova versão detectada! Forçando atualização e recarregando...');
+      // Directly clear standard caches if possible (optional but aggressive)
+      if ('caches' in window) {
+        caches.keys().then(names => {
+          for (const name of names) {
+            if (name.includes('workbox-precache')) caches.delete(name);
+          }
+        });
+      }
       updateSW(true);
     },
+    onOfflineReady() {
+      console.log('App pronto para uso offline');
+    },
+  });
+
+  // Force update check on every load/focus
+  window.addEventListener('focus', () => {
+    navigator.serviceWorker?.getRegistration().then(reg => reg?.update());
   });
 
   // Also register notification SW
