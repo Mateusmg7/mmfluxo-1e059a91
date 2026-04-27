@@ -113,7 +113,12 @@ export function MonthlyComparisonChart({ userId, profileId, currentMonth }: Prop
       .sort((a, b) => (b.atual + b.anterior) - (a.atual + a.anterior));
   }, [allCategoriesList, selectedCategories, curMap, prevMap]);
 
-  const hasData = chartData.some((d) => d.atual > 0 || d.anterior > 0);
+  const hasData = useMemo(() => {
+    // Check if there are ANY transactions in the source maps, 
+    // regardless of current selection
+    const totalTransactionsInPeriod = curMap.size > 0 || prevMap.size > 0;
+    return totalTransactionsInPeriod;
+  }, [curMap, prevMap]);
 
   const totalCur = chartData.reduce((s, d) => s + d.atual, 0);
   const totalPrev = chartData.reduce((s, d) => s + d.anterior, 0);
