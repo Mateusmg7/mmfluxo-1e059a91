@@ -5,7 +5,7 @@ import { qk } from '@/lib/queryKeys';
 import { format, startOfMonth, endOfMonth, subMonths } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { TrendingUp, TrendingDown, Minus, Filter, Check, AlertCircle } from 'lucide-react';
+import { TrendingUp, TrendingDown, Minus, Filter, Check, AlertCircle, Loader2 } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend,
 } from 'recharts';
