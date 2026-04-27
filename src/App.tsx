@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { usePushSubscription } from "@/hooks/usePushSubscription";
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
