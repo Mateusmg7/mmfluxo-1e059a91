@@ -26,11 +26,10 @@ if (isPreviewHost || isInIframe) {
     getNotificationServiceWorkerRegistration().catch(() => {});
   });
 } else if ("serviceWorker" in navigator) {
-  // Register PWA SW with auto-update: new versions activate immediately
-  registerSW({
+  // Register PWA SW with auto-update
+  const updateSW = registerSW({
     immediate: true,
     onRegisteredSW(_url, registration) {
-      // Check for updates every 60 seconds
       if (registration) {
         setInterval(() => {
           registration.update();
@@ -38,8 +37,17 @@ if (isPreviewHost || isInIframe) {
       }
     },
     onNeedRefresh() {
-      // Auto-reload to apply the new version
-      window.location.reload();
+      // Version detected from vite.config.ts define
+      const currentBuildId = (window as any).__BUILD_TIMESTAMP__ || (import.meta as any).env.VITE_BUILD_ID;
+      const storedBuildId = localStorage.getItem('app-build-id');
+      
+      if (storedBuildId && currentBuildId && storedBuildId !== String(currentBuildId)) {
+        console.log('Nova versão detectada:', currentBuildId);
+        localStorage.setItem('app-build-id', String(currentBuildId));
+        updateSW(true); // Force reload
+      } else if (!storedBuildId && currentBuildId) {
+        localStorage.setItem('app-build-id', String(currentBuildId));
+      }
     },
   });
 

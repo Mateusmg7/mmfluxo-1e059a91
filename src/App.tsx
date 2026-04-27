@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { usePushSubscription } from "@/hooks/usePushSubscription";
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
@@ -57,7 +58,23 @@ function AuthRoute() {
   return <AuthPage />;
 }
 
-const App = () => (
+const App = () => {
+  // Global effect to check build version and force reload if mismatched
+  // This helps when the PWA updateSW doesn't fire correctly
+  useEffect(() => {
+    const currentVersion = (window as any).__BUILD_TIMESTAMP__ || (import.meta as any).env.VITE_BUILD_ID;
+    const storedVersion = localStorage.getItem('app-build-id');
+    
+    if (storedVersion && currentVersion && storedVersion !== String(currentVersion)) {
+      console.log('Forçando atualização para versão:', currentVersion);
+      localStorage.setItem('app-build-id', String(currentVersion));
+      window.location.reload();
+    } else if (currentVersion) {
+      localStorage.setItem('app-build-id', String(currentVersion));
+    }
+  }, []);
+
+  return (
   <ErrorBoundary>
   <ThemeProvider>
   <QueryClientProvider client={queryClient}>
@@ -91,6 +108,7 @@ const App = () => (
   </QueryClientProvider>
   </ThemeProvider>
   </ErrorBoundary>
-);
+  );
+};
 
 export default App;
