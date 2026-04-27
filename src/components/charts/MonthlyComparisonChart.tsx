@@ -99,24 +99,29 @@ export function MonthlyComparisonChart({ userId, profileId, currentMonth }: Prop
     .slice(0, 3);
 
   return (
-    <Card className="card-glass animate-scale-up" style={{ animationDelay: '0.25s' }}>
-      <CardHeader className="pb-2">
+    <Card className="card-glass border-none shadow-lg animate-scale-up" style={{ animationDelay: '0.25s' }}>
+      <CardHeader className="pb-4 border-b border-white/5">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
-            Comparativo Mensal
-          </CardTitle>
+          <div>
+            <CardTitle className="text-lg font-bold tracking-tight text-foreground flex items-center gap-2">
+              <TrendingUp className="h-5 w-5 text-primary" /> Análise Comparativa
+            </CardTitle>
+            {hasData && (
+              <p className="text-xs text-muted-foreground mt-1">
+                Comparação detalhada de gastos: <span className="font-semibold text-foreground">{format(currentMonth, 'MMMM', { locale: ptBR })}</span> vs {format(prevMonth, 'MMMM', { locale: ptBR })}
+              </p>
+            )}
+          </div>
           {hasData && totalPrev > 0 && (
-            <div className={`flex items-center gap-1 text-xs font-semibold ${diffPct > 0 ? 'text-destructive' : diffPct < 0 ? 'text-accent' : 'text-muted-foreground'}`}>
-              {diffPct > 0 ? <TrendingUp size={14} /> : diffPct < 0 ? <TrendingDown size={14} /> : <Minus size={14} />}
-              {diffPct > 0 ? '+' : ''}{diffPct.toFixed(1)}%
+            <div className={`flex flex-col items-end`}>
+              <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${diffPct > 0 ? 'bg-destructive/10 text-destructive' : diffPct < 0 ? 'bg-accent/10 text-accent' : 'bg-muted text-muted-foreground'}`}>
+                {diffPct > 0 ? <TrendingUp size={14} /> : diffPct < 0 ? <TrendingDown size={14} /> : <Minus size={14} />}
+                {diffPct > 0 ? '+' : ''}{diffPct.toFixed(1)}%
+              </div>
+              <span className="text-[10px] text-muted-foreground mt-1 uppercase tracking-tighter font-medium">Variação Total</span>
             </div>
           )}
         </div>
-        {hasData && (
-          <p className="text-xs text-muted-foreground mt-1">
-            {format(currentMonth, 'MMMM', { locale: ptBR })} vs {format(prevMonth, 'MMMM', { locale: ptBR })}
-          </p>
-        )}
       </CardHeader>
       <CardContent>
         {!hasData ? (
