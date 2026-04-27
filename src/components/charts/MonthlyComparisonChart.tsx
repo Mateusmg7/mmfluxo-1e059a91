@@ -92,17 +92,15 @@ export function MonthlyComparisonChart({ userId, profileId, currentMonth }: Prop
     return Array.from(set).sort();
   }, [curMap, prevMap]);
 
-  // Initial state: select all when new categories appear
+  // Initial state: select all when new categories appear for the first time
+  const [hasInitialized, setHasInitialized] = useState(false);
+
   useEffect(() => {
-    if (allCategoriesList.length > 0) {
-      // Find categories that aren't already selected but exist now
-      const newToSelect = allCategoriesList.filter(cat => !selectedCategories.includes(cat));
-      if (newToSelect.length > 0 && selectedCategories.length === 0) {
-        // First load or empty state: select all
-        setSelectedCategories(allCategoriesList);
-      }
+    if (allCategoriesList.length > 0 && !hasInitialized) {
+      setSelectedCategories(allCategoriesList);
+      setHasInitialized(true);
     }
-  }, [allCategoriesList]);
+  }, [allCategoriesList, hasInitialized]);
 
   const chartData = useMemo(() => {
     return allCategoriesList
