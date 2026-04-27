@@ -66,54 +66,64 @@ export default function DashboardPage() {
         <MonthSelector />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 animate-fade-up">
-        <Card className="card-glass border-none overflow-hidden relative group">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 animate-fade-up">
+        <Card className="card-glass border-none overflow-hidden relative group hover:shadow-lg transition-all duration-300">
           <CardContent className="pt-6">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Orcamento Mensal</p>
-              <Wallet className="h-4 w-4 text-primary opacity-50" />
-            </div>
-            <p className="text-2xl font-bold">{fmt(orcamento)}</p>
-            <div className="mt-4 space-y-2">
-              <div className="flex items-center justify-between text-[10px] text-muted-foreground font-medium">
-                <span>Progresso do Uso</span>
-                <span>{percentualUsado.toFixed(0)}%</span>
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">Orçamento Mensal</p>
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <Wallet className="h-4 w-4 text-primary" />
               </div>
-              <Progress value={percentualUsado} className="h-1.5" />
+            </div>
+            <p className="text-3xl font-bold tracking-tight">{fmt(orcamento)}</p>
+            <div className="mt-5 space-y-2">
+              <div className="flex items-center justify-between text-xs text-muted-foreground font-medium">
+                <span>Progresso do Uso</span>
+                <span className={percentualUsado > 90 ? 'text-destructive' : 'text-primary'}>
+                  {percentualUsado.toFixed(0)}%
+                </span>
+              </div>
+              <Progress value={percentualUsado} className="h-2" />
             </div>
           </CardContent>
         </Card>
 
-        <Card className="card-glass border-none group">
+        <Card className="card-glass border-none group hover:shadow-lg transition-all duration-300">
           <CardContent className="pt-6">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Gastos Totais</p>
-              <TrendingDown className="h-4 w-4 text-destructive opacity-50" />
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">Gastos Totais</p>
+              <div className="p-2 bg-destructive/10 rounded-lg">
+                <TrendingDown className="h-4 w-4 text-destructive" />
+              </div>
             </div>
-            <p className="text-2xl font-bold text-destructive">{fmt(totalGastos)}</p>
-            <p className="text-[10px] text-muted-foreground mt-1">Total acumulado no mês</p>
+            <p className="text-3xl font-bold text-destructive tracking-tight">{fmt(totalGastos)}</p>
+            <p className="text-xs text-muted-foreground mt-2">Total acumulado no mês</p>
           </CardContent>
         </Card>
 
-        <Card className="card-glass border-none group">
+        <Card className="card-glass border-none group hover:shadow-lg transition-all duration-300">
           <CardContent className="pt-6">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Renda Extra</p>
-              <TrendingUp className="h-4 w-4 text-accent opacity-50" />
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">Renda Extra</p>
+              <div className="p-2 bg-accent/10 rounded-lg">
+                <TrendingUp className="h-4 w-4 text-accent" />
+              </div>
             </div>
-            <p className="text-2xl font-bold text-accent">{fmt(totalRendaExtra)}</p>
-            <p className="text-[10px] text-muted-foreground mt-1">Ganhos adicionais</p>
+            <p className="text-3xl font-bold text-accent tracking-tight">{fmt(totalRendaExtra)}</p>
+            <p className="text-xs text-muted-foreground mt-2">Ganhos adicionais</p>
           </CardContent>
         </Card>
 
-        <Card className="card-glass border-none group">
+        <Card className="card-glass border-none group hover:shadow-lg transition-all duration-300">
           <CardContent className="pt-6">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Saldo Final</p>
-              <div className={`h-2 w-2 rounded-full ${saldo >= 0 ? 'bg-accent' : 'bg-destructive'} animate-pulse`} />
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">Saldo Final</p>
+              <div className={`p-2 ${saldo >= 0 ? 'bg-accent/10' : 'bg-destructive/10'} rounded-lg`}>
+                <div className={`h-2 w-2 rounded-full ${saldo >= 0 ? 'bg-accent' : 'bg-destructive'} animate-pulse`} />
+              </div>
             </div>
-            <p className={`text-2xl font-bold ${saldo >= 0 ? 'text-accent' : 'text-destructive'}`}>{fmt(saldo)}</p>
-            <p className="text-[10px] text-muted-foreground mt-1">Resultado do período</p>
+            <p className={`text-3xl font-bold tracking-tight ${saldo >= 0 ? 'text-accent' : 'text-destructive'}`}>{fmt(saldo)}</p>
+            <p className="text-xs text-muted-foreground mt-2">Resultado do período</p>
           </CardContent>
         </Card>
       </div>
