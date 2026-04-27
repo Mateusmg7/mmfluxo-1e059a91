@@ -309,6 +309,20 @@ export function MonthlyComparisonChart({ userId, profileId, currentMonth }: Prop
                 ))}
               </div>
             )}
+
+            {selectedCategories.length === 0 && allCategoriesList.length > 0 && (
+              <div className="mt-8 flex flex-col items-center justify-center p-8 bg-muted/20 rounded-2xl border border-dashed border-muted/50">
+                <AlertCircle className="h-8 w-8 text-muted-foreground/50 mb-3" />
+                <p className="text-sm text-muted-foreground font-medium">Nenhuma categoria selecionada para comparação.</p>
+                <Button 
+                  variant="link" 
+                  className="mt-2 text-primary"
+                  onClick={() => setSelectedCategories(allCategoriesList)}
+                >
+                  Selecionar todas
+                </Button>
+              </div>
+            )}
           </>
         )}
       </CardContent>
