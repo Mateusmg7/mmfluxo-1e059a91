@@ -272,9 +272,15 @@ export function MonthlyComparisonChart({ userId, profileId, currentMonth }: Prop
             </Button>
           </div>
         ) : !hasData ? (
-          <p className="text-muted-foreground text-center py-12 text-sm">
-            Sem dados para comparar
-          </p>
+          <div className="flex flex-col items-center justify-center py-20 bg-black/5 rounded-xl border border-dashed border-white/5 my-4">
+            <div className="bg-muted/10 p-4 rounded-full mb-4">
+              <TrendingUp className="h-8 w-8 text-muted-foreground/40" />
+            </div>
+            <p className="text-sm font-semibold text-foreground">Sem dados no período</p>
+            <p className="text-xs text-muted-foreground mt-1 max-w-[200px] text-center">
+              Não foram encontradas transações para comparar entre {format(currentMonth, 'MMMM', { locale: ptBR })} e {format(subMonths(currentMonth, 1), 'MMMM', { locale: ptBR })}.
+            </p>
+          </div>
         ) : (
           <>
             <div className="h-[400px] mt-4 relative">
