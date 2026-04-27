@@ -209,7 +209,30 @@ export function MonthlyComparisonChart({ userId, profileId, currentMonth }: Prop
         </div>
       </CardHeader>
       <CardContent>
-        {!hasData ? (
+        {isLoading ? (
+          <div className="flex flex-col items-center justify-center py-20 space-y-4">
+            <Loader2 className="h-10 w-10 text-primary animate-spin" />
+            <p className="text-sm text-muted-foreground animate-pulse">Carregando dados comparativos...</p>
+          </div>
+        ) : isError ? (
+          <div className="flex flex-col items-center justify-center py-20 space-y-4">
+            <div className="bg-destructive/10 p-4 rounded-full">
+              <AlertCircle className="h-8 w-8 text-destructive" />
+            </div>
+            <div className="text-center">
+              <p className="text-sm font-semibold text-foreground">Erro ao carregar dados</p>
+              <p className="text-xs text-muted-foreground mt-1">Não foi possível conectar ao Supabase.</p>
+            </div>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="mt-2"
+              onClick={() => window.location.reload()}
+            >
+              Tentar novamente
+            </Button>
+          </div>
+        ) : !hasData ? (
           <p className="text-muted-foreground text-center py-12 text-sm">
             Sem dados para comparar
           </p>
