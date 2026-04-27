@@ -1,11 +1,11 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { qk } from '@/lib/queryKeys';
 import { format, startOfMonth, endOfMonth, subMonths } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { TrendingUp, TrendingDown, Minus, Filter, Check } from 'lucide-react';
+import { TrendingUp, TrendingDown, Minus, Filter, Check, AlertCircle } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend,
 } from 'recharts';
@@ -84,10 +84,15 @@ export function MonthlyComparisonChart({ userId, profileId, currentMonth }: Prop
     return Array.from(set).sort();
   }, [curMap, prevMap]);
 
-  // Initial state: select all
-  useMemo(() => {
-    if (selectedCategories.length === 0 && allCategoriesList.length > 0) {
-      setSelectedCategories(allCategoriesList);
+  // Initial state: select all when new categories appear
+  useEffect(() => {
+    if (allCategoriesList.length > 0) {
+      // Find categories that aren't already selected but exist now
+      const newToSelect = allCategoriesList.filter(cat => !selectedCategories.includes(cat));
+      if (newToSelect.length > 0 && selectedCategories.length === 0) {
+        // First load or empty state: select all
+        setSelectedCategories(allCategoriesList);
+      }
     }
   }, [allCategoriesList]);
 
@@ -302,6 +307,20 @@ export function MonthlyComparisonChart({ userId, profileId, currentMonth }: Prop
                     </div>
                   </div>
                 ))}
+              </div>
+            )}
+
+            {selectedCategories.length === 0 && allCategoriesList.length > 0 && (
+              <div className="mt-8 flex flex-col items-center justify-center p-8 bg-muted/20 rounded-2xl border border-dashed border-muted/50">
+                <AlertCircle className="h-8 w-8 text-muted-foreground/50 mb-3" />
+                <p className="text-sm text-muted-foreground font-medium">Nenhuma categoria selecionada para comparação.</p>
+                <Button 
+                  variant="link" 
+                  className="mt-2 text-primary"
+                  onClick={() => setSelectedCategories(allCategoriesList)}
+                >
+                  Selecionar todas
+                </Button>
               </div>
             )}
           </>
