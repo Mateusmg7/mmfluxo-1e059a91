@@ -28,6 +28,7 @@ interface Props {
 export function MonthlyComparisonChart({ userId, profileId, currentMonth }: Props) {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const prevMonth = subMonths(currentMonth, 1);
 
   const curStart = format(startOfMonth(currentMonth), 'yyyy-MM-dd');
@@ -164,7 +165,7 @@ export function MonthlyComparisonChart({ userId, profileId, currentMonth }: Prop
           </div>
           <div className="flex items-center gap-4">
             {allCategoriesList.length > 0 && (
-              <Popover>
+              <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
                 <PopoverTrigger asChild>
                   <Button variant="outline" size="sm" className="h-9 gap-2 border-white/10 bg-white/5 hover:bg-white/10 text-xs font-semibold">
                     <Filter className="h-3.5 w-3.5" />
@@ -188,6 +189,7 @@ export function MonthlyComparisonChart({ userId, profileId, currentMonth }: Prop
                           if (selectedCategories.length > 0 || searchTerm !== "") {
                             setSelectedCategories([]);
                             setSearchTerm("");
+                            setIsPopoverOpen(false);
                           } else {
                             setSelectedCategories(allCategoriesList);
                           }
