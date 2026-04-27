@@ -5,7 +5,7 @@ import { qk } from '@/lib/queryKeys';
 import { format, startOfMonth, endOfMonth, subMonths } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { TrendingUp, TrendingDown, Minus, Filter, Check, AlertCircle } from 'lucide-react';
+import { TrendingUp, TrendingDown, Minus, Filter, Check, AlertCircle, Loader2 } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend,
 } from 'recharts';
@@ -36,7 +36,7 @@ export function MonthlyComparisonChart({ userId, profileId, currentMonth }: Prop
   const curLabel = format(currentMonth, 'MMM', { locale: ptBR });
   const prevLabel = format(prevMonth, 'MMM', { locale: ptBR });
 
-  const { data: curTx = [] } = useQuery({
+  const { data: curTx = [], isLoading: isLoadingCur, isError: isErrorCur } = useQuery({
     queryKey: qk.comparison.current(profileId, curStart, curEnd),
     queryFn: async () => {
       let q = supabase
@@ -45,13 +45,14 @@ export function MonthlyComparisonChart({ userId, profileId, currentMonth }: Prop
         .gte('data', curStart)
         .lte('data', curEnd);
       if (profileId) q = q.eq('profile_id', profileId);
-      const { data } = await q;
+      const { data, error } = await q;
+      if (error) throw error;
       return data ?? [];
     },
     enabled: !!userId && !!profileId,
   });
 
-  const { data: prevTx = [] } = useQuery({
+  const { data: prevTx = [], isLoading: isLoadingPrev, isError: isErrorPrev } = useQuery({
     queryKey: qk.comparison.previous(profileId, prevStart, prevEnd),
     queryFn: async () => {
       let q = supabase
@@ -60,11 +61,15 @@ export function MonthlyComparisonChart({ userId, profileId, currentMonth }: Prop
         .gte('data', prevStart)
         .lte('data', prevEnd);
       if (profileId) q = q.eq('profile_id', profileId);
-      const { data } = await q;
+      const { data, error } = await q;
+      if (error) throw error;
       return data ?? [];
     },
     enabled: !!userId && !!profileId,
   });
+
+  const isLoading = isLoadingCur || isLoadingPrev;
+  const isError = isErrorCur || isErrorPrev;
 
   // Aggregate by category
   const aggregate = (txs: any[]) => {
@@ -204,7 +209,30 @@ export function MonthlyComparisonChart({ userId, profileId, currentMonth }: Prop
         </div>
       </CardHeader>
       <CardContent>
-        {!hasData ? (
+        {isLoading ? (
+          <div className="flex flex-col items-center justify-center py-20 space-y-4">
+            <Loader2 className="h-10 w-10 text-primary animate-spin" />
+            <p className="text-sm text-muted-foreground animate-pulse">Carregando dados comparativos...</p>
+          </div>
+        ) : isError ? (
+          <div className="flex flex-col items-center justify-center py-20 space-y-4">
+            <div className="bg-destructive/10 p-4 rounded-full">
+              <AlertCircle className="h-8 w-8 text-destructive" />
+            </div>
+            <div className="text-center">
+              <p className="text-sm font-semibold text-foreground">Erro ao carregar dados</p>
+              <p className="text-xs text-muted-foreground mt-1">Não foi possível conectar ao Supabase.</p>
+            </div>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="mt-2"
+              onClick={() => window.location.reload()}
+            >
+              Tentar novamente
+            </Button>
+          </div>
+        ) : !hasData ? (
           <p className="text-muted-foreground text-center py-12 text-sm">
             Sem dados para comparar
           </p>
