@@ -21,7 +21,7 @@ const BuildStatus = () => {
     const cacheNames = await window.caches?.keys() || [];
     
     // Use the build ID from environment variables defined in vite.config.ts
-    const buildId = (import.meta as any).env.VITE_BUILD_ID || "development";
+    const buildId = (window as any).__BUILD_TIMESTAMP__ || (import.meta as any).env.VITE_BUILD_ID || "development";
 
     setCacheInfo({
       swActive,
