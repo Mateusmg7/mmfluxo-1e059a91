@@ -20,6 +20,7 @@ import AlertasPage from "@/pages/AlertasPage";
 import RelatoriosPage from "@/pages/RelatoriosPage";
 
 import RankingPage from "@/pages/RankingPage";
+import BuildStatus from "@/pages/BuildStatus";
 import NotFound from "@/pages/NotFound";
 
 // Configuração da "central de memória" do app.
@@ -80,6 +81,7 @@ const App = () => (
             <Route path="/ranking" element={<ProtectedRoute><RankingPage /></ProtectedRoute>} />
             <Route path="/conquistas" element={<Navigate to="/ranking" replace />} />
             <Route path="/configuracoes" element={<ProtectedRoute><ConfiguracoesPage /></ProtectedRoute>} />
+            <Route path="/debug/build" element={<BuildStatus />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
           </ProfileProvider>
