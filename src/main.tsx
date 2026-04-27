@@ -8,7 +8,8 @@ const isInIframe = (() => {
   try { return window.self !== window.top; } catch { return true; }
 })();
 const isPreviewHost =
-  window.location.hostname.includes("id-preview--") ||
+  window.location.hostname.includes("-preview--") ||
+  window.location.hostname.includes("lovable.app") ||
   window.location.hostname.includes("lovableproject.com");
 
 if (isPreviewHost || isInIframe) {
