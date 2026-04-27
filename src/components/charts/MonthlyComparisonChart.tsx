@@ -5,7 +5,7 @@ import { qk } from '@/lib/queryKeys';
 import { format, startOfMonth, endOfMonth, subMonths } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { TrendingUp, TrendingDown, Minus, Filter, Check, AlertCircle, Loader2 } from 'lucide-react';
+import { TrendingUp, TrendingDown, Minus, Filter, Check, AlertCircle, Loader2, Search } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend,
 } from 'recharts';
@@ -17,6 +17,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Input } from "@/components/ui/input";
 
 interface Props {
   userId: string;
@@ -26,6 +27,7 @@ interface Props {
 
 export function MonthlyComparisonChart({ userId, profileId, currentMonth }: Props) {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const prevMonth = subMonths(currentMonth, 1);
 
   const curStart = format(startOfMonth(currentMonth), 'yyyy-MM-dd');
@@ -140,6 +142,12 @@ export function MonthlyComparisonChart({ userId, profileId, currentMonth }: Prop
     );
   };
 
+  const filteredCategories = useMemo(() => {
+    return allCategoriesList.filter(cat => 
+      cat.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [allCategoriesList, searchTerm]);
+
   return (
     <Card className="card-glass border-none shadow-lg animate-scale-up" style={{ animationDelay: '0.25s' }}>
       <CardHeader className="pb-4 border-b border-white/5">
@@ -166,38 +174,60 @@ export function MonthlyComparisonChart({ userId, profileId, currentMonth }: Prop
                     </Badge>
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-56 p-0 border-white/10 bg-[#1A1F2C] text-white" align="end">
-                  <div className="p-3 border-b border-white/5 flex items-center justify-between">
-                    <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Filtrar por</span>
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      className="h-auto p-0 text-[10px] hover:bg-transparent text-primary transition-all active:scale-95"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        if (selectedCategories.length > 0) {
-                          setSelectedCategories([]);
-                        } else {
-                          setSelectedCategories(allCategoriesList);
-                        }
-                      }}
-                    >
-                      {selectedCategories.length > 0 ? 'Limpar Seleção' : 'Selecionar Tudo'}
-                    </Button>
+                <PopoverContent className="w-64 p-0 border-white/10 bg-[#1A1F2C] text-white" align="end">
+                  <div className="p-3 border-b border-white/5 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Filtrar</span>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="h-auto p-0 text-[10px] hover:bg-transparent text-primary transition-all active:scale-95"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          if (selectedCategories.length > 0 || searchTerm !== "") {
+                            setSelectedCategories([]);
+                            setSearchTerm("");
+                          } else {
+                            setSelectedCategories(allCategoriesList);
+                          }
+                        }}
+                      >
+                        {selectedCategories.length > 0 || searchTerm !== "" ? 'Limpar Filtros' : 'Selecionar Tudo'}
+                      </Button>
+                    </div>
+                    <div className="relative">
+                      <Search className="absolute left-2 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
+                      <Input
+                        placeholder="Buscar categoria..."
+                        className="h-8 pl-8 text-xs bg-white/5 border-white/10"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                    </div>
                   </div>
                   <ScrollArea className="h-64">
                     <div className="p-2 space-y-1">
-                      {allCategoriesList.map((cat) => (
-                        <div
-                          key={cat}
-                          className="flex items-center justify-between px-2 py-1.5 rounded-md hover:bg-white/5 cursor-pointer transition-colors"
-                          onClick={() => toggleCategory(cat)}
-                        >
-                          <span className="text-sm font-medium">{cat}</span>
-                          {selectedCategories.includes(cat) && <Check className="h-3.5 w-3.5 text-primary" />}
+                      {filteredCategories.length > 0 ? (
+                        filteredCategories.map((cat) => (
+                          <div
+                            key={cat}
+                            className="flex items-center justify-between px-2 py-1.5 rounded-md hover:bg-white/5 cursor-pointer transition-colors"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleCategory(cat);
+                            }}
+                          >
+                            <span className="text-sm font-medium">{cat}</span>
+                            {selectedCategories.includes(cat) && <Check className="h-3.5 w-3.5 text-primary" />}
+                          </div>
+                        ))
+                      ) : (
+                        <div className="py-8 text-center text-xs text-muted-foreground">
+                          Nenhuma categoria encontrada
                         </div>
-                      ))}
+                      )}
                     </div>
                   </ScrollArea>
                 </PopoverContent>
