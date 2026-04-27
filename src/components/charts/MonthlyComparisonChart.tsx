@@ -144,15 +144,58 @@ export function MonthlyComparisonChart({ userId, profileId, currentMonth }: Prop
               </p>
             )}
           </div>
-          {hasData && totalPrev > 0 && (
-            <div className={`flex flex-col items-end`}>
-              <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${diffPct > 0 ? 'bg-destructive/10 text-destructive' : diffPct < 0 ? 'bg-accent/10 text-accent' : 'bg-muted text-muted-foreground'}`}>
-                {diffPct > 0 ? <TrendingUp size={14} /> : diffPct < 0 ? <TrendingDown size={14} /> : <Minus size={14} />}
-                {diffPct > 0 ? '+' : ''}{diffPct.toFixed(1)}%
+          <div className="flex items-center gap-4">
+            {allCategoriesList.length > 0 && (
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" size="sm" className="h-9 gap-2 border-white/10 bg-white/5 hover:bg-white/10 text-xs font-semibold">
+                    <Filter className="h-3.5 w-3.5" />
+                    Categorias
+                    <Badge variant="secondary" className="ml-1 h-4 w-4 p-0 flex items-center justify-center text-[10px] bg-primary text-primary-foreground">
+                      {selectedCategories.length}
+                    </Badge>
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-56 p-0 border-white/10 bg-[#1A1F2C] text-white" align="end">
+                  <div className="p-3 border-b border-white/5 flex items-center justify-between">
+                    <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Filtrar por</span>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="h-auto p-0 text-[10px] hover:bg-transparent text-primary"
+                      onClick={() => setSelectedCategories(selectedCategories.length === allCategoriesList.length ? [] : allCategoriesList)}
+                    >
+                      {selectedCategories.length === allCategoriesList.length ? 'Limpar' : 'Todos'}
+                    </Button>
+                  </div>
+                  <ScrollArea className="h-64">
+                    <div className="p-2 space-y-1">
+                      {allCategoriesList.map((cat) => (
+                        <div
+                          key={cat}
+                          className="flex items-center justify-between px-2 py-1.5 rounded-md hover:bg-white/5 cursor-pointer transition-colors"
+                          onClick={() => toggleCategory(cat)}
+                        >
+                          <span className="text-sm font-medium">{cat}</span>
+                          {selectedCategories.includes(cat) && <Check className="h-3.5 w-3.5 text-primary" />}
+                        </div>
+                      ))}
+                    </div>
+                  </ScrollArea>
+                </PopoverContent>
+              </Popover>
+            )}
+            
+            {hasData && totalPrev > 0 && (
+              <div className={`flex flex-col items-end`}>
+                <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${diffPct > 0 ? 'bg-destructive/10 text-destructive' : diffPct < 0 ? 'bg-accent/10 text-accent' : 'bg-muted text-muted-foreground'}`}>
+                  {diffPct > 0 ? <TrendingUp size={14} /> : diffPct < 0 ? <TrendingDown size={14} /> : <Minus size={14} />}
+                  {diffPct > 0 ? '+' : ''}{diffPct.toFixed(1)}%
+                </div>
+                <span className="text-[10px] text-muted-foreground mt-1 uppercase tracking-tighter font-medium">Variação Total</span>
               </div>
-              <span className="text-[10px] text-muted-foreground mt-1 uppercase tracking-tighter font-medium">Variação Total</span>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </CardHeader>
       <CardContent>
