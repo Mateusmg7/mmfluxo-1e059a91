@@ -1,13 +1,22 @@
+import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { qk } from '@/lib/queryKeys';
 import { format, startOfMonth, endOfMonth, subMonths } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { TrendingUp, TrendingDown, Minus, Filter, Check } from 'lucide-react';
 import {
-  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend, Cell,
+  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend,
 } from 'recharts';
+import { 
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface Props {
   userId: string;
@@ -16,6 +25,7 @@ interface Props {
 }
 
 export function MonthlyComparisonChart({ userId, profileId, currentMonth }: Props) {
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const prevMonth = subMonths(currentMonth, 1);
 
   const curStart = format(startOfMonth(currentMonth), 'yyyy-MM-dd');
@@ -69,14 +79,28 @@ export function MonthlyComparisonChart({ userId, profileId, currentMonth }: Prop
   const curMap = aggregate(curTx);
   const prevMap = aggregate(prevTx);
 
-  const allCategories = new Set([...curMap.keys(), ...prevMap.keys()]);
-  const chartData = Array.from(allCategories)
-    .map((cat) => ({
-      categoria: cat,
-      atual: curMap.get(cat) ?? 0,
-      anterior: prevMap.get(cat) ?? 0,
-    }))
-    .sort((a, b) => (b.atual + b.anterior) - (a.atual + a.anterior));
+  const allCategoriesList = useMemo(() => {
+    const set = new Set([...curMap.keys(), ...prevMap.keys()]);
+    return Array.from(set).sort();
+  }, [curMap, prevMap]);
+
+  // Initial state: select all
+  useMemo(() => {
+    if (selectedCategories.length === 0 && allCategoriesList.length > 0) {
+      setSelectedCategories(allCategoriesList);
+    }
+  }, [allCategoriesList]);
+
+  const chartData = useMemo(() => {
+    return allCategoriesList
+      .filter(cat => selectedCategories.includes(cat))
+      .map((cat) => ({
+        categoria: cat,
+        atual: curMap.get(cat) ?? 0,
+        anterior: prevMap.get(cat) ?? 0,
+      }))
+      .sort((a, b) => (b.atual + b.anterior) - (a.atual + a.anterior));
+  }, [allCategoriesList, selectedCategories, curMap, prevMap]);
 
   const hasData = chartData.some((d) => d.atual > 0 || d.anterior > 0);
 
@@ -98,6 +122,14 @@ export function MonthlyComparisonChart({ userId, profileId, currentMonth }: Prop
     .sort((a, b) => Math.abs(b.diff) - Math.abs(a.diff))
     .slice(0, 3);
 
+  const toggleCategory = (cat: string) => {
+    setSelectedCategories(prev => 
+      prev.includes(cat) 
+        ? prev.filter(c => c !== cat) 
+        : [...prev, cat]
+    );
+  };
+
   return (
     <Card className="card-glass border-none shadow-lg animate-scale-up" style={{ animationDelay: '0.25s' }}>
       <CardHeader className="pb-4 border-b border-white/5">
@@ -112,15 +144,58 @@ export function MonthlyComparisonChart({ userId, profileId, currentMonth }: Prop
               </p>
             )}
           </div>
-          {hasData && totalPrev > 0 && (
-            <div className={`flex flex-col items-end`}>
-              <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${diffPct > 0 ? 'bg-destructive/10 text-destructive' : diffPct < 0 ? 'bg-accent/10 text-accent' : 'bg-muted text-muted-foreground'}`}>
-                {diffPct > 0 ? <TrendingUp size={14} /> : diffPct < 0 ? <TrendingDown size={14} /> : <Minus size={14} />}
-                {diffPct > 0 ? '+' : ''}{diffPct.toFixed(1)}%
+          <div className="flex items-center gap-4">
+            {allCategoriesList.length > 0 && (
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" size="sm" className="h-9 gap-2 border-white/10 bg-white/5 hover:bg-white/10 text-xs font-semibold">
+                    <Filter className="h-3.5 w-3.5" />
+                    Categorias
+                    <Badge variant="secondary" className="ml-1 h-4 w-4 p-0 flex items-center justify-center text-[10px] bg-primary text-primary-foreground">
+                      {selectedCategories.length}
+                    </Badge>
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-56 p-0 border-white/10 bg-[#1A1F2C] text-white" align="end">
+                  <div className="p-3 border-b border-white/5 flex items-center justify-between">
+                    <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Filtrar por</span>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="h-auto p-0 text-[10px] hover:bg-transparent text-primary"
+                      onClick={() => setSelectedCategories(selectedCategories.length === allCategoriesList.length ? [] : allCategoriesList)}
+                    >
+                      {selectedCategories.length === allCategoriesList.length ? 'Limpar' : 'Todos'}
+                    </Button>
+                  </div>
+                  <ScrollArea className="h-64">
+                    <div className="p-2 space-y-1">
+                      {allCategoriesList.map((cat) => (
+                        <div
+                          key={cat}
+                          className="flex items-center justify-between px-2 py-1.5 rounded-md hover:bg-white/5 cursor-pointer transition-colors"
+                          onClick={() => toggleCategory(cat)}
+                        >
+                          <span className="text-sm font-medium">{cat}</span>
+                          {selectedCategories.includes(cat) && <Check className="h-3.5 w-3.5 text-primary" />}
+                        </div>
+                      ))}
+                    </div>
+                  </ScrollArea>
+                </PopoverContent>
+              </Popover>
+            )}
+            
+            {hasData && totalPrev > 0 && (
+              <div className={`flex flex-col items-end`}>
+                <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${diffPct > 0 ? 'bg-destructive/10 text-destructive' : diffPct < 0 ? 'bg-accent/10 text-accent' : 'bg-muted text-muted-foreground'}`}>
+                  {diffPct > 0 ? <TrendingUp size={14} /> : diffPct < 0 ? <TrendingDown size={14} /> : <Minus size={14} />}
+                  {diffPct > 0 ? '+' : ''}{diffPct.toFixed(1)}%
+                </div>
+                <span className="text-[10px] text-muted-foreground mt-1 uppercase tracking-tighter font-medium">Variação Total</span>
               </div>
-              <span className="text-[10px] text-muted-foreground mt-1 uppercase tracking-tighter font-medium">Variação Total</span>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </CardHeader>
       <CardContent>
@@ -130,10 +205,20 @@ export function MonthlyComparisonChart({ userId, profileId, currentMonth }: Prop
           </p>
         ) : (
           <>
-            <div className="h-[400px]">
+            <div className="h-[450px] mt-4">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartData} barGap={4} layout="vertical" margin={{ left: 10, right: 30, top: 10, bottom: 10 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" horizontal={false} opacity={0.4} />
+                <BarChart data={chartData} barGap={6} layout="vertical" margin={{ left: 10, right: 30, top: 0, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="barGradient" x1="0" y1="0" x2="1" y2="0">
+                      <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.8} />
+                      <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={1} />
+                    </linearGradient>
+                    <linearGradient id="prevGradient" x1="0" y1="0" x2="1" y2="0">
+                      <stop offset="0%" stopColor="hsl(var(--muted-foreground))" stopOpacity={0.2} />
+                      <stop offset="100%" stopColor="hsl(var(--muted-foreground))" stopOpacity={0.4} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="4 4" stroke="white" horizontal={false} opacity={0.05} />
                   <XAxis
                     type="number"
                     tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 11 }}
@@ -146,48 +231,49 @@ export function MonthlyComparisonChart({ userId, profileId, currentMonth }: Prop
                   <YAxis
                     type="category"
                     dataKey="categoria"
-                    tick={{ fill: 'hsl(var(--foreground))', fontSize: 12, fontWeight: 500 }}
+                    tick={{ fill: 'hsl(var(--foreground))', fontSize: 12, fontWeight: 600 }}
                     axisLine={false}
                     tickLine={false}
-                    width={110}
+                    width={120}
                   />
                   <Tooltip
-                    cursor={{ fill: 'hsl(var(--muted))', opacity: 0.2 }}
+                    cursor={{ fill: 'white', opacity: 0.05 }}
                     formatter={(v: number, name: string) => [fmt(v), name]}
                     contentStyle={{
-                      backgroundColor: 'hsl(var(--card))',
-                      border: '1px solid hsl(var(--border))',
-                      borderRadius: '12px',
-                      color: 'hsl(var(--card-foreground))',
+                      backgroundColor: '#1A1F2C',
+                      border: '1px solid rgba(255,255,255,0.1)',
+                      borderRadius: '16px',
+                      color: 'white',
                       fontSize: '13px',
-                      boxShadow: '0 10px 30px rgba(0,0,0,0.4)',
-                      padding: '10px'
+                      boxShadow: '0 20px 50px rgba(0,0,0,0.5)',
+                      padding: '12px',
+                      backdropFilter: 'blur(10px)'
                     }}
-                    itemStyle={{ padding: '2px 0' }}
-                    labelStyle={{ marginBottom: '5px', fontWeight: 700, color: 'hsl(var(--primary))' }}
+                    itemStyle={{ padding: '4px 0', fontWeight: 500 }}
+                    labelStyle={{ marginBottom: '8px', fontWeight: 800, color: 'hsl(var(--primary))', fontSize: '14px' }}
                   />
                   <Legend
                     verticalAlign="top"
                     align="right"
-                    wrapperStyle={{ paddingBottom: 20 }}
+                    wrapperStyle={{ paddingBottom: 25, paddingTop: 5 }}
+                    iconType="circle"
                     formatter={(value) => (
-                      <span className="text-xs font-medium text-muted-foreground ml-1">{value}</span>
+                      <span className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground ml-1">{value}</span>
                     )}
                   />
                   <Bar 
                     dataKey="anterior" 
                     name={`Gasto em ${prevLabel}`} 
-                    fill="hsl(var(--muted-foreground))" 
-                    radius={[0, 4, 4, 0]} 
-                    opacity={0.3} 
-                    barSize={20}
+                    fill="url(#prevGradient)" 
+                    radius={[0, 6, 6, 0]} 
+                    barSize={18}
                   />
                   <Bar 
                     dataKey="atual" 
                     name={`Gasto em ${curLabel}`} 
-                    fill="hsl(var(--primary))" 
-                    radius={[0, 4, 4, 0]} 
-                    barSize={20}
+                    fill="url(#barGradient)" 
+                    radius={[0, 6, 6, 0]} 
+                    barSize={18}
                   />
                 </BarChart>
               </ResponsiveContainer>
