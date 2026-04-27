@@ -10,6 +10,7 @@ export default defineConfig(({ mode }) => {
   return {
     define: {
       'import.meta.env.VITE_BUILD_ID': JSON.stringify(buildTimestamp),
+      '__BUILD_TIMESTAMP__': JSON.stringify(buildTimestamp),
     },
     server: {
       host: "::",
