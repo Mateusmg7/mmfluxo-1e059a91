@@ -126,7 +126,7 @@ export default function DashboardPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="h-[300px]">
-            <MonthlyEvolutionChart />
+            <MonthlyEvolutionChart userId={user?.id} profileId={activeProfile?.id} currentMonth={currentMonth} />
           </CardContent>
         </Card>
 
