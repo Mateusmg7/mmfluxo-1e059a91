@@ -155,7 +155,7 @@ export default function DashboardPage() {
                 <p className="text-sm text-muted-foreground italic font-medium">Nenhuma atividade recente.</p>
               </div>
             ) : (
-              ultimasAtividades.map((item) => (
+              ultimasAtividades.map((item: any) => (
                 <Card key={item.id} className="card-glass border-none overflow-hidden transition-all duration-300 hover:shadow-md hover:-translate-y-0.5">
                   <CardContent className="p-4 flex items-center justify-between">
                     <div className="flex items-center gap-4">
@@ -169,7 +169,7 @@ export default function DashboardPage() {
                         <p className="text-sm font-semibold tracking-tight">
                           {item.activityType === 'expense' 
                             ? (item.motivo || item.categories?.nome || TIPO_LABELS[item.tipo_despesa])
-                            : (item.motivo || 'Renda Extra')
+                            : (item.origem || 'Renda Extra')
                           }
                         </p>
                         <p className="text-xs text-muted-foreground font-medium">
