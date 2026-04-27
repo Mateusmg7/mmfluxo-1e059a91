@@ -23,7 +23,7 @@ export default defineConfig(({ mode }) => {
       react(),
       mode === "development" && componentTagger(),
       VitePWA({
-        registerType: "autoUpdate",
+        registerType: "immediate",
         devOptions: {
           enabled: false,
         },
