@@ -205,10 +205,20 @@ export function MonthlyComparisonChart({ userId, profileId, currentMonth }: Prop
           </p>
         ) : (
           <>
-            <div className="h-[400px]">
+            <div className="h-[450px] mt-4">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartData} barGap={4} layout="vertical" margin={{ left: 10, right: 30, top: 10, bottom: 10 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" horizontal={false} opacity={0.4} />
+                <BarChart data={chartData} barGap={6} layout="vertical" margin={{ left: 10, right: 30, top: 0, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="barGradient" x1="0" y1="0" x2="1" y2="0">
+                      <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.8} />
+                      <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={1} />
+                    </linearGradient>
+                    <linearGradient id="prevGradient" x1="0" y1="0" x2="1" y2="0">
+                      <stop offset="0%" stopColor="hsl(var(--muted-foreground))" stopOpacity={0.2} />
+                      <stop offset="100%" stopColor="hsl(var(--muted-foreground))" stopOpacity={0.4} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="4 4" stroke="white" horizontal={false} opacity={0.05} />
                   <XAxis
                     type="number"
                     tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 11 }}
@@ -221,48 +231,49 @@ export function MonthlyComparisonChart({ userId, profileId, currentMonth }: Prop
                   <YAxis
                     type="category"
                     dataKey="categoria"
-                    tick={{ fill: 'hsl(var(--foreground))', fontSize: 12, fontWeight: 500 }}
+                    tick={{ fill: 'hsl(var(--foreground))', fontSize: 12, fontWeight: 600 }}
                     axisLine={false}
                     tickLine={false}
-                    width={110}
+                    width={120}
                   />
                   <Tooltip
-                    cursor={{ fill: 'hsl(var(--muted))', opacity: 0.2 }}
+                    cursor={{ fill: 'white', opacity: 0.05 }}
                     formatter={(v: number, name: string) => [fmt(v), name]}
                     contentStyle={{
-                      backgroundColor: 'hsl(var(--card))',
-                      border: '1px solid hsl(var(--border))',
-                      borderRadius: '12px',
-                      color: 'hsl(var(--card-foreground))',
+                      backgroundColor: '#1A1F2C',
+                      border: '1px solid rgba(255,255,255,0.1)',
+                      borderRadius: '16px',
+                      color: 'white',
                       fontSize: '13px',
-                      boxShadow: '0 10px 30px rgba(0,0,0,0.4)',
-                      padding: '10px'
+                      boxShadow: '0 20px 50px rgba(0,0,0,0.5)',
+                      padding: '12px',
+                      backdropFilter: 'blur(10px)'
                     }}
-                    itemStyle={{ padding: '2px 0' }}
-                    labelStyle={{ marginBottom: '5px', fontWeight: 700, color: 'hsl(var(--primary))' }}
+                    itemStyle={{ padding: '4px 0', fontWeight: 500 }}
+                    labelStyle={{ marginBottom: '8px', fontWeight: 800, color: 'hsl(var(--primary))', fontSize: '14px' }}
                   />
                   <Legend
                     verticalAlign="top"
                     align="right"
-                    wrapperStyle={{ paddingBottom: 20 }}
+                    wrapperStyle={{ paddingBottom: 25, paddingTop: 5 }}
+                    iconType="circle"
                     formatter={(value) => (
-                      <span className="text-xs font-medium text-muted-foreground ml-1">{value}</span>
+                      <span className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground ml-1">{value}</span>
                     )}
                   />
                   <Bar 
                     dataKey="anterior" 
                     name={`Gasto em ${prevLabel}`} 
-                    fill="hsl(var(--muted-foreground))" 
-                    radius={[0, 4, 4, 0]} 
-                    opacity={0.3} 
-                    barSize={20}
+                    fill="url(#prevGradient)" 
+                    radius={[0, 6, 6, 0]} 
+                    barSize={18}
                   />
                   <Bar 
                     dataKey="atual" 
                     name={`Gasto em ${curLabel}`} 
-                    fill="hsl(var(--primary))" 
-                    radius={[0, 4, 4, 0]} 
-                    barSize={20}
+                    fill="url(#barGradient)" 
+                    radius={[0, 6, 6, 0]} 
+                    barSize={18}
                   />
                 </BarChart>
               </ResponsiveContainer>
