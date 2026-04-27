@@ -66,96 +66,108 @@ export default function DashboardPage() {
         <MonthSelector />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 animate-fade-up">
-        <Card className="card-glass border-none overflow-hidden relative group">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 animate-fade-up">
+        <Card className="card-glass border-none overflow-hidden relative group hover:shadow-lg transition-all duration-300">
           <CardContent className="pt-6">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Orcamento Mensal</p>
-              <Wallet className="h-4 w-4 text-primary opacity-50" />
-            </div>
-            <p className="text-2xl font-bold">{fmt(orcamento)}</p>
-            <div className="mt-4 space-y-2">
-              <div className="flex items-center justify-between text-[10px] text-muted-foreground font-medium">
-                <span>Progresso do Uso</span>
-                <span>{percentualUsado.toFixed(0)}%</span>
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">Orçamento Mensal</p>
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <Wallet className="h-4 w-4 text-primary" />
               </div>
-              <Progress value={percentualUsado} className="h-1.5" />
+            </div>
+            <p className="text-3xl font-bold tracking-tight">{fmt(orcamento)}</p>
+            <div className="mt-5 space-y-2">
+              <div className="flex items-center justify-between text-xs text-muted-foreground font-medium">
+                <span>Progresso do Uso</span>
+                <span className={percentualUsado > 90 ? 'text-destructive' : 'text-primary'}>
+                  {percentualUsado.toFixed(0)}%
+                </span>
+              </div>
+              <Progress value={percentualUsado} className="h-2" />
             </div>
           </CardContent>
         </Card>
 
-        <Card className="card-glass border-none group">
+        <Card className="card-glass border-none group hover:shadow-lg transition-all duration-300">
           <CardContent className="pt-6">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Gastos Totais</p>
-              <TrendingDown className="h-4 w-4 text-destructive opacity-50" />
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">Gastos Totais</p>
+              <div className="p-2 bg-destructive/10 rounded-lg">
+                <TrendingDown className="h-4 w-4 text-destructive" />
+              </div>
             </div>
-            <p className="text-2xl font-bold text-destructive">{fmt(totalGastos)}</p>
-            <p className="text-[10px] text-muted-foreground mt-1">Total acumulado no mês</p>
+            <p className="text-3xl font-bold text-destructive tracking-tight">{fmt(totalGastos)}</p>
+            <p className="text-xs text-muted-foreground mt-2">Total acumulado no mês</p>
           </CardContent>
         </Card>
 
-        <Card className="card-glass border-none group">
+        <Card className="card-glass border-none group hover:shadow-lg transition-all duration-300">
           <CardContent className="pt-6">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Renda Extra</p>
-              <TrendingUp className="h-4 w-4 text-accent opacity-50" />
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">Renda Extra</p>
+              <div className="p-2 bg-accent/10 rounded-lg">
+                <TrendingUp className="h-4 w-4 text-accent" />
+              </div>
             </div>
-            <p className="text-2xl font-bold text-accent">{fmt(totalRendaExtra)}</p>
-            <p className="text-[10px] text-muted-foreground mt-1">Ganhos adicionais</p>
+            <p className="text-3xl font-bold text-accent tracking-tight">{fmt(totalRendaExtra)}</p>
+            <p className="text-xs text-muted-foreground mt-2">Ganhos adicionais</p>
           </CardContent>
         </Card>
 
-        <Card className="card-glass border-none group">
+        <Card className="card-glass border-none group hover:shadow-lg transition-all duration-300">
           <CardContent className="pt-6">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Saldo Final</p>
-              <div className={`h-2 w-2 rounded-full ${saldo >= 0 ? 'bg-accent' : 'bg-destructive'} animate-pulse`} />
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">Saldo Final</p>
+              <div className={`p-2 ${saldo >= 0 ? 'bg-accent/10' : 'bg-destructive/10'} rounded-lg`}>
+                <div className={`h-2 w-2 rounded-full ${saldo >= 0 ? 'bg-accent' : 'bg-destructive'} animate-pulse`} />
+              </div>
             </div>
-            <p className={`text-2xl font-bold ${saldo >= 0 ? 'text-accent' : 'text-destructive'}`}>{fmt(saldo)}</p>
-            <p className="text-[10px] text-muted-foreground mt-1">Resultado do período</p>
+            <p className={`text-3xl font-bold tracking-tight ${saldo >= 0 ? 'text-accent' : 'text-destructive'}`}>{fmt(saldo)}</p>
+            <p className="text-xs text-muted-foreground mt-2">Resultado do período</p>
           </CardContent>
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-fade-up">
-        <Card className="lg:col-span-2 card-glass border-none">
-          <CardHeader>
-            <CardTitle className="text-sm font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-              <LayoutDashboard className="h-4 w-4" /> Evolução Mensal
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-fade-up">
+        <Card className="lg:col-span-2 card-glass border-none shadow-sm overflow-hidden">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2">
+              <LayoutDashboard className="h-4 w-4 text-primary" /> Evolução Mensal
             </CardTitle>
           </CardHeader>
-          <CardContent className="h-[300px]">
+          <CardContent className="h-[320px] pt-4">
             <MonthlyEvolutionChart userId={user?.id} profileId={activeProfile?.id} currentMonth={currentMonth} />
           </CardContent>
         </Card>
 
-        <div className="space-y-4">
+        <div className="space-y-6">
           <div className="flex items-center justify-between px-1">
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Atividades Recentes</h3>
+            <h3 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">Atividades Recentes</h3>
           </div>
           
-          <div className="grid gap-3">
+          <div className="grid gap-4">
             {ultimosGastos.length === 0 ? (
-              <p className="text-sm text-muted-foreground italic py-4 px-1">Nenhum gasto recente.</p>
+              <div className="bg-muted/30 rounded-xl p-8 border border-dashed border-muted flex flex-col items-center justify-center text-center">
+                <p className="text-sm text-muted-foreground italic font-medium">Nenhum gasto recente.</p>
+              </div>
             ) : (
               ultimosGastos.map((item) => (
-                <Card key={item.id} className="card-glass border-none overflow-hidden transition-all hover:translate-x-1">
+                <Card key={item.id} className="card-glass border-none overflow-hidden transition-all duration-300 hover:shadow-md hover:-translate-y-0.5">
                   <CardContent className="p-4 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className={`h-8 w-8 rounded-full flex items-center justify-center bg-muted/50 ${TIPO_DOT_CLASSES[item.tipo_despesa] ?? 'bg-muted'} bg-opacity-10 text-xs font-bold`}>
+                    <div className="flex items-center gap-4">
+                      <div className={`h-10 w-10 rounded-xl flex items-center justify-center bg-muted/50 ${TIPO_DOT_CLASSES[item.tipo_despesa] ?? 'bg-muted'} bg-opacity-15 text-xs font-bold shadow-inner`}>
                         {TIPO_LABELS[item.tipo_despesa]?.charAt(0)}
                       </div>
                       <div>
-                        <p className="text-sm font-medium">
+                        <p className="text-sm font-semibold tracking-tight">
                           {item.motivo || item.categories?.nome || TIPO_LABELS[item.tipo_despesa]}
                         </p>
-                        <p className="text-[10px] text-muted-foreground">
+                        <p className="text-xs text-muted-foreground font-medium">
                           {format(new Date(`${item.data}T00:00`), 'dd/MM', { locale: ptBR })}
                         </p>
                       </div>
                     </div>
-                    <span className="text-sm font-bold text-destructive">-{fmt(Number(item.valor))}</span>
+                    <span className="text-sm font-bold text-destructive tabular-nums">-{fmt(Number(item.valor))}</span>
                   </CardContent>
                 </Card>
               ))
