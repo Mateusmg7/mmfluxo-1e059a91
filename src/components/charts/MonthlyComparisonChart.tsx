@@ -205,36 +205,36 @@ export function MonthlyComparisonChart({ userId, profileId, currentMonth }: Prop
           </p>
         ) : (
           <>
-            <div className="h-[450px] mt-4">
+            <div className="h-[400px] mt-4">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartData} barGap={6} layout="vertical" margin={{ left: 10, right: 30, top: 0, bottom: 0 }}>
+                <BarChart data={chartData} barGap={8} margin={{ left: 10, right: 10, top: 10, bottom: 20 }}>
                   <defs>
-                    <linearGradient id="barGradient" x1="0" y1="0" x2="1" y2="0">
-                      <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.8} />
-                      <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={1} />
+                    <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={1} />
+                      <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0.7} />
                     </linearGradient>
-                    <linearGradient id="prevGradient" x1="0" y1="0" x2="1" y2="0">
-                      <stop offset="0%" stopColor="hsl(var(--muted-foreground))" stopOpacity={0.2} />
-                      <stop offset="100%" stopColor="hsl(var(--muted-foreground))" stopOpacity={0.4} />
+                    <linearGradient id="prevGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="hsl(var(--muted-foreground))" stopOpacity={0.4} />
+                      <stop offset="100%" stopColor="hsl(var(--muted-foreground))" stopOpacity={0.1} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="4 4" stroke="white" horizontal={false} opacity={0.05} />
+                  <CartesianGrid strokeDasharray="4 4" stroke="white" vertical={false} opacity={0.05} />
                   <XAxis
-                    type="number"
+                    dataKey="categoria"
+                    tick={{ fill: 'hsl(var(--foreground))', fontSize: 11, fontWeight: 600 }}
+                    axisLine={false}
+                    tickLine={false}
+                    interval={0}
+                    height={60}
+                    tickFormatter={(value) => value.length > 10 ? `${value.substring(0, 8)}...` : value}
+                  />
+                  <YAxis
                     tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 11 }}
                     axisLine={false}
                     tickLine={false}
                     tickFormatter={(v) =>
                       v >= 1000 ? `R$${(v / 1000).toFixed(0)}k` : `R$${v}`
                     }
-                  />
-                  <YAxis
-                    type="category"
-                    dataKey="categoria"
-                    tick={{ fill: 'hsl(var(--foreground))', fontSize: 12, fontWeight: 600 }}
-                    axisLine={false}
-                    tickLine={false}
-                    width={120}
                   />
                   <Tooltip
                     cursor={{ fill: 'white', opacity: 0.05 }}
@@ -247,33 +247,34 @@ export function MonthlyComparisonChart({ userId, profileId, currentMonth }: Prop
                       fontSize: '13px',
                       boxShadow: '0 20px 50px rgba(0,0,0,0.5)',
                       padding: '12px',
-                      backdropFilter: 'blur(10px)'
+                      backdropFilter: 'blur(10px)',
+                      zIndex: 50
                     }}
-                    itemStyle={{ padding: '4px 0', fontWeight: 500 }}
+                    itemStyle={{ padding: '2px 0', fontWeight: 500 }}
                     labelStyle={{ marginBottom: '8px', fontWeight: 800, color: 'hsl(var(--primary))', fontSize: '14px' }}
                   />
                   <Legend
                     verticalAlign="top"
                     align="right"
-                    wrapperStyle={{ paddingBottom: 25, paddingTop: 5 }}
+                    wrapperStyle={{ paddingBottom: 25, paddingTop: 0 }}
                     iconType="circle"
                     formatter={(value) => (
-                      <span className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground ml-1">{value}</span>
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">{value}</span>
                     )}
                   />
                   <Bar 
                     dataKey="anterior" 
                     name={`Gasto em ${prevLabel}`} 
                     fill="url(#prevGradient)" 
-                    radius={[0, 6, 6, 0]} 
-                    barSize={18}
+                    radius={[4, 4, 0, 0]} 
+                    barSize={24}
                   />
                   <Bar 
                     dataKey="atual" 
                     name={`Gasto em ${curLabel}`} 
                     fill="url(#barGradient)" 
-                    radius={[0, 6, 6, 0]} 
-                    barSize={18}
+                    radius={[4, 4, 0, 0]} 
+                    barSize={24}
                   />
                 </BarChart>
               </ResponsiveContainer>
