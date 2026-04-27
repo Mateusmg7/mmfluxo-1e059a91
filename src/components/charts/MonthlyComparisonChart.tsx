@@ -186,12 +186,14 @@ export function MonthlyComparisonChart({ userId, profileId, currentMonth }: Prop
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
-                          if (selectedCategories.length > 0 || searchTerm !== "") {
+                          if (selectedCategories.length === allCategoriesList.length) {
                             setSelectedCategories([]);
                             setSearchTerm("");
                             setIsPopoverOpen(false);
                           } else {
                             setSelectedCategories(allCategoriesList);
+                            setSearchTerm("");
+                          }
                           }
                         }}
                       >
