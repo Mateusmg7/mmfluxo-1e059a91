@@ -172,18 +172,18 @@ export function MonthlyComparisonChart({ userId, profileId, currentMonth }: Prop
                     <Button 
                       variant="ghost" 
                       size="sm" 
-                      className="h-auto p-0 text-[10px] hover:bg-transparent text-primary"
+                      className="h-auto p-0 text-[10px] hover:bg-transparent text-primary transition-all active:scale-95"
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
-                        if (selectedCategories.length === allCategoriesList.length) {
+                        if (selectedCategories.length > 0) {
                           setSelectedCategories([]);
                         } else {
                           setSelectedCategories(allCategoriesList);
                         }
                       }}
                     >
-                      {selectedCategories.length === allCategoriesList.length ? 'Limpar' : 'Todos'}
+                      {selectedCategories.length > 0 ? 'Limpar Seleção' : 'Selecionar Tudo'}
                     </Button>
                   </div>
                   <ScrollArea className="h-64">
