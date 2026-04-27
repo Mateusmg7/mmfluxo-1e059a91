@@ -5,7 +5,12 @@ import { componentTagger } from "lovable-tagger";
 import { VitePWA } from "vite-plugin-pwa";
 
 // https://vitejs.dev/config/
-export default defineConfig(({ mode }) => ({
+export default defineConfig(({ mode }) => {
+  const buildTimestamp = Date.now();
+  return {
+    define: {
+      'import.meta.env.VITE_BUILD_ID': JSON.stringify(buildTimestamp),
+    },
   server: {
     host: "::",
     port: 8080,
@@ -73,9 +78,9 @@ export default defineConfig(({ mode }) => ({
   build: {
     rollupOptions: {
       output: {
-        entryFileNames: `assets/[name]-[hash]-${Date.now()}.js`,
-        chunkFileNames: `assets/[name]-[hash]-${Date.now()}.js`,
-        assetFileNames: `assets/[name]-[hash]-${Date.now()}.[ext]`,
+        entryFileNames: `assets/[name]-[hash]-${buildTimestamp}.js`,
+        chunkFileNames: `assets/[name]-[hash]-${buildTimestamp}.js`,
+        assetFileNames: `assets/[name]-[hash]-${buildTimestamp}.[ext]`,
       },
     },
   },
