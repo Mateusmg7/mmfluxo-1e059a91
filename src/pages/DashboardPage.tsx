@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowDownCircle, ArrowUpCircle, Wallet, TrendingUp, TrendingDown, LayoutDashboard } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { MonthlyEvolutionChart } from '@/components/charts/MonthlyEvolutionChart';
+import { MonthlyComparisonChart } from '@/components/charts/MonthlyComparisonChart';
 
 const TIPO_LABELS: Record<string, string> = {
   essencial: 'Essencial',
@@ -129,16 +130,20 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-fade-up">
-        <Card className="lg:col-span-2 card-glass border-none shadow-sm overflow-hidden">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2">
-              <LayoutDashboard className="h-4 w-4 text-primary" /> Evolução Mensal
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="h-[320px] pt-4">
-            <MonthlyEvolutionChart userId={user?.id} profileId={activeProfile?.id} currentMonth={currentMonth} />
-          </CardContent>
-        </Card>
+        <div className="lg:col-span-2 space-y-6">
+          <Card className="card-glass border-none shadow-sm overflow-hidden">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2">
+                <LayoutDashboard className="h-4 w-4 text-primary" /> Evolução Mensal
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="h-[320px] pt-4">
+              <MonthlyEvolutionChart userId={user?.id} profileId={activeProfile?.id} currentMonth={currentMonth} />
+            </CardContent>
+          </Card>
+
+          <MonthlyComparisonChart userId={user?.id} profileId={activeProfile?.id} currentMonth={currentMonth} />
+        </div>
 
         <div className="space-y-6">
           <div className="flex items-center justify-between px-1">
