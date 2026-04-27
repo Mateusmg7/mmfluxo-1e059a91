@@ -131,17 +131,6 @@ export default function DashboardPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-fade-up">
         <div className="lg:col-span-2 space-y-6">
-          <Card className="card-glass border-none shadow-sm overflow-hidden">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2">
-                <LayoutDashboard className="h-4 w-4 text-primary" /> Evolução Mensal
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="h-[320px] pt-4">
-              <MonthlyEvolutionChart userId={user?.id} profileId={activeProfile?.id} currentMonth={currentMonth} />
-            </CardContent>
-          </Card>
-
           <MonthlyComparisonChart userId={user?.id} profileId={activeProfile?.id} currentMonth={currentMonth} />
         </div>
 
