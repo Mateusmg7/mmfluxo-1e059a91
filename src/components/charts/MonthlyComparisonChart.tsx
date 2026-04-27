@@ -221,17 +221,20 @@ export function MonthlyComparisonChart({ userId, profileId, currentMonth }: Prop
                   <CartesianGrid strokeDasharray="4 4" stroke="white" vertical={false} opacity={0.05} />
                   <XAxis
                     dataKey="categoria"
-                    tick={{ fill: 'hsl(var(--foreground))', fontSize: 11, fontWeight: 600 }}
+                    tick={{ fill: 'hsl(var(--foreground))', fontSize: 10, fontWeight: 600 }}
                     axisLine={false}
                     tickLine={false}
                     interval={0}
-                    height={60}
-                    tickFormatter={(value) => value.length > 10 ? `${value.substring(0, 8)}...` : value}
+                    height={70}
+                    angle={-45}
+                    textAnchor="end"
+                    tickFormatter={(value) => value.length > 12 ? `${value.substring(0, 10)}...` : value}
                   />
                   <YAxis
-                    tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 11 }}
+                    tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }}
                     axisLine={false}
                     tickLine={false}
+                    width={45}
                     tickFormatter={(v) =>
                       v >= 1000 ? `R$${(v / 1000).toFixed(0)}k` : `R$${v}`
                     }
@@ -255,9 +258,11 @@ export function MonthlyComparisonChart({ userId, profileId, currentMonth }: Prop
                   />
                   <Legend
                     verticalAlign="top"
-                    align="right"
-                    wrapperStyle={{ paddingBottom: 25, paddingTop: 0 }}
+                    align="center"
+                    layout="horizontal"
+                    wrapperStyle={{ paddingBottom: 35, paddingTop: 0, width: '100%' }}
                     iconType="circle"
+                    iconSize={8}
                     formatter={(value) => (
                       <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">{value}</span>
                     )}
