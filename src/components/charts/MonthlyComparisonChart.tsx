@@ -279,7 +279,23 @@ export function MonthlyComparisonChart({ userId, profileId, currentMonth }: Prop
           </p>
         ) : (
           <>
-            <div className="h-[400px] mt-4">
+            <div className="h-[400px] mt-4 relative">
+              {selectedCategories.length === 0 ? (
+                <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/5 rounded-xl border border-dashed border-white/10 z-10 backdrop-blur-[2px]">
+                  <Filter className="h-10 w-10 text-muted-foreground/30 mb-4" />
+                  <p className="text-sm font-medium text-muted-foreground">Nenhuma categoria selecionada</p>
+                  <p className="text-xs text-muted-foreground/60 mt-1">Use o filtro acima para escolher o que comparar</p>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="mt-4 border-white/10 hover:bg-white/5"
+                    onClick={() => setSelectedCategories(allCategoriesList)}
+                  >
+                    Exibir todas as categorias
+                  </Button>
+                </div>
+              ) : null}
+              
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={chartData} barGap={8} margin={{ left: 10, right: 10, top: 10, bottom: 20 }}>
                   <defs>
