@@ -53,7 +53,17 @@ export default function DashboardPage() {
   const saldo = totalRendaExtra - totalGastos;
   const restante = orcamento - totalGastos;
   const percentualUsado = orcamento > 0 ? Math.min((totalGastos / orcamento) * 100, 100) : 0;
-  const ultimosGastos = transactions.slice(0, 5);
+  const combinedActivities = [
+    ...transactions.map(t => ({ ...t, activityType: 'expense' })),
+    ...extraIncome.map(i => ({ ...i, activityType: 'income' }))
+  ].sort((a, b) => {
+    const dateA = new Date(`${a.data}T00:00`).getTime();
+    const dateB = new Date(`${b.data}T00:00`).getTime();
+    if (dateA !== dateB) return dateB - dateA;
+    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+  });
+
+  const ultimasAtividades = combinedActivities.slice(0, 5);
 
   const fmt = (value: number) => value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
