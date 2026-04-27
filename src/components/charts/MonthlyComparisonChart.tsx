@@ -36,7 +36,7 @@ export function MonthlyComparisonChart({ userId, profileId, currentMonth }: Prop
   const curLabel = format(currentMonth, 'MMM', { locale: ptBR });
   const prevLabel = format(prevMonth, 'MMM', { locale: ptBR });
 
-  const { data: curTx = [] } = useQuery({
+  const { data: curTx = [], isLoading: isLoadingCur, isError: isErrorCur } = useQuery({
     queryKey: qk.comparison.current(profileId, curStart, curEnd),
     queryFn: async () => {
       let q = supabase
@@ -45,13 +45,14 @@ export function MonthlyComparisonChart({ userId, profileId, currentMonth }: Prop
         .gte('data', curStart)
         .lte('data', curEnd);
       if (profileId) q = q.eq('profile_id', profileId);
-      const { data } = await q;
+      const { data, error } = await q;
+      if (error) throw error;
       return data ?? [];
     },
     enabled: !!userId && !!profileId,
   });
 
-  const { data: prevTx = [] } = useQuery({
+  const { data: prevTx = [], isLoading: isLoadingPrev, isError: isErrorPrev } = useQuery({
     queryKey: qk.comparison.previous(profileId, prevStart, prevEnd),
     queryFn: async () => {
       let q = supabase
@@ -60,11 +61,15 @@ export function MonthlyComparisonChart({ userId, profileId, currentMonth }: Prop
         .gte('data', prevStart)
         .lte('data', prevEnd);
       if (profileId) q = q.eq('profile_id', profileId);
-      const { data } = await q;
+      const { data, error } = await q;
+      if (error) throw error;
       return data ?? [];
     },
     enabled: !!userId && !!profileId,
   });
+
+  const isLoading = isLoadingCur || isLoadingPrev;
+  const isError = isErrorCur || isErrorPrev;
 
   // Aggregate by category
   const aggregate = (txs: any[]) => {
