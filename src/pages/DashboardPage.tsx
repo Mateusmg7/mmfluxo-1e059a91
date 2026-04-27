@@ -128,44 +128,46 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-fade-up">
-        <Card className="lg:col-span-2 card-glass border-none">
-          <CardHeader>
-            <CardTitle className="text-sm font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-              <LayoutDashboard className="h-4 w-4" /> Evolução Mensal
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-fade-up">
+        <Card className="lg:col-span-2 card-glass border-none shadow-sm overflow-hidden">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2">
+              <LayoutDashboard className="h-4 w-4 text-primary" /> Evolução Mensal
             </CardTitle>
           </CardHeader>
-          <CardContent className="h-[300px]">
+          <CardContent className="h-[320px] pt-4">
             <MonthlyEvolutionChart userId={user?.id} profileId={activeProfile?.id} currentMonth={currentMonth} />
           </CardContent>
         </Card>
 
-        <div className="space-y-4">
+        <div className="space-y-6">
           <div className="flex items-center justify-between px-1">
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Atividades Recentes</h3>
+            <h3 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">Atividades Recentes</h3>
           </div>
           
-          <div className="grid gap-3">
+          <div className="grid gap-4">
             {ultimosGastos.length === 0 ? (
-              <p className="text-sm text-muted-foreground italic py-4 px-1">Nenhum gasto recente.</p>
+              <div className="bg-muted/30 rounded-xl p-8 border border-dashed border-muted flex flex-col items-center justify-center text-center">
+                <p className="text-sm text-muted-foreground italic font-medium">Nenhum gasto recente.</p>
+              </div>
             ) : (
               ultimosGastos.map((item) => (
-                <Card key={item.id} className="card-glass border-none overflow-hidden transition-all hover:translate-x-1">
+                <Card key={item.id} className="card-glass border-none overflow-hidden transition-all duration-300 hover:shadow-md hover:-translate-y-0.5">
                   <CardContent className="p-4 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className={`h-8 w-8 rounded-full flex items-center justify-center bg-muted/50 ${TIPO_DOT_CLASSES[item.tipo_despesa] ?? 'bg-muted'} bg-opacity-10 text-xs font-bold`}>
+                    <div className="flex items-center gap-4">
+                      <div className={`h-10 w-10 rounded-xl flex items-center justify-center bg-muted/50 ${TIPO_DOT_CLASSES[item.tipo_despesa] ?? 'bg-muted'} bg-opacity-15 text-xs font-bold shadow-inner`}>
                         {TIPO_LABELS[item.tipo_despesa]?.charAt(0)}
                       </div>
                       <div>
-                        <p className="text-sm font-medium">
+                        <p className="text-sm font-semibold tracking-tight">
                           {item.motivo || item.categories?.nome || TIPO_LABELS[item.tipo_despesa]}
                         </p>
-                        <p className="text-[10px] text-muted-foreground">
+                        <p className="text-xs text-muted-foreground font-medium">
                           {format(new Date(`${item.data}T00:00`), 'dd/MM', { locale: ptBR })}
                         </p>
                       </div>
                     </div>
-                    <span className="text-sm font-bold text-destructive">-{fmt(Number(item.valor))}</span>
+                    <span className="text-sm font-bold text-destructive tabular-nums">-{fmt(Number(item.valor))}</span>
                   </CardContent>
                 </Card>
               ))
