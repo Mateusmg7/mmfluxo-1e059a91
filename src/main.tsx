@@ -28,18 +28,10 @@ if (isPreviewHost || isInIframe) {
   });
 } else if ("serviceWorker" in navigator) {
   // Register PWA SW with prompt mode but forcing update
-  const updateSW = registerSW({
+  registerSW({
     onNeedRefresh() {
-      console.log('Nova versão detectada! Forçando atualização e recarregando...');
-      // Directly clear standard caches if possible (optional but aggressive)
-      if ('caches' in window) {
-        caches.keys().then(names => {
-          for (const name of names) {
-            if (name.includes('workbox-precache')) caches.delete(name);
-          }
-        });
-      }
-      updateSW(true);
+      console.log('Nova versão detectada! Recarregando imediatamente...');
+      window.location.reload();
     },
     onOfflineReady() {
       console.log('App pronto para uso offline');
