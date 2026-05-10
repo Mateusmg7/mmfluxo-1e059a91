@@ -1,6 +1,7 @@
 import { MonthSelector } from '@/components/layout/MonthSelector';
 import { fetchTransactionsByPeriod } from '@/services/transactionsService';
 import { fetchExtraIncomeByPeriod } from '@/services/extraIncomeService';
+import { fetchRecurringExpenses } from '@/services/recurringExpensesService';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/contexts/ProfileContext';
 import { useQuery } from '@tanstack/react-query';
@@ -8,7 +9,7 @@ import { qk } from '@/lib/queryKeys';
 import { format, startOfMonth, endOfMonth, isSameMonth } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowDownCircle, ArrowUpCircle, Wallet, TrendingUp, TrendingDown, LayoutDashboard } from 'lucide-react';
+import { ArrowDownCircle, ArrowUpCircle, Wallet, TrendingUp, TrendingDown, LayoutDashboard, Repeat } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { MonthlyEvolutionChart } from '@/components/charts/MonthlyEvolutionChart';
 import { MonthlyComparisonChart } from '@/components/charts/MonthlyComparisonChart';
@@ -47,20 +48,41 @@ export default function DashboardPage() {
     enabled: !!user && !!activeProfile,
   });
 
-  const totalGastos = transactions.reduce((sum, item) => sum + Number(item.valor), 0);
+  const { data: recurringRules = [] } = useQuery({
+    queryKey: qk.recurringExpenses.byProfile(activeProfile?.id),
+    queryFn: () => fetchRecurringExpenses(activeProfile?.id),
+    enabled: !!user && !!activeProfile,
+  });
+
+  // Filtramos apenas as transações que NÃO são recorrentes para evitar duplicidade
+  const manualTransactions = transactions.filter(t => !t.recorrente);
+  const totalGastosManuais = manualTransactions.reduce((sum, item) => sum + Number(item.valor), 0);
+  const totalGastosRecorrentes = recurringRules
+    .filter(r => r.ativo)
+    .reduce((sum, item) => sum + Number(item.valor), 0);
+
+  const totalGastos = totalGastosManuais + totalGastosRecorrentes;
   const totalRendaExtra = extraIncome.reduce((sum, item) => sum + Number(item.valor), 0);
   const orcamento = Number(activeProfile?.orcamento_mensal ?? 0);
   const saldo = totalRendaExtra - totalGastos;
   const restante = orcamento - totalGastos;
   const percentualUsado = orcamento > 0 ? Math.min((totalGastos / orcamento) * 100, 100) : 0;
+  
   const combinedActivities = [
-    ...transactions.map(t => ({ ...t, activityType: 'expense' })),
+    ...manualTransactions.map(t => ({ ...t, activityType: 'expense' })),
+    ...recurringRules.filter(r => r.ativo).map(r => ({ 
+      ...r, 
+      id: `rec-${r.id}`, 
+      data: format(new Date(currentMonth.getFullYear(), currentMonth.getMonth(), r.dia_vencimento), 'yyyy-MM-dd'),
+      activityType: 'expense',
+      isRecurringRule: true 
+    })),
     ...extraIncome.map(i => ({ ...i, activityType: 'income' }))
   ].sort((a, b) => {
     const dateA = new Date(`${a.data}T00:00`).getTime();
     const dateB = new Date(`${b.data}T00:00`).getTime();
     if (dateA !== dateB) return dateB - dateA;
-    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
   });
 
   const ultimasAtividades = combinedActivities.slice(0, 5);
@@ -168,9 +190,14 @@ export default function DashboardPage() {
                       <div>
                         <p className="text-sm font-semibold tracking-tight">
                           {item.activityType === 'expense' 
-                            ? (item.motivo || item.categories?.nome || TIPO_LABELS[item.tipo_despesa])
+                            ? (item.nome || item.motivo || item.categories?.nome || TIPO_LABELS[item.tipo_despesa])
                             : (item.origem || 'Renda Extra')
                           }
+                          {item.isRecurringRule && (
+                            <span className="ml-2 inline-flex items-center">
+                              <Repeat size={10} className="text-primary" />
+                            </span>
+                          )}
                         </p>
                         <p className="text-xs text-muted-foreground font-medium">
                           {format(new Date(`${item.data}T00:00`), 'dd/MM', { locale: ptBR })}
