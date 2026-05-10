@@ -11,9 +11,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { Sun, Moon, Wallet } from 'lucide-react';
+import { Sun, Moon } from 'lucide-react';
 import { toast } from 'sonner';
-import { CurrencyInput } from '@/components/CurrencyInput';
 
 export default function ConfiguracoesPage() {
   const { user } = useAuth();
@@ -35,9 +34,7 @@ export default function ConfiguracoesPage() {
   const [email, setEmail] = useState('');
   const [mesInicio, setMesInicio] = useState('1');
   const [fuso, setFuso] = useState('America/Sao_Paulo');
-  const [orcamento, setOrcamento] = useState('');
   const [isSaving, setIsSaving] = useState(false);
-  const [isSavingBudget, setIsSavingBudget] = useState(false);
 
   useEffect(() => {
     if (profile) {
@@ -48,11 +45,6 @@ export default function ConfiguracoesPage() {
     }
   }, [profile]);
 
-  useEffect(() => {
-    if (activeProfile) {
-      setOrcamento(activeProfile.orcamento_mensal ? String(activeProfile.orcamento_mensal) : '');
-    }
-  }, [activeProfile]);
 
   const handleSave = async () => {
     if (!user) return;
@@ -72,22 +64,6 @@ export default function ConfiguracoesPage() {
     qc.invalidateQueries({ queryKey: qk.profile });
   };
 
-  const handleSaveBudget = async () => {
-    if (!activeProfile) return;
-    setIsSavingBudget(true);
-    const valor = orcamento ? parseFloat(orcamento) : 0;
-    const { error } = await supabase.from('financial_profiles').update({
-      orcamento_mensal: valor,
-    }).eq('id', activeProfile.id);
-    
-    setIsSavingBudget(false);
-    if (error) { 
-      toast.error(error.message); 
-      return; 
-    }
-    toast.success('Orçamento atualizado');
-    qc.invalidateQueries({ queryKey: qk.financialProfiles });
-  };
 
   if (isLoading) {
     return (
@@ -104,34 +80,7 @@ export default function ConfiguracoesPage() {
         <p className="text-muted-foreground text-sm">Ajuste seu perfil e preferências</p>
       </div>
 
-      <Card className="card-glass overflow-hidden">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base flex items-center gap-2">
-            <Wallet size={18} className="text-primary" /> 
-            Orçamento Mensal
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <p className="text-xs text-muted-foreground bg-muted/30 p-3 rounded-lg border border-muted">
-            Defina um teto de gastos para o perfil <strong>{activeProfile?.icon} {activeProfile?.name}</strong>. O valor restante será exibido no Dashboard.
-          </p>
-          <div className="flex gap-2">
-            <CurrencyInput
-              value={orcamento}
-              onChange={setOrcamento}
-              placeholder="Ex: 3.000,00"
-              className="flex-1"
-            />
-            <Button 
-              onClick={handleSaveBudget} 
-              size="sm" 
-              disabled={isSavingBudget}
-            >
-              {isSavingBudget ? 'Salvando...' : 'Salvar'}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+// Orçamento Mensal removido para ser gerenciado apenas no Dashboard
 
       <Card className="card-glass">
         <CardHeader className="pb-3">
