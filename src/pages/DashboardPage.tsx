@@ -2,15 +2,22 @@ import { MonthSelector } from '@/components/layout/MonthSelector';
 import { fetchTransactionsByPeriod } from '@/services/transactionsService';
 import { fetchExtraIncomeByPeriod } from '@/services/extraIncomeService';
 import { fetchRecurringExpenses } from '@/services/recurringExpensesService';
+import { fetchMonthlyBudget, upsertMonthlyBudget } from '@/services/budgetService';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/contexts/ProfileContext';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { qk } from '@/lib/queryKeys';
 import { format, startOfMonth, endOfMonth, isSameMonth } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowDownCircle, ArrowUpCircle, Wallet, TrendingUp, TrendingDown, LayoutDashboard, Repeat } from 'lucide-react';
+import { ArrowDownCircle, ArrowUpCircle, Wallet, TrendingUp, TrendingDown, LayoutDashboard, Repeat, Plus } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 import { MonthlyEvolutionChart } from '@/components/charts/MonthlyEvolutionChart';
 // MonthlyComparisonChart removido daqui e mantido apenas em Relatórios
 
@@ -31,10 +38,32 @@ const TIPO_DOT_CLASSES: Record<string, string> = {
 export default function DashboardPage() {
   const { user } = useAuth();
   const { activeProfile, currentMonth } = useProfile();
+  const qc = useQueryClient();
+  const [isBudgetDialogOpen, setIsBudgetDialogOpen] = useState(false);
+  const [budgetAmount, setBudgetAmount] = useState('');
   const now = new Date();
 
   const monthStart = format(startOfMonth(currentMonth), 'yyyy-MM-dd');
   const monthEnd = format(endOfMonth(currentMonth), 'yyyy-MM-dd');
+  const monthKey = format(startOfMonth(currentMonth), 'yyyy-MM-dd');
+
+  const { data: monthlyBudgetData } = useQuery({
+    queryKey: qk.monthlyBudget.byProfileAndMonth(activeProfile?.id, monthKey),
+    queryFn: () => fetchMonthlyBudget(activeProfile?.id, currentMonth),
+    enabled: !!activeProfile,
+  });
+
+  const updateBudgetMutation = useMutation({
+    mutationFn: (amount: number) => upsertMonthlyBudget(activeProfile!.id, currentMonth, amount),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: qk.monthlyBudget.byProfileAndMonth(activeProfile?.id, monthKey) });
+      setIsBudgetDialogOpen(false);
+      toast.success('Orçamento atualizado!');
+    },
+    onError: (error: any) => {
+      toast.error('Erro ao atualizar orçamento: ' + error.message);
+    }
+  });
 
   const { data: transactions = [] } = useQuery({
     queryKey: qk.transactions.byPeriod(activeProfile?.id, monthStart, monthEnd),
@@ -63,10 +92,30 @@ export default function DashboardPage() {
 
   const totalGastos = totalGastosManuais + totalGastosRecorrentes;
   const totalRendaExtra = extraIncome.reduce((sum, item) => sum + Number(item.valor), 0);
-  const orcamento = Number(activeProfile?.orcamento_mensal ?? 0);
+  
+  // Usar orçamento mensal histórico se existir, senão usar o do perfil (fallback)
+  const orcamento = monthlyBudgetData ? Number(monthlyBudgetData.amount) : Number(activeProfile?.orcamento_mensal ?? 0);
+  
   const saldo = totalRendaExtra - totalGastos;
   const restante = orcamento - totalGastos;
   const percentualUsado = orcamento > 0 ? Math.min((totalGastos / orcamento) * 100, 100) : 0;
+
+  useEffect(() => {
+    if (monthlyBudgetData) {
+      setBudgetAmount(monthlyBudgetData.amount.toString());
+    } else if (activeProfile?.orcamento_mensal) {
+      setBudgetAmount(activeProfile.orcamento_mensal.toString());
+    }
+  }, [monthlyBudgetData, activeProfile]);
+
+  const handleSaveBudget = () => {
+    const amount = parseFloat(budgetAmount);
+    if (isNaN(amount)) {
+      toast.error('Informe um valor válido');
+      return;
+    }
+    updateBudgetMutation.mutate(amount);
+  };
   
   const combinedActivities = [
     ...manualTransactions.map(t => ({ ...t, activityType: 'expense' })),
@@ -100,24 +149,39 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 animate-fade-up">
-        <Card className="card-glass border-none overflow-hidden relative group hover:shadow-lg transition-all duration-300">
+        <Card 
+          className="card-glass border-none overflow-hidden relative group hover:shadow-lg transition-all duration-300 cursor-pointer"
+          onClick={() => setIsBudgetDialogOpen(true)}
+        >
           <CardContent className="pt-6">
             <div className="flex items-center justify-between mb-3">
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">Orçamento Mensal</p>
-              <div className="p-2 bg-primary/10 rounded-lg">
+              <div className="p-2 bg-primary/10 rounded-lg group-hover:bg-primary/20 transition-colors">
                 <Wallet className="h-4 w-4 text-primary" />
               </div>
             </div>
-            <p className="text-3xl font-bold tracking-tight">{fmt(orcamento)}</p>
-            <div className="mt-5 space-y-2">
-              <div className="flex items-center justify-between text-xs text-muted-foreground font-medium">
-                <span>Progresso do Uso</span>
-                <span className={percentualUsado > 90 ? 'text-destructive' : 'text-primary'}>
-                  {percentualUsado.toFixed(0)}%
-                </span>
+            
+            {orcamento > 0 ? (
+              <>
+                <p className="text-3xl font-bold tracking-tight">{fmt(orcamento)}</p>
+                <div className="mt-5 space-y-2">
+                  <div className="flex items-center justify-between text-xs text-muted-foreground font-medium">
+                    <span>Progresso do Uso</span>
+                    <span className={percentualUsado > 90 ? 'text-destructive' : 'text-primary'}>
+                      {percentualUsado.toFixed(0)}%
+                    </span>
+                  </div>
+                  <Progress value={percentualUsado} className="h-2" />
+                </div>
+              </>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-4 space-y-2">
+                <p className="text-sm text-muted-foreground">Sem orçamento definido</p>
+                <Button size="sm" variant="outline" className="w-full">
+                  <Plus size={14} className="mr-1" /> Definir Orçamento
+                </Button>
               </div>
-              <Progress value={percentualUsado} className="h-2" />
-            </div>
+            )}
           </CardContent>
         </Card>
 
@@ -214,6 +278,32 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
+
+      <Dialog open={isBudgetDialogOpen} onOpenChange={setIsBudgetDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Definir Orçamento para {format(currentMonth, 'MMMM/yyyy', { locale: ptBR })}</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="amount">Valor do Orçamento</Label>
+              <Input
+                id="amount"
+                type="number"
+                placeholder="0,00"
+                value={budgetAmount}
+                onChange={(e) => setBudgetAmount(e.target.value)}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsBudgetDialogOpen(false)}>Cancelar</Button>
+            <Button onClick={handleSaveBudget} disabled={updateBudgetMutation.isPending}>
+              {updateBudgetMutation.isPending ? 'Salvando...' : 'Salvar Orçamento'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

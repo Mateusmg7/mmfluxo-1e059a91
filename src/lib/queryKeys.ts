@@ -83,4 +83,10 @@ export const qk = {
     previous: (profileId: string | null | undefined, start: string, end: string) =>
       ['transactions', 'comparison-prev', start, end, profileId ?? null] as const,
   },
+
+  // 💰 Orçamento Mensal (histórico)
+  monthlyBudget: {
+    byProfileAndMonth: (profileId: string | null | undefined, monthDate: string) =>
+      ['monthly_budget', profileId ?? null, monthDate] as const,
+  },
 } as const;

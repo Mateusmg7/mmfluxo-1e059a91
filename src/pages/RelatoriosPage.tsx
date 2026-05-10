@@ -9,6 +9,7 @@ import {
   fetchAllExtraIncomeByPeriod,
 } from '@/services/extraIncomeService';
 import { fetchGoals } from '@/services/goalsService';
+import { fetchMonthlyBudget } from '@/services/budgetService';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/contexts/ProfileContext';
 import { useQuery } from '@tanstack/react-query';
@@ -56,6 +57,7 @@ export default function RelatoriosPage() {
   const now = new Date();
   const monthStart = format(startOfMonth(currentMonth), 'yyyy-MM-dd');
   const monthEnd = format(endOfMonth(currentMonth), 'yyyy-MM-dd');
+  const monthKey = format(startOfMonth(currentMonth), 'yyyy-MM-dd');
 
   // Month navigation removed as it's now in MonthSelector context
   const isCurrentMonth = isSameMonth(currentMonth, now);
@@ -87,6 +89,12 @@ export default function RelatoriosPage() {
     queryKey: qk.goals.byProfile(activeProfile?.id),
     queryFn: () => fetchGoals(activeProfile?.id),
     enabled: !!user && !!activeProfile,
+  });
+
+  const { data: monthlyBudgetData } = useQuery({
+    queryKey: qk.monthlyBudget.byProfileAndMonth(activeProfile?.id, monthKey),
+    queryFn: () => fetchMonthlyBudget(activeProfile?.id, currentMonth),
+    enabled: !!activeProfile,
   });
 
   // All-profile queries (for Comparativo tab)
@@ -237,9 +245,10 @@ export default function RelatoriosPage() {
 
         {/* ===== VISÃO GERAL ===== */}
         <TabsContent value="visao-geral" className="space-y-6">
-          {/* Budget card */}
-          {activeProfile && activeProfile.orcamento_mensal > 0 && (() => {
-            const orcamento = activeProfile.orcamento_mensal;
+          {activeProfile && (() => {
+            const orcamento = monthlyBudgetData ? Number(monthlyBudgetData.amount) : Number(activeProfile.orcamento_mensal ?? 0);
+            if (orcamento <= 0) return null;
+            
             const restante = orcamento - totalDespesas;
             const pct = Math.min((totalDespesas / orcamento) * 100, 100);
             const estourou = restante < 0;
