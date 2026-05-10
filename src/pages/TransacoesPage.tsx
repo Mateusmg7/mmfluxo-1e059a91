@@ -347,7 +347,7 @@ export default function TransacoesPage() {
             </div>
             <Dialog open={dialogOpen} onOpenChange={(o) => { setDialogOpen(o); if (!o) { resetForm(); qc.invalidateQueries({ queryKey: qk.transactions.all }); } }}>
               <DialogTrigger asChild>
-                <Button><Plus size={16} className="mr-2" />Adicionar gasto</Button>
+                <Button><Plus size={16} className="mr-2" />Adicionar Compra</Button>
               </DialogTrigger>
               <DialogContent className="bg-card border-border">
                 <DialogHeader>
