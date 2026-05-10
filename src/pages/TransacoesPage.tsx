@@ -148,6 +148,34 @@ export default function TransacoesPage() {
     return 0;
   });
 
+  const parcelasFiltered = transactions.filter((t: any) => {
+    if (!t.total_parcelas) return false;
+    if (filtroTipo !== 'todos' && t.tipo_despesa !== filtroTipo) return false;
+    if (filtroCategoria !== 'todas' && t.category_id !== filtroCategoria) return false;
+    const v = Number(t.valor);
+    if (minNum !== null && !isNaN(minNum) && v < minNum) return false;
+    if (maxNum !== null && !isNaN(maxNum) && v > maxNum) return false;
+    if (buscaNorm) {
+      const texto = normalizar(`${t.motivo ?? ''} ${t.categories?.nome ?? ''}`);
+      if (!texto.includes(buscaNorm)) return false;
+    }
+    return true;
+  }).sort((a: any, b: any) => {
+    const [campo, dir] = ordem.split('-');
+    const mult = dir === 'asc' ? 1 : -1;
+    if (campo === 'data') {
+      const cmp = a.data.localeCompare(b.data) || a.hora.localeCompare(b.hora);
+      return cmp * mult;
+    }
+    if (campo === 'valor') return (Number(a.valor) - Number(b.valor)) * mult;
+    if (campo === 'nome') {
+      const nA = (a.motivo || a.categories?.nome || '').toLowerCase();
+      const nB = (b.motivo || b.categories?.nome || '').toLowerCase();
+      return nA.localeCompare(nB) * mult;
+    }
+    return 0;
+  });
+
   const filtrosAtivos =
     (busca ? 1 : 0) +
     (filtroTipo !== 'todos' ? 1 : 0) +
