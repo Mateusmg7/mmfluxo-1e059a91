@@ -425,7 +425,7 @@ export default function RecorrentesPage() {
               />
             </div>
 
-            {!isNewRule && (
+            {editId && (
               <div className="flex items-center justify-between rounded-lg border border-border p-3">
                 <div>
                   <Label className="cursor-pointer">Ativa</Label>
