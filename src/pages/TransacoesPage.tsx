@@ -627,6 +627,91 @@ export default function TransacoesPage() {
           />
         </TabsContent>
 
+        {/* ===== ABA PARCELAS ===== */}
+        <TabsContent value="parcelas" className="space-y-6 mt-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-1">
+              <Button variant="ghost" size="icon" onClick={goToPrevMonth} className="h-8 w-8">
+                <ChevronLeft size={18} />
+              </Button>
+              <span className="text-sm font-medium capitalize min-w-[140px] text-center">
+                {format(currentMonth, "MMMM 'de' yyyy", { locale: ptBR })}
+              </span>
+              {!isCurrentMonth && (
+                <Button variant="outline" size="sm" onClick={goToCurrentMonth} className="h-8 text-xs px-2">
+                  Hoje
+                </Button>
+              )}
+              <Button variant="ghost" size="icon" onClick={goToNextMonth} className="h-8 w-8">
+                <ChevronRight size={18} />
+              </Button>
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <div className="flex flex-wrap gap-2 items-center">
+              <div className="relative flex-1 min-w-[200px]">
+                <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+                <Input
+                  value={busca}
+                  onChange={(e) => setBusca(e.target.value)}
+                  placeholder="Buscar parcelas..."
+                  className="pl-9 pr-9"
+                />
+              </div>
+            </div>
+          </div>
+
+          <Card className="card-glass">
+            <CardContent className="py-4">
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">Total de parcelas (mês)</span>
+                <span className="text-xl font-bold text-destructive">
+                  {fmt(parcelasFiltered.reduce((s, t) => s + Number(t.valor), 0))}
+                </span>
+              </div>
+            </CardContent>
+          </Card>
+
+          <div className="space-y-2">
+            {parcelasFiltered.length === 0 && (
+              <div className="text-center py-12">
+                <p className="text-muted-foreground">Nenhuma parcela neste mês.</p>
+              </div>
+            )}
+            {parcelasFiltered.map((t: any) => (
+              <Card key={t.id} className="card-glass">
+                <CardContent className="py-3 flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div
+                      className="w-3 h-3 rounded-full flex-shrink-0"
+                      style={{ backgroundColor: TIPO_COLORS[t.tipo_despesa] ?? '#0C5BA8' }}
+                    />
+                    <div className="min-w-0">
+                      <p className="font-medium truncate">{getLabel(t)}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {format(new Date(t.data + 'T00:00'), 'dd/MM', { locale: ptBR })} · {t.hora} · {TIPO_LABELS[t.tipo_despesa] ?? 'Essencial'}
+                        {t.categories?.nome ? ` · ${t.categories.nome}` : ''}
+                        {t.total_parcelas ? ` · 💳 ${t.parcela_atual}/${t.total_parcelas}` : ''}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 flex-shrink-0">
+                    <p className="font-semibold text-destructive">{fmt(Number(t.valor))}</p>
+                    <div className="flex gap-1">
+                      <button onClick={() => handleEdit(t)} className="p-1.5 rounded hover:bg-secondary text-muted-foreground">
+                        <Pencil size={14} />
+                      </button>
+                      <button onClick={() => confirmDelete(t.id)} className="p-1.5 rounded hover:bg-secondary text-muted-foreground hover:text-destructive">
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
         {/* ===== ABA AUTOMÁTICAS ===== */}
         <TabsContent value="automaticas" className="mt-4">
           <RecurringSection />
