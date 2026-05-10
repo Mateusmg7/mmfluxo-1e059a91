@@ -121,6 +121,7 @@ export default function TransacoesPage() {
 
   const filtered = transactions.filter((t: any) => {
     if (t.recorrente) return false;
+    if (t.total_parcelas) return false; // Move parcelas para outra aba
     if (filtroTipo !== 'todos' && t.tipo_despesa !== filtroTipo) return false;
     if (filtroCategoria !== 'todas' && t.category_id !== filtroCategoria) return false;
     const v = Number(t.valor);
