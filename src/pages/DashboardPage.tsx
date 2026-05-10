@@ -93,11 +93,10 @@ export default function DashboardPage() {
   const totalGastos = totalGastosManuais + totalGastosRecorrentes;
   const totalRendaExtra = extraIncome.reduce((sum, item) => sum + Number(item.valor), 0);
   
-  // Usar orçamento mensal histórico se existir, senão usar o do perfil (fallback apenas para o mês atual)
-  const isCurrentMonthActual = isSameMonth(currentMonth, now);
+  // Usar orçamento mensal histórico se existir
   const orcamento = monthlyBudgetData 
     ? Number(monthlyBudgetData.amount) 
-    : (isCurrentMonthActual ? Number(activeProfile?.orcamento_mensal ?? 0) : 0);
+    : 0;
   
   const saldo = totalRendaExtra - totalGastos;
   const restante = orcamento - totalGastos;
@@ -106,10 +105,10 @@ export default function DashboardPage() {
   useEffect(() => {
     if (monthlyBudgetData) {
       setBudgetAmount(monthlyBudgetData.amount.toString());
-    } else if (activeProfile?.orcamento_mensal) {
-      setBudgetAmount(activeProfile.orcamento_mensal.toString());
+    } else {
+      setBudgetAmount('');
     }
-  }, [monthlyBudgetData, activeProfile]);
+  }, [monthlyBudgetData]);
 
   const handleSaveBudget = () => {
     const amount = parseFloat(budgetAmount);
@@ -179,11 +178,11 @@ export default function DashboardPage() {
               </>
             ) : (
               <div className="flex flex-col items-center justify-center py-4 space-y-3">
-                <p className="text-sm text-muted-foreground">Sem orçamento definido</p>
+                <p className="text-sm text-destructive font-semibold">Defina o orçamento de {format(currentMonth, 'MMMM', { locale: ptBR })}</p>
                 <Button 
                   size="sm" 
                   variant="default" 
-                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm"
+                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm animate-pulse"
                   onClick={(e) => {
                     e.stopPropagation();
                     setIsBudgetDialogOpen(true);
