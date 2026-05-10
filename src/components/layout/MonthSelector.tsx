@@ -71,16 +71,14 @@ export function MonthSelector() {
         </Button>
       </div>
 
-      {!isCurrentMonth && (
-        <Button 
-          variant="outline" 
-          size="sm" 
-          onClick={goToToday} 
-          className="h-8 px-2 text-xs hidden sm:flex"
-        >
-          Hoje
-        </Button>
-      )}
+      <Button 
+        variant="outline" 
+        size="sm" 
+        onClick={goToToday} 
+        className="h-8 px-3 text-xs flex items-center gap-1.5 font-medium border-primary/20 hover:border-primary/50 transition-colors"
+      >
+        Hoje
+      </Button>
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { MonthSelector } from '@/components/layout/MonthSelector';
 import { ConfirmDeleteDialog } from '@/components/dialogs/ConfirmDeleteDialog';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/contexts/ProfileContext';
@@ -70,10 +71,8 @@ export default function TransacoesPage() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
-  const goToPrevMonth = () => setCurrentMonth(prev => subMonths(prev, 1));
-  const goToNextMonth = () => setCurrentMonth(prev => addMonths(prev, 1));
-  const goToCurrentMonth = () => setCurrentMonth(new Date());
-  const isCurrentMonth = isSameMonth(currentMonth, now);
+  // Navigation is now handled by MonthSelector via context
+
 
   const start = format(startOfMonth(currentMonth), 'yyyy-MM-dd');
   const end = format(endOfMonth(currentMonth), 'yyyy-MM-dd');
@@ -329,22 +328,7 @@ export default function TransacoesPage() {
         {/* ===== ABA GASTOS (COMPRAS ÚNICAS) ===== */}
         <TabsContent value="gastos" className="space-y-6 mt-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-1">
-              <Button variant="ghost" size="icon" onClick={goToPrevMonth} className="h-8 w-8">
-                <ChevronLeft size={18} />
-              </Button>
-              <span className="text-sm font-medium capitalize min-w-[140px] text-center">
-                {format(currentMonth, "MMMM 'de' yyyy", { locale: ptBR })}
-              </span>
-              {!isCurrentMonth && (
-                <Button variant="outline" size="sm" onClick={goToCurrentMonth} className="h-8 text-xs px-2">
-                  Hoje
-                </Button>
-              )}
-              <Button variant="ghost" size="icon" onClick={goToNextMonth} className="h-8 w-8">
-                <ChevronRight size={18} />
-              </Button>
-            </div>
+            <MonthSelector />
             <Dialog open={dialogOpen} onOpenChange={(o) => { setDialogOpen(o); if (!o) { resetForm(); qc.invalidateQueries({ queryKey: qk.transactions.all }); } }}>
               <DialogTrigger asChild>
                 <Button><Plus size={16} className="mr-2" />Adicionar Compra</Button>
@@ -624,22 +608,7 @@ export default function TransacoesPage() {
         {/* ===== ABA PARCELAS ===== */}
         <TabsContent value="parcelas" className="space-y-6 mt-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-1">
-              <Button variant="ghost" size="icon" onClick={goToPrevMonth} className="h-8 w-8">
-                <ChevronLeft size={18} />
-              </Button>
-              <span className="text-sm font-medium capitalize min-w-[140px] text-center">
-                {format(currentMonth, "MMMM 'de' yyyy", { locale: ptBR })}
-              </span>
-              {!isCurrentMonth && (
-                <Button variant="outline" size="sm" onClick={goToCurrentMonth} className="h-8 text-xs px-2">
-                  Hoje
-                </Button>
-              )}
-              <Button variant="ghost" size="icon" onClick={goToNextMonth} className="h-8 w-8">
-                <ChevronRight size={18} />
-              </Button>
-            </div>
+            <MonthSelector />
             <div className="flex items-center gap-2">
               <Button onClick={() => {
                 resetForm();
