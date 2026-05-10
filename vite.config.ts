@@ -23,6 +23,16 @@ export default defineConfig(({ mode }) => {
     plugins: [
       react(),
       mode === "development" && componentTagger(),
+      {
+        name: 'generate-version-json',
+        buildStart() {
+          const version = { version: buildTimestamp };
+          if (!fs.existsSync('public')) {
+            fs.mkdirSync('public');
+          }
+          fs.writeFileSync('public/version.json', JSON.stringify(version));
+        }
+      },
       VitePWA({
         registerType: "autoUpdate",
         devOptions: {
