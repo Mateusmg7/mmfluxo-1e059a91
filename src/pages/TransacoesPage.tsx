@@ -121,6 +121,35 @@ export default function TransacoesPage() {
 
   const filtered = transactions.filter((t: any) => {
     if (t.recorrente) return false;
+    if (t.total_parcelas) return false; // Move parcelas para outra aba
+    if (filtroTipo !== 'todos' && t.tipo_despesa !== filtroTipo) return false;
+    if (filtroCategoria !== 'todas' && t.category_id !== filtroCategoria) return false;
+    const v = Number(t.valor);
+    if (minNum !== null && !isNaN(minNum) && v < minNum) return false;
+    if (maxNum !== null && !isNaN(maxNum) && v > maxNum) return false;
+    if (buscaNorm) {
+      const texto = normalizar(`${t.motivo ?? ''} ${t.categories?.nome ?? ''}`);
+      if (!texto.includes(buscaNorm)) return false;
+    }
+    return true;
+  }).sort((a: any, b: any) => {
+    const [campo, dir] = ordem.split('-');
+    const mult = dir === 'asc' ? 1 : -1;
+    if (campo === 'data') {
+      const cmp = a.data.localeCompare(b.data) || a.hora.localeCompare(b.hora);
+      return cmp * mult;
+    }
+    if (campo === 'valor') return (Number(a.valor) - Number(b.valor)) * mult;
+    if (campo === 'nome') {
+      const nA = (a.motivo || a.categories?.nome || '').toLowerCase();
+      const nB = (b.motivo || b.categories?.nome || '').toLowerCase();
+      return nA.localeCompare(nB) * mult;
+    }
+    return 0;
+  });
+
+  const parcelasFiltered = transactions.filter((t: any) => {
+    if (!t.total_parcelas) return false;
     if (filtroTipo !== 'todos' && t.tipo_despesa !== filtroTipo) return false;
     if (filtroCategoria !== 'todas' && t.category_id !== filtroCategoria) return false;
     const v = Number(t.valor);
@@ -284,19 +313,20 @@ export default function TransacoesPage() {
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold">Gastos</h2>
-        <p className="text-muted-foreground text-sm">Gerencie seus gastos e recorrentes</p>
+        <p className="text-muted-foreground text-sm">Gerencie seus gastos, parcelas e recorrentes</p>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="w-full sm:w-auto">
-          <TabsTrigger value="gastos" className="flex-1 sm:flex-auto">Gastos</TabsTrigger>
+          <TabsTrigger value="gastos" className="flex-1 sm:flex-auto">Compras Únicas</TabsTrigger>
+          <TabsTrigger value="parcelas" className="flex-1 sm:flex-auto">Parcelas</TabsTrigger>
           <TabsTrigger value="automaticas" className="flex-1 sm:flex-auto gap-1">
             <Repeat size={14} />
             Recorrentes
           </TabsTrigger>
         </TabsList>
 
-        {/* ===== ABA GASTOS ===== */}
+        {/* ===== ABA GASTOS (COMPRAS ÚNICAS) ===== */}
         <TabsContent value="gastos" className="space-y-6 mt-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-1">
@@ -589,12 +619,92 @@ export default function TransacoesPage() {
               </Card>
             ))}
           </div>
-          <ConfirmDeleteDialog
-            open={deleteDialogOpen}
-            onOpenChange={setDeleteDialogOpen}
-            onConfirm={handleDelete}
-            description="Tem certeza que deseja excluir este gasto? Esta ação não pode ser desfeita."
-          />
+        </TabsContent>
+
+        {/* ===== ABA PARCELAS ===== */}
+        <TabsContent value="parcelas" className="space-y-6 mt-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-1">
+              <Button variant="ghost" size="icon" onClick={goToPrevMonth} className="h-8 w-8">
+                <ChevronLeft size={18} />
+              </Button>
+              <span className="text-sm font-medium capitalize min-w-[140px] text-center">
+                {format(currentMonth, "MMMM 'de' yyyy", { locale: ptBR })}
+              </span>
+              {!isCurrentMonth && (
+                <Button variant="outline" size="sm" onClick={goToCurrentMonth} className="h-8 text-xs px-2">
+                  Hoje
+                </Button>
+              )}
+              <Button variant="ghost" size="icon" onClick={goToNextMonth} className="h-8 w-8">
+                <ChevronRight size={18} />
+              </Button>
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <div className="flex flex-wrap gap-2 items-center">
+              <div className="relative flex-1 min-w-[200px]">
+                <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+                <Input
+                  value={busca}
+                  onChange={(e) => setBusca(e.target.value)}
+                  placeholder="Buscar parcelas..."
+                  className="pl-9 pr-9"
+                />
+              </div>
+            </div>
+          </div>
+
+          <Card className="card-glass">
+            <CardContent className="py-4">
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">Total de parcelas (mês)</span>
+                <span className="text-xl font-bold text-destructive">
+                  {fmt(parcelasFiltered.reduce((s, t) => s + Number(t.valor), 0))}
+                </span>
+              </div>
+            </CardContent>
+          </Card>
+
+          <div className="space-y-2">
+            {parcelasFiltered.length === 0 && (
+              <div className="text-center py-12">
+                <p className="text-muted-foreground">Nenhuma parcela neste mês.</p>
+              </div>
+            )}
+            {parcelasFiltered.map((t: any) => (
+              <Card key={t.id} className="card-glass">
+                <CardContent className="py-3 flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div
+                      className="w-3 h-3 rounded-full flex-shrink-0"
+                      style={{ backgroundColor: TIPO_COLORS[t.tipo_despesa] ?? '#0C5BA8' }}
+                    />
+                    <div className="min-w-0">
+                      <p className="font-medium truncate">{getLabel(t)}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {format(new Date(t.data + 'T00:00'), 'dd/MM', { locale: ptBR })} · {t.hora} · {TIPO_LABELS[t.tipo_despesa] ?? 'Essencial'}
+                        {t.categories?.nome ? ` · ${t.categories.nome}` : ''}
+                        {t.total_parcelas ? ` · 💳 ${t.parcela_atual}/${t.total_parcelas}` : ''}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 flex-shrink-0">
+                    <p className="font-semibold text-destructive">{fmt(Number(t.valor))}</p>
+                    <div className="flex gap-1">
+                      <button onClick={() => handleEdit(t)} className="p-1.5 rounded hover:bg-secondary text-muted-foreground">
+                        <Pencil size={14} />
+                      </button>
+                      <button onClick={() => confirmDelete(t.id)} className="p-1.5 rounded hover:bg-secondary text-muted-foreground hover:text-destructive">
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </TabsContent>
 
         {/* ===== ABA AUTOMÁTICAS ===== */}
@@ -602,6 +712,12 @@ export default function TransacoesPage() {
           <RecurringSection />
         </TabsContent>
       </Tabs>
+      <ConfirmDeleteDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        onConfirm={handleDelete}
+        description="Tem certeza que deseja excluir este gasto? Esta ação não pode ser desfeita."
+      />
     </div>
   );
 }
