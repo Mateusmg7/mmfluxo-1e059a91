@@ -246,7 +246,10 @@ export default function RelatoriosPage() {
         {/* ===== VISÃO GERAL ===== */}
         <TabsContent value="visao-geral" className="space-y-6">
           {activeProfile && (() => {
-            const orcamento = monthlyBudgetData ? Number(monthlyBudgetData.amount) : Number(activeProfile.orcamento_mensal ?? 0);
+            const isCurrentMonthActual = isSameMonth(currentMonth, new Date());
+            const orcamento = monthlyBudgetData 
+              ? Number(monthlyBudgetData.amount) 
+              : (isCurrentMonthActual ? Number(activeProfile.orcamento_mensal ?? 0) : 0);
             if (orcamento <= 0) return null;
             
             const restante = orcamento - totalDespesas;

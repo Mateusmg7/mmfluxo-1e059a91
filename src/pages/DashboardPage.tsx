@@ -93,8 +93,11 @@ export default function DashboardPage() {
   const totalGastos = totalGastosManuais + totalGastosRecorrentes;
   const totalRendaExtra = extraIncome.reduce((sum, item) => sum + Number(item.valor), 0);
   
-  // Usar orçamento mensal histórico se existir, senão usar o do perfil (fallback)
-  const orcamento = monthlyBudgetData ? Number(monthlyBudgetData.amount) : Number(activeProfile?.orcamento_mensal ?? 0);
+  // Usar orçamento mensal histórico se existir, senão usar o do perfil (fallback apenas para o mês atual)
+  const isCurrentMonthActual = isSameMonth(currentMonth, now);
+  const orcamento = monthlyBudgetData 
+    ? Number(monthlyBudgetData.amount) 
+    : (isCurrentMonthActual ? Number(activeProfile?.orcamento_mensal ?? 0) : 0);
   
   const saldo = totalRendaExtra - totalGastos;
   const restante = orcamento - totalGastos;
