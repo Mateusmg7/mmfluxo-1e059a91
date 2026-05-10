@@ -28,6 +28,7 @@ export default function AlertasPage() {
   const [valor, setValor] = useState('');
   const [dia, setDia] = useState('');
   const [testReminderId, setTestReminderId] = useState<string | null>(null);
+  const [recorrente, setRecorrente] = useState(true);
 
   // Edit state
   const [editId, setEditId] = useState<string | null>(null);
@@ -135,6 +136,7 @@ export default function AlertasPage() {
         nome: nome.trim(),
         valor: valor ? parseFloat(valor) : null,
         dia_vencimento: diaNum,
+        recorrente: recorrente,
       });
       toast.success('Lembrete adicionado!');
       resetForm();
@@ -147,6 +149,7 @@ export default function AlertasPage() {
     setNome('');
     setValor('');
     setDia('');
+    setRecorrente(true);
     setShowForm(false);
   };
 
@@ -155,6 +158,7 @@ export default function AlertasPage() {
     setNome(r.nome);
     setValor(r.valor ? String(r.valor) : '');
     setDia(String(r.dia_vencimento));
+    setRecorrente(r.recorrente);
     setEditDialogOpen(true);
   };
 
@@ -174,6 +178,7 @@ export default function AlertasPage() {
         nome: nome.trim(),
         valor: valor ? parseFloat(valor) : null,
         dia_vencimento: diaNum,
+        recorrente: recorrente,
       });
       toast.success('Lembrete atualizado!');
       setEditDialogOpen(false);
@@ -181,6 +186,7 @@ export default function AlertasPage() {
       setNome('');
       setValor('');
       setDia('');
+      setRecorrente(true);
     } catch {
       toast.error('Erro ao atualizar lembrete');
     }
@@ -420,6 +426,13 @@ export default function AlertasPage() {
                 <label className="text-sm font-medium text-muted-foreground">Dia do vencimento *</label>
                 <Input type="number" placeholder="1-31" min="1" max="31" value={dia} onChange={(e) => setDia(e.target.value)} />
               </div>
+            </div>
+            <div className="flex items-center justify-between rounded-lg border border-border p-3">
+              <div>
+                <Label className="cursor-pointer">Alerta Recorrente</Label>
+                <p className="text-xs text-muted-foreground">Repetir todo mês</p>
+              </div>
+              <Switch checked={recorrente} onCheckedChange={setRecorrente} />
             </div>
             <div className="flex gap-2">
               <Button onClick={handleAdd} disabled={addReminder.isPending}>Salvar</Button>
