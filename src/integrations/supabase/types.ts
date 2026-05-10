@@ -55,6 +55,7 @@ export type Database = {
           id: string
           nome: string
           profile_id: string | null
+          recorrente: boolean | null
           user_id: string
           valor: number | null
         }
@@ -65,6 +66,7 @@ export type Database = {
           id?: string
           nome: string
           profile_id?: string | null
+          recorrente?: boolean | null
           user_id: string
           valor?: number | null
         }
@@ -75,6 +77,7 @@ export type Database = {
           id?: string
           nome?: string
           profile_id?: string | null
+          recorrente?: boolean | null
           user_id?: string
           valor?: number | null
         }

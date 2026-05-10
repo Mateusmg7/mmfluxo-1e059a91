@@ -10,6 +10,7 @@ export interface BillReminder {
   nome: string;
   valor: number | null;
   dia_vencimento: number;
+  recorrente: boolean;
   ativo: boolean;
   created_at: string;
 }
@@ -40,10 +41,11 @@ export function useBillReminders() {
   });
 
   const addReminder = useMutation({
-    mutationFn: async (reminder: { nome: string; valor: number | null; dia_vencimento: number }) => {
+    mutationFn: async (reminder: { nome: string; valor: number | null; dia_vencimento: number; recorrente?: boolean }) => {
       const { error } = await supabase.from('bill_reminders').insert({
         user_id: user!.id,
         profile_id: activeProfile?.id || null,
+        recorrente: true,
         ...reminder,
       });
       if (error) throw error;
