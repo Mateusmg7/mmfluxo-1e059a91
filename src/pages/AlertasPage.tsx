@@ -468,6 +468,9 @@ export default function AlertasPage() {
                     <p className="text-xs text-muted-foreground">
                       Dia {r.dia_vencimento}
                       {r.valor && ` • ${r.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`}
+                      <span className="ml-2 px-1 rounded bg-muted text-[10px] uppercase font-bold tracking-tighter">
+                        {r.recorrente ? 'Recorrente' : 'Uma vez'}
+                      </span>
                     </p>
                   </div>
                   {isUrgent && (
@@ -508,6 +511,13 @@ export default function AlertasPage() {
                 <label className="text-sm font-medium text-muted-foreground">Dia do vencimento *</label>
                 <Input type="number" placeholder="1-31" min="1" max="31" value={dia} onChange={(e) => setDia(e.target.value)} />
               </div>
+            </div>
+            <div className="flex items-center justify-between rounded-lg border border-border p-3">
+              <div>
+                <Label className="cursor-pointer">Alerta Recorrente</Label>
+                <p className="text-xs text-muted-foreground">Repetir todo mês</p>
+              </div>
+              <Switch checked={recorrente} onCheckedChange={setRecorrente} />
             </div>
             <div className="flex gap-2">
               <Button onClick={handleEditSave} disabled={updateReminder.isPending}>Salvar</Button>
