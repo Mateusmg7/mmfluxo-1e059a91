@@ -619,12 +619,6 @@ export default function TransacoesPage() {
               </Card>
             ))}
           </div>
-          <ConfirmDeleteDialog
-            open={deleteDialogOpen}
-            onOpenChange={setDeleteDialogOpen}
-            onConfirm={handleDelete}
-            description="Tem certeza que deseja excluir este gasto? Esta ação não pode ser desfeita."
-          />
         </TabsContent>
 
         {/* ===== ABA PARCELAS ===== */}
