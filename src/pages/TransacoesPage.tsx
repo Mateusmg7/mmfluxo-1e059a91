@@ -640,6 +640,16 @@ export default function TransacoesPage() {
                 <ChevronRight size={18} />
               </Button>
             </div>
+            <div className="flex items-center gap-2">
+              <Button onClick={() => {
+                resetForm();
+                setParcelado(true);
+                setDialogOpen(true);
+              }}>
+                <Plus size={16} className="mr-2" />
+                Nova Parcela
+              </Button>
+            </div>
           </div>
 
           <div className="space-y-3">
