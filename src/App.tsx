@@ -1,6 +1,8 @@
 import { useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { usePushSubscription } from "@/hooks/usePushSubscription";
+import { useNotifications } from "@/hooks/useNotifications";
+import { useBillReminders } from "@/hooks/useBillReminders";
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
