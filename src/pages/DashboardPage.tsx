@@ -12,7 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowDownCircle, ArrowUpCircle, Wallet, TrendingUp, TrendingDown, LayoutDashboard, Repeat } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { MonthlyEvolutionChart } from '@/components/charts/MonthlyEvolutionChart';
-import { MonthlyComparisonChart } from '@/components/charts/MonthlyComparisonChart';
+// MonthlyComparisonChart removido daqui e mantido apenas em Relatórios
 
 const TIPO_LABELS: Record<string, string> = {
   essencial: 'Essencial',
@@ -163,7 +163,7 @@ export default function DashboardPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-fade-up">
         <div className="lg:col-span-2 space-y-6">
-          <MonthlyComparisonChart userId={user?.id} profileId={activeProfile?.id} currentMonth={currentMonth} />
+          {/* Gráfico de análise comparativa removido daqui e mantido apenas em Relatórios */}
         </div>
 
         <div className="space-y-6">
