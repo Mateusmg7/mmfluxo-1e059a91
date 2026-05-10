@@ -719,7 +719,6 @@ export default function TransacoesPage() {
         description="Tem certeza que deseja excluir este gasto? Esta ação não pode ser desfeita."
       />
     </div>
-    </div>
   );
 }
 
