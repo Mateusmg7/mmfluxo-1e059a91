@@ -29,8 +29,6 @@ async function showSystemNotification(title: string, options: NotificationOption
   return false;
 }
 
-const NINE_HOURS_MS = 9 * 60 * 60 * 1000;
-
 export function useNotifications(urgentReminders: BillReminder[]) {
   const lastNotifiedAt = useRef<number>(0);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -39,17 +37,30 @@ export function useNotifications(urgentReminders: BillReminder[]) {
     if (!urgentReminders.length) return;
     if (!('Notification' in window)) return;
 
-    const sendNotifications = async () => {
+    const checkAndSend = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('notif_interval_hours, notifications_enabled')
+        .eq('user_id', user.id)
+        .single();
+
+      if (!profile || !profile.notifications_enabled) return;
+
+      const intervalHours = profile.notif_interval_hours || 9;
+      const intervalMs = intervalHours * 60 * 60 * 1000;
+
+      const now = Date.now();
+      if (lastNotifiedAt.current && now - lastNotifiedAt.current < intervalMs) return;
+      
       if (Notification.permission === 'default') {
         await Notification.requestPermission();
       }
       if (Notification.permission !== 'granted') return;
 
-      const now = Date.now();
-      // Skip if last batch was sent less than 9 hours ago
-      if (lastNotifiedAt.current && now - lastNotifiedAt.current < NINE_HOURS_MS) return;
       lastNotifiedAt.current = now;
-
       const today = new Date().getDate();
 
       for (const r of urgentReminders) {
@@ -65,11 +76,10 @@ export function useNotifications(urgentReminders: BillReminder[]) {
       }
     };
 
-    // Send immediately on first load
-    sendNotifications();
+    checkAndSend();
 
-    // Re-send every 9 hours
-    intervalRef.current = setInterval(sendNotifications, NINE_HOURS_MS);
+    // Check every minute if it's time to send
+    intervalRef.current = setInterval(checkAndSend, 60000);
 
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
