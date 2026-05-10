@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { MonthSelector } from '@/components/layout/MonthSelector';
 import { ConfirmDeleteDialog } from '@/components/dialogs/ConfirmDeleteDialog';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/contexts/ProfileContext';
