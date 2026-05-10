@@ -23,7 +23,7 @@ import NotificationBell from '@/components/notifications/NotificationBell';
 
 const navItems = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard },
-  { to: '/transacoes', label: 'Gastos', icon: ArrowDownCircle },
+  { to: '/transacoes', label: 'Gastos GERAL', icon: ArrowDownCircle },
   { to: '/renda-extra', label: 'Renda Extra', icon: ArrowUpCircle },
   { to: '/relatorios', label: 'Relatórios', icon: FileText },
   
