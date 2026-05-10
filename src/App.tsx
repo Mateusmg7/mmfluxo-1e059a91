@@ -50,6 +50,9 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
 function AppLayoutWithPush({ children }: { children: React.ReactNode }) {
   usePushSubscription();
+  const { urgentReminders } = useBillReminders();
+  useNotifications(urgentReminders);
+  
   return <AppLayout>{children}</AppLayout>;
 }
 
