@@ -38,7 +38,7 @@ Deno.serve(async (req: Request) => {
           testPayload = body.payload;
         }
       } catch {
-        // not JSON, proceed with scheduled logic
+        // not JSON
       }
     }
 
@@ -50,7 +50,7 @@ Deno.serve(async (req: Request) => {
 
       if (!subs || subs.length === 0) {
         return new Response(
-          JSON.stringify({ error: "Nenhuma assinatura push encontrada. Ative as notificações primeiro." }),
+          JSON.stringify({ error: "Assinatura não encontrada." }),
           { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
@@ -67,7 +67,6 @@ Deno.serve(async (req: Request) => {
           );
           sent++;
         } catch (err: any) {
-          console.error("Push error:", err?.statusCode, err?.body);
           if (err?.statusCode === 410 || err?.statusCode === 404) {
             await supabase.from("push_subscriptions").delete().eq("id", sub.id);
           }
@@ -83,60 +82,62 @@ Deno.serve(async (req: Request) => {
         });
       }
 
-      return new Response(
-        JSON.stringify({ sent }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return new Response(JSON.stringify({ sent }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
     // === SCHEDULED MODE ===
+    console.log("[Push] Iniciando processamento agendado...");
     const now = new Date();
-    const today = now.getDate();
-    const tomorrow = new Date(now.getTime() + 86400000).getDate();
 
-    const { data: reminders } = await supabase
+    // Fetch all active reminders
+    const { data: allReminders } = await supabase
       .from("bill_reminders")
       .select("*")
-      .eq("ativo", true)
-      .in("dia_vencimento", [today, tomorrow]);
+      .eq("ativo", true);
 
-    if (!reminders || reminders.length === 0) {
-      return new Response(
-        JSON.stringify({ message: "Nenhum lembrete urgente" }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+    if (!allReminders || allReminders.length === 0) {
+      return new Response(JSON.stringify({ message: "Sem lembretes ativos" }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
-    const userIds = [...new Set(reminders.map((r: any) => r.user_id))];
+    const userIds = [...new Set(allReminders.map((r: any) => r.user_id))];
 
+    // Fetch profiles for interval and timezone
     const { data: profiles } = await supabase
       .from("profiles")
-      .select("user_id, notif_interval_hours, last_push_sent_at, notifications_enabled")
+      .select("user_id, notif_interval_hours, last_push_sent_at, notifications_enabled, fuso_horario")
       .in("user_id", userIds);
 
-    const profileMap = new Map(
-      (profiles || []).map((p: any) => [p.user_id, p])
-    );
+    const profileMap = new Map((profiles || []).map((p: any) => [p.user_id, p]));
 
     let totalSent = 0;
-    const usersNotified: string[] = [];
+    const usersToUpdate: string[] = [];
 
     for (const userId of userIds) {
       const profile = profileMap.get(userId);
-      
-      // Skip if user disabled notifications
-      if (profile?.notifications_enabled === false) continue;
+      if (!profile || profile.notifications_enabled === false) continue;
 
-      const intervalHours = profile?.notif_interval_hours ?? 9;
-      const lastSent = profile?.last_push_sent_at
-        ? new Date(profile.last_push_sent_at)
-        : null;
+      const tz = profile.fuso_horario || "America/Sao_Paulo";
+      const intervalHours = Number(profile.notif_interval_hours) || 9;
+      const lastSentAt = profile.last_push_sent_at ? new Date(profile.last_push_sent_at) : null;
 
-      if (lastSent) {
-        const hoursSinceLast = (now.getTime() - lastSent.getTime()) / (1000 * 60 * 60);
-        if (hoursSinceLast < intervalHours) continue;
+      // Check interval
+      if (lastSentAt) {
+        const hoursPassed = (now.getTime() - lastSentAt.getTime()) / (1000 * 60 * 60);
+        if (hoursPassed < intervalHours) continue;
       }
 
+      // Calculate local today and tomorrow for this user
+      const localDate = new Date(now.toLocaleString("en-US", { timeZone: tz }));
+      const today = localDate.getDate();
+      const tomorrow = new Date(localDate.getTime() + 86400000).getDate();
+
+      const userReminders = allReminders.filter((r: any) => 
+        r.user_id === userId && (r.dia_vencimento === today || r.dia_vencimento === tomorrow)
+      );
+
+      if (userReminders.length === 0) continue;
+
+      // Fetch subscriptions
       const { data: subs } = await supabase
         .from("push_subscriptions")
         .select("*")
@@ -144,7 +145,7 @@ Deno.serve(async (req: Request) => {
 
       if (!subs || subs.length === 0) continue;
 
-      const userReminders = reminders.filter((r: any) => r.user_id === userId);
+      console.log(`[Push] Enviando para user ${userId} (${userReminders.length} lembretes)`);
 
       for (const r of userReminders) {
         const isToday = r.dia_vencimento === today;
@@ -160,51 +161,41 @@ Deno.serve(async (req: Request) => {
         for (const sub of subs) {
           try {
             await webpush.sendNotification(
-              {
-                endpoint: sub.endpoint,
-                keys: { p256dh: sub.p256dh, auth: sub.auth },
-              },
+              { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
               payload
             );
             totalSent++;
           } catch (err: any) {
-            console.error("Push error:", err?.statusCode, err?.body);
             if (err?.statusCode === 410 || err?.statusCode === 404) {
               await supabase.from("push_subscriptions").delete().eq("id", sub.id);
             }
           }
         }
 
-        // Log each reminder notification
-        const parsedPayload = JSON.parse(payload);
         await supabase.from("notification_logs").insert({
           user_id: userId,
-          title: parsedPayload.title,
-          body: parsedPayload.body,
+          title: `💰 ${label}`,
+          body: `${r.nome}${valorStr} (dia ${r.dia_vencimento})`,
           type: "auto",
         });
       }
 
-      usersNotified.push(userId);
+      usersToUpdate.push(userId);
     }
 
     // Update last_push_sent_at
-    for (const userId of usersNotified) {
-      await supabase
-        .from("profiles")
-        .update({ last_push_sent_at: now.toISOString() })
-        .eq("user_id", userId);
+    if (usersToUpdate.length > 0) {
+      for (const userId of usersToUpdate) {
+        await supabase
+          .from("profiles")
+          .update({ last_push_sent_at: now.toISOString() })
+          .eq("user_id", userId);
+      }
     }
 
-    return new Response(
-      JSON.stringify({ sent: totalSent, users_notified: usersNotified.length }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return new Response(JSON.stringify({ sent: totalSent, users: usersToUpdate.length }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
   } catch (error: any) {
     console.error("Error:", error);
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
   }
 });
