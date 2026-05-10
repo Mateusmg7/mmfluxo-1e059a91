@@ -313,19 +313,20 @@ export default function TransacoesPage() {
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold">Gastos</h2>
-        <p className="text-muted-foreground text-sm">Gerencie seus gastos e recorrentes</p>
+        <p className="text-muted-foreground text-sm">Gerencie seus gastos, parcelas e recorrentes</p>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="w-full sm:w-auto">
-          <TabsTrigger value="gastos" className="flex-1 sm:flex-auto">Gastos</TabsTrigger>
+          <TabsTrigger value="gastos" className="flex-1 sm:flex-auto">Compras Únicas</TabsTrigger>
+          <TabsTrigger value="parcelas" className="flex-1 sm:flex-auto">Parcelas</TabsTrigger>
           <TabsTrigger value="automaticas" className="flex-1 sm:flex-auto gap-1">
             <Repeat size={14} />
             Recorrentes
           </TabsTrigger>
         </TabsList>
 
-        {/* ===== ABA GASTOS ===== */}
+        {/* ===== ABA GASTOS (COMPRAS ÚNICAS) ===== */}
         <TabsContent value="gastos" className="space-y-6 mt-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-1">
