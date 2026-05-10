@@ -318,12 +318,12 @@ export default function TransacoesPage() {
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="w-full sm:w-auto">
-          <TabsTrigger value="gastos" className="flex-1 sm:flex-auto">Compras Únicas</TabsTrigger>
-          <TabsTrigger value="parcelas" className="flex-1 sm:flex-auto">Parcelas</TabsTrigger>
+          <TabsTrigger value="gastos" className="flex-1 sm:flex-auto">Unitários</TabsTrigger>
           <TabsTrigger value="automaticas" className="flex-1 sm:flex-auto gap-1">
             <Repeat size={14} />
             Recorrentes
           </TabsTrigger>
+          <TabsTrigger value="parcelas" className="flex-1 sm:flex-auto">Parcelas</TabsTrigger>
         </TabsList>
 
         {/* ===== ABA GASTOS (COMPRAS ÚNICAS) ===== */}
