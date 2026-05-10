@@ -61,6 +61,7 @@ export default function RecorrentesPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [form, setForm] = useState<FormState>(emptyForm);
+  const [isNewRule, setIsNewRule] = useState(false);
 
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -82,6 +83,7 @@ export default function RecorrentesPage() {
   const handleOpenNew = () => {
     setEditId(null);
     setForm(emptyForm);
+    setIsNewRule(true);
     setDialogOpen(true);
   };
 
@@ -89,6 +91,7 @@ export default function RecorrentesPage() {
     const r = rules.find((x) => x.id === id);
     if (!r) return;
     setEditId(id);
+    setIsNewRule(false);
     setForm({
       nome: r.nome,
       valor: String(r.valor),
@@ -422,18 +425,20 @@ export default function RecorrentesPage() {
               />
             </div>
 
-            <div className="flex items-center justify-between rounded-lg border border-border p-3">
-              <div>
-                <Label className="cursor-pointer">Ativa</Label>
-                <p className="text-xs text-muted-foreground">
-                  Quando desativada, não gera despesas automáticas.
-                </p>
+            {!isNewRule && (
+              <div className="flex items-center justify-between rounded-lg border border-border p-3">
+                <div>
+                  <Label className="cursor-pointer">Ativa</Label>
+                  <p className="text-xs text-muted-foreground">
+                    Quando desativada, não é somada aos seus gastos mensais.
+                  </p>
+                </div>
+                <Switch
+                  checked={form.ativo}
+                  onCheckedChange={(v) => setForm({ ...form, ativo: v })}
+                />
               </div>
-              <Switch
-                checked={form.ativo}
-                onCheckedChange={(v) => setForm({ ...form, ativo: v })}
-              />
-            </div>
+            )}
 
             <div className="flex gap-2 justify-end">
               <Button variant="outline" onClick={() => setDialogOpen(false)}>
