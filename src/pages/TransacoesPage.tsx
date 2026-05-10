@@ -711,6 +711,7 @@ export default function TransacoesPage() {
               </Card>
             ))}
           </div>
+        </TabsContent>
 
         {/* ===== ABA AUTOMÁTICAS ===== */}
         <TabsContent value="automaticas" className="mt-4">
