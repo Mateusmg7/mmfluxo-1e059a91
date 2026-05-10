@@ -296,7 +296,7 @@ export type Database = {
             foreignKeyName: "monthly_budgets_profile_id_fkey"
             columns: ["profile_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "financial_profiles"
             referencedColumns: ["id"]
           },
         ]
