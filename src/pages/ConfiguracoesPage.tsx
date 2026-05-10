@@ -21,10 +21,11 @@ export default function ConfiguracoesPage() {
   const { activeProfile } = useProfile();
   const qc = useQueryClient();
 
-  const { data: profile } = useQuery({
+  const { data: profile, isLoading } = useQuery({
     queryKey: qk.profile,
     queryFn: async () => {
-      const { data } = await supabase.from('profiles').select('*').eq('user_id', user!.id).single();
+      const { data, error } = await supabase.from('profiles').select('*').eq('user_id', user!.id).single();
+      if (error) throw error;
       return data;
     },
     enabled: !!user,
@@ -35,13 +36,15 @@ export default function ConfiguracoesPage() {
   const [mesInicio, setMesInicio] = useState('1');
   const [fuso, setFuso] = useState('America/Sao_Paulo');
   const [orcamento, setOrcamento] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+  const [isSavingBudget, setIsSavingBudget] = useState(false);
 
   useEffect(() => {
     if (profile) {
-      setName(profile.name);
-      setEmail(profile.email);
-      setMesInicio(String(profile.mes_referencia_inicio));
-      setFuso(profile.fuso_horario);
+      setName(profile.name || '');
+      setEmail(profile.email || '');
+      setMesInicio(String(profile.mes_referencia_inicio || '1'));
+      setFuso(profile.fuso_horario || 'America/Sao_Paulo');
     }
   }, [profile]);
 
@@ -52,42 +55,64 @@ export default function ConfiguracoesPage() {
   }, [activeProfile]);
 
   const handleSave = async () => {
+    if (!user) return;
+    setIsSaving(true);
     const { error } = await supabase.from('profiles').update({
       name,
-      email,
       mes_referencia_inicio: parseInt(mesInicio),
       fuso_horario: fuso,
-    }).eq('user_id', user!.id);
+    }).eq('user_id', user.id);
 
-    if (error) { toast.error(error.message); return; }
+    setIsSaving(false);
+    if (error) { 
+      toast.error(error.message); 
+      return; 
+    }
     toast.success('Configurações salvas');
     qc.invalidateQueries({ queryKey: qk.profile });
   };
 
   const handleSaveBudget = async () => {
     if (!activeProfile) return;
+    setIsSavingBudget(true);
     const valor = orcamento ? parseFloat(orcamento) : 0;
     const { error } = await supabase.from('financial_profiles').update({
       orcamento_mensal: valor,
     }).eq('id', activeProfile.id);
-    if (error) { toast.error(error.message); return; }
+    
+    setIsSavingBudget(false);
+    if (error) { 
+      toast.error(error.message); 
+      return; 
+    }
     toast.success('Orçamento atualizado');
     qc.invalidateQueries({ queryKey: qk.financialProfiles });
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center p-12">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-6 max-w-xl">
+    <div className="space-y-6 max-w-xl animate-fade-up">
       <div>
         <h2 className="text-2xl font-bold">Configurações</h2>
         <p className="text-muted-foreground text-sm">Ajuste seu perfil e preferências</p>
       </div>
 
-      <Card className="card-glass">
-        <CardHeader>
-          <CardTitle className="text-base flex items-center gap-2"><Wallet size={18} className="text-primary" /> Orçamento Mensal</CardTitle>
+      <Card className="card-glass overflow-hidden">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base flex items-center gap-2">
+            <Wallet size={18} className="text-primary" /> 
+            Orçamento Mensal
+          </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-muted-foreground bg-muted/30 p-3 rounded-lg border border-muted">
             Defina um teto de gastos para o perfil <strong>{activeProfile?.icon} {activeProfile?.name}</strong>. O valor restante será exibido no Dashboard.
           </p>
           <div className="flex gap-2">
@@ -97,47 +122,58 @@ export default function ConfiguracoesPage() {
               placeholder="Ex: 3.000,00"
               className="flex-1"
             />
-            <Button onClick={handleSaveBudget} size="sm">Salvar</Button>
+            <Button 
+              onClick={handleSaveBudget} 
+              size="sm" 
+              disabled={isSavingBudget}
+            >
+              {isSavingBudget ? 'Salvando...' : 'Salvar'}
+            </Button>
           </div>
         </CardContent>
       </Card>
 
       <Card className="card-glass">
-        <CardHeader>
+        <CardHeader className="pb-3">
           <CardTitle className="text-base">Perfil</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label>Nome</Label>
-            <Input value={name} onChange={(e) => setName(e.target.value)} />
+            <Label htmlFor="name">Nome</Label>
+            <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Seu nome" />
           </div>
           <div className="space-y-2">
-            <Label>E-mail</Label>
-            <Input value={email} onChange={(e) => setEmail(e.target.value)} disabled />
+            <Label htmlFor="email">E-mail</Label>
+            <Input id="email" value={email} disabled className="bg-muted/50 cursor-not-allowed" />
           </div>
         </CardContent>
       </Card>
 
       <Card className="card-glass">
-        <CardHeader>
+        <CardHeader className="pb-3">
           <CardTitle className="text-base">Preferências</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label>Dia de início do mês</Label>
             <Select value={mesInicio} onValueChange={setMesInicio}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione o dia" />
+              </SelectTrigger>
               <SelectContent>
                 {Array.from({ length: 28 }, (_, i) => (
                   <SelectItem key={i + 1} value={String(i + 1)}>Dia {i + 1}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
+            <p className="text-[10px] text-muted-foreground px-1">Seus relatórios e dashboard considerarão este dia para fechar o mês.</p>
           </div>
           <div className="space-y-2">
             <Label>Fuso horário</Label>
             <Select value={fuso} onValueChange={setFuso}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione o fuso" />
+              </SelectTrigger>
               <SelectContent>
                 <SelectItem value="America/Sao_Paulo">São Paulo (BRT)</SelectItem>
                 <SelectItem value="America/Manaus">Manaus (AMT)</SelectItem>
@@ -151,16 +187,18 @@ export default function ConfiguracoesPage() {
       </Card>
 
       <Card className="card-glass">
-        <CardHeader>
+        <CardHeader className="pb-3">
           <CardTitle className="text-base">Aparência</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between p-1">
             <div className="flex items-center gap-3">
-              {theme === 'dark' ? <Moon className="h-5 w-5 text-muted-foreground" /> : <Sun className="h-5 w-5 text-warning" />}
+              <div className="p-2 bg-muted rounded-full">
+                {theme === 'dark' ? <Moon className="h-4 w-4 text-primary" /> : <Sun className="h-4 w-4 text-warning" />}
+              </div>
               <div>
                 <p className="text-sm font-medium">Modo escuro</p>
-                <p className="text-xs text-muted-foreground">Alternar entre tema claro e escuro</p>
+                <p className="text-[11px] text-muted-foreground">Alternar entre tema claro e escuro</p>
               </div>
             </div>
             <Switch checked={theme === 'dark'} onCheckedChange={toggleTheme} />
@@ -168,7 +206,11 @@ export default function ConfiguracoesPage() {
         </CardContent>
       </Card>
 
-      <Button onClick={handleSave}>Salvar configurações</Button>
+      <div className="pt-2">
+        <Button onClick={handleSave} className="w-full sm:w-auto" disabled={isSaving}>
+          {isSaving ? 'Salvando...' : 'Salvar todas as configurações'}
+        </Button>
+      </div>
     </div>
   );
 }
