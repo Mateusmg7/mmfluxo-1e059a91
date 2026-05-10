@@ -84,8 +84,8 @@ const App = () => {
     
     // Check again when the user returns to the app
     window.addEventListener('focus', checkVersion);
-    // Check periodically for updates (every 30 minutes)
-    const intervalId = setInterval(checkVersion, 30 * 60 * 1000);
+    // Check periodically for updates (every 5 minutes)
+    const intervalId = setInterval(checkVersion, 5 * 60 * 1000);
     
     return () => {
       window.removeEventListener('focus', checkVersion);
