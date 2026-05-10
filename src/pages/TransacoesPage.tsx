@@ -867,13 +867,15 @@ function RecurringSection() {
               <Label>Observação (opcional)</Label>
               <Input placeholder="Ex: Plano família, contrato 12 meses..." value={form.motivo} onChange={(e) => setForm({ ...form, motivo: e.target.value })} />
             </div>
-            <div className="flex items-center justify-between rounded-lg border border-border p-3">
-              <div>
-                <Label className="cursor-pointer">Ativa</Label>
-                <p className="text-xs text-muted-foreground">Quando desativada, não gera gastos recorrentes.</p>
+            {editId && (
+              <div className="flex items-center justify-between rounded-lg border border-border p-3">
+                <div>
+                  <Label className="cursor-pointer">Ativa</Label>
+                  <p className="text-xs text-muted-foreground">Quando desativada, não é somada aos seus gastos mensais.</p>
+                </div>
+                <Switch checked={form.ativo} onCheckedChange={(v) => setForm({ ...form, ativo: v })} />
               </div>
-              <Switch checked={form.ativo} onCheckedChange={(v) => setForm({ ...form, ativo: v })} />
-            </div>
+            )}
             <div className="flex gap-2 justify-end">
               <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancelar</Button>
               <Button onClick={handleSave} disabled={addRule.isPending || updateRule.isPending}>
