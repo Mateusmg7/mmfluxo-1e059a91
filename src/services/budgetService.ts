@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/integrations/supabase/client';
 import { format, startOfMonth } from 'date-fns';
 
 export interface MonthlyBudget {
