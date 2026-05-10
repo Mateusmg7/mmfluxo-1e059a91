@@ -229,7 +229,7 @@ export default function RecorrentesPage() {
             Despesas Recorrentes
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Cadastre suas contas fixas e o app gera as despesas automaticamente todo mês.
+            Cadastre suas contas fixas e o app aplicará os valores automaticamente em seu orçamento mensal.
           </p>
         </div>
         <Button onClick={handleOpenNew}>
@@ -253,15 +253,11 @@ export default function RecorrentesPage() {
         </Card>
         <Card className="border-primary/20 bg-primary/5">
           <CardContent className="py-4 flex flex-col gap-2">
-            <div className="text-xs text-muted-foreground uppercase tracking-wide">Geração automática</div>
+            <div className="text-xs text-muted-foreground uppercase tracking-wide">Orçamento Automático</div>
             <p className="text-sm text-foreground">
-              Roda no dia <strong>1</strong> de cada mês. Use o botão para gerar agora as deste mês.
+              As contas ativas abaixo já estão sendo somadas ao seu gasto total na Dashboard.
             </p>
             <div className="flex flex-wrap gap-2">
-              <Button size="sm" variant="outline" onClick={handleGenerateNow} disabled={generating}>
-                <Zap size={14} />
-                {generating ? 'Gerando...' : 'Gerar agora (mês atual)'}
-              </Button>
               <Button size="sm" variant="outline" onClick={handleSendTestPush} disabled={sendingTest}>
                 <BellRing size={14} />
                 {sendingTest ? 'Enviando...' : 'Enviar push de teste'}

@@ -120,6 +120,7 @@ export default function TransacoesPage() {
   const maxNum = valorMax ? parseFloat(valorMax.replace(',', '.')) : null;
 
   const filtered = transactions.filter((t: any) => {
+    if (t.recorrente) return false;
     if (filtroTipo !== 'todos' && t.tipo_despesa !== filtroTipo) return false;
     if (filtroCategoria !== 'todas' && t.category_id !== filtroCategoria) return false;
     const v = Number(t.valor);
