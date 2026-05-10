@@ -175,10 +175,18 @@ export default function DashboardPage() {
                 </div>
               </>
             ) : (
-              <div className="flex flex-col items-center justify-center py-4 space-y-2">
+              <div className="flex flex-col items-center justify-center py-4 space-y-3">
                 <p className="text-sm text-muted-foreground">Sem orçamento definido</p>
-                <Button size="sm" variant="outline" className="w-full">
-                  <Plus size={14} className="mr-1" /> Definir Orçamento
+                <Button 
+                  size="sm" 
+                  variant="default" 
+                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsBudgetDialogOpen(true);
+                  }}
+                >
+                  <Plus size={14} className="mr-2" /> Definir Orçamento
                 </Button>
               </div>
             )}
