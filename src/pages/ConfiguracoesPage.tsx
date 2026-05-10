@@ -80,8 +80,6 @@ export default function ConfiguracoesPage() {
         <p className="text-muted-foreground text-sm">Ajuste seu perfil e preferências</p>
       </div>
 
-// Orçamento Mensal removido para ser gerenciado apenas no Dashboard
-
       <Card className="card-glass">
         <CardHeader className="pb-3">
           <CardTitle className="text-base">Perfil</CardTitle>
