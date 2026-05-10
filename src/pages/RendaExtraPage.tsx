@@ -47,10 +47,8 @@ export default function RendaExtraPage() {
   const [ordem, setOrdem] = useState('');
   const [filtrosAvancadosAbertos, setFiltrosAvancadosAbertos] = useState(false);
 
-  const goToPrevMonth = () => setCurrentMonth(prev => subMonths(prev, 1));
-  const goToNextMonth = () => setCurrentMonth(prev => addMonths(prev, 1));
-  const goToCurrentMonth = () => setCurrentMonth(new Date());
-  const isCurrentMonth = isSameMonth(currentMonth, now);
+  // Navigation is now handled by MonthSelector via context
+
 
   const start = format(startOfMonth(currentMonth), 'yyyy-MM-dd');
   const end = format(endOfMonth(currentMonth), 'yyyy-MM-dd');
@@ -164,19 +162,7 @@ export default function RendaExtraPage() {
             {format(currentMonth, "MMMM 'de' yyyy", { locale: ptBR })}
           </p>
         </div>
-        <div className="flex items-center gap-1 mr-auto sm:mr-0">
-          <Button variant="ghost" size="icon" onClick={goToPrevMonth} className="h-8 w-8">
-            <ChevronLeft size={18} />
-          </Button>
-          {!isCurrentMonth && (
-            <Button variant="outline" size="sm" onClick={goToCurrentMonth} className="h-8 text-xs px-2">
-              Hoje
-            </Button>
-          )}
-          <Button variant="ghost" size="icon" onClick={goToNextMonth} className="h-8 w-8">
-            <ChevronRight size={18} />
-          </Button>
-        </div>
+        <MonthSelector />
         <Dialog open={dialogOpen} onOpenChange={(o) => { setDialogOpen(o); if (!o) resetForm(); }}>
           <DialogTrigger asChild>
             <Button className="bg-accent hover:bg-accent/90"><Plus size={16} className="mr-2" />Adicionar renda</Button>
