@@ -67,16 +67,30 @@ const App = () => {
   // Global effect to check build version and force reload if mismatched
   // This helps when the PWA updateSW doesn't fire correctly
   useEffect(() => {
-    const checkVersion = () => {
-      const currentVersion = (window as any).__BUILD_TIMESTAMP__ || (import.meta as any).env.VITE_BUILD_ID;
-      const storedVersion = localStorage.getItem('app-build-id');
-      
-      if (storedVersion && currentVersion && storedVersion !== String(currentVersion)) {
-        console.log('Versão nova detectada via Build ID. Recarregando...');
-        localStorage.setItem('app-build-id', String(currentVersion));
-        window.location.reload();
-      } else if (currentVersion) {
-        localStorage.setItem('app-build-id', String(currentVersion));
+    const checkVersion = async () => {
+      try {
+        const currentVersion = (window as any).__BUILD_TIMESTAMP__ || (import.meta as any).env.VITE_BUILD_ID;
+        const storedVersion = localStorage.getItem('app-build-id');
+        
+        // Fetch the latest version from server bypassing cache
+        const response = await fetch('/version.json?t=' + Date.now(), { cache: 'no-store' });
+        const data = await response.json();
+        const serverVersion = data.version;
+
+        if (serverVersion && String(serverVersion) !== String(currentVersion)) {
+          console.log('Nova versão detectada no servidor! Recarregando...');
+          localStorage.setItem('app-build-id', String(serverVersion));
+          window.location.reload();
+          return;
+        }
+
+        if (storedVersion && currentVersion && storedVersion !== String(currentVersion)) {
+          localStorage.setItem('app-build-id', String(currentVersion));
+        } else if (currentVersion && !storedVersion) {
+          localStorage.setItem('app-build-id', String(currentVersion));
+        }
+      } catch (err) {
+        console.warn('Erro ao verificar versão:', err);
       }
     };
 
