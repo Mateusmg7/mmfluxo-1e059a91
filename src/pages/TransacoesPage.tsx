@@ -240,8 +240,9 @@ export default function TransacoesPage() {
         await updateTransaction(editId, updatePayload);
         toast.success('Gasto atualizado');
       } else if ((parcelado || isNewInstallmentMode) && !editId) {
-        const numParcelas = Math.max(2, Math.min(48, parseInt(totalParcelas) || 2));
-        const valorParcela = Math.round((valorNum / numParcelas) * 100) / 100;
+        const numParcelas = Math.max(2, Math.min(60, parseInt(totalParcelas) || 2));
+        const totalValor = parseFloat(valor);
+        const valorParcela = Math.round((totalValor / numParcelas) * 100) / 100;
         const grupoId = crypto.randomUUID();
         const parcelas = [];
         
