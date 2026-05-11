@@ -671,6 +671,8 @@ export default function TransacoesPage() {
                 resetForm(); 
                 setIsNewInstallmentMode(true);
                 setParcelado(true); 
+                setTotalParcelas('2');
+                setDiaVencimento(format(new Date(), 'dd'));
                 setDialogOpen(true); 
               }}>
                 <Plus size={16} className="mr-2" />
