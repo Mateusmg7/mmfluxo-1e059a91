@@ -208,6 +208,7 @@ export default function TransacoesPage() {
     setEditGrupoId(null);
     setEditTotalParcelas(0);
     setEditParcelaAtual('1');
+    setIsNewInstallmentMode(false);
   };
 
   const handleSave = async () => {
