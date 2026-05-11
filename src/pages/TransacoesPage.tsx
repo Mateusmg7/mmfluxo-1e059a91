@@ -284,20 +284,22 @@ export default function TransacoesPage() {
 
   const handleEdit = (t: any) => {
     resetForm();
-    setEditId(t.id);
-    setTipoDespesa(t.tipo_despesa ?? 'essencial');
-    setCategoryId(t.category_id ?? '');
-    setMotivo(t.motivo ?? '');
-    setValor(String(t.valor));
-    setData(t.data);
-    setHora(t.hora);
-    setEditGrupoId(t.parcela_grupo_id ?? null);
-    setEditTotalParcelas(t.total_parcelas ?? 0);
-    setEditParcelaAtual(String(t.parcela_atual ?? 1));
-    if (t.total_parcelas) {
-      setParcelado(true);
-    }
-    setDialogOpen(true);
+    setTimeout(() => {
+      setEditId(t.id);
+      setTipoDespesa(t.tipo_despesa ?? 'essencial');
+      setCategoryId(t.category_id ?? '');
+      setMotivo(t.motivo ?? '');
+      setValor(String(t.valor));
+      setData(t.data);
+      setHora(t.hora);
+      setEditGrupoId(t.parcela_grupo_id ?? null);
+      setEditTotalParcelas(t.total_parcelas ?? 0);
+      setEditParcelaAtual(String(t.parcela_atual ?? 1));
+      if (t.total_parcelas) {
+        setParcelado(true);
+      }
+      setDialogOpen(true);
+    }, 50);
   };
 
   const confirmDelete = (id: string) => {
