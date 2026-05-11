@@ -355,6 +355,7 @@ export default function TransacoesPage() {
               <DialogHeader>
                 <DialogTitle>{editId ? 'Editar' : 'Novo'} Gasto</DialogTitle>
               </DialogHeader>
+              <div className="space-y-4">
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <Label>Tipo de gasto</Label>
