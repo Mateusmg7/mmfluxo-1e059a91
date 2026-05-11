@@ -120,7 +120,7 @@ export default function DashboardPage() {
   };
   
   const combinedActivities = [
-    ...manualTransactions.map(t => ({ ...t, activityType: 'expense' })),
+    ...monthTransactions.map(t => ({ ...t, activityType: 'expense' })),
     ...recurringRules.filter(r => r.ativo).map(r => ({ 
       ...r, 
       id: `rec-${r.id}`, 
