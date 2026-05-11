@@ -474,7 +474,6 @@ export default function TransacoesPage() {
                 </div>
               </DialogContent>
             </Dialog>
-          </div>
 
           {/* Busca + filtros */}
           <div className="space-y-3">
