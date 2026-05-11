@@ -237,8 +237,19 @@ export default function TransacoesPage() {
         const grupoId = crypto.randomUUID();
         const parcelas = [];
 
+        const baseDate = new Date(data + 'T12:00:00');
+        const dayOfBilling = baseDate.getDate();
+
         for (let i = 0; i < numParcelas; i++) {
-          const dataParcela = format(addMonths(new Date(data + 'T12:00:00'), i), 'yyyy-MM-dd');
+          let dataParcelaDate = addMonths(baseDate, i);
+          
+          // Ajustar para garantir que o dia de vencimento seja respeitado (lidando com meses curtos)
+          const targetMonth = addMonths(new Date(baseDate.getFullYear(), baseDate.getMonth(), 1), i);
+          const daysInMonth = new Date(targetMonth.getFullYear(), targetMonth.getMonth() + 1, 0).getDate();
+          const safeDay = Math.min(dayOfBilling, daysInMonth);
+          
+          const dataParcela = format(new Date(targetMonth.getFullYear(), targetMonth.getMonth(), safeDay), 'yyyy-MM-dd');
+          
           parcelas.push({
             ...basePayload,
             valor: valorParcela,
