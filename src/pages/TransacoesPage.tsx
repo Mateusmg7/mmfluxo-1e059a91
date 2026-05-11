@@ -238,17 +238,17 @@ export default function TransacoesPage() {
         const valorParcela = Math.round((valorNum / numParcelas) * 100) / 100;
         const grupoId = crypto.randomUUID();
         const parcelas = [];
-
+        
         const baseDate = new Date(data + 'T12:00:00');
-        const dayOfBilling = baseDate.getDate();
+        const vencimentoTarget = parseInt(diaVencimento) || baseDate.getDate();
 
         for (let i = 0; i < numParcelas; i++) {
-          let dataParcelaDate = addMonths(baseDate, i);
-          
-          // Ajustar para garantir que o dia de vencimento seja respeitado (lidando com meses curtos)
+          // A primeira parcela pode ser na data da compra ou no próximo vencimento
+          // Para cartões, geralmente a primeira parcela cai na fatura atual ou próxima
+          // Vamos seguir a lógica de que a cada mês (i) cai no dia de vencimento escolhido
           const targetMonth = addMonths(new Date(baseDate.getFullYear(), baseDate.getMonth(), 1), i);
           const daysInMonth = new Date(targetMonth.getFullYear(), targetMonth.getMonth() + 1, 0).getDate();
-          const safeDay = Math.min(dayOfBilling, daysInMonth);
+          const safeDay = Math.min(vencimentoTarget, daysInMonth);
           
           const dataParcela = format(new Date(targetMonth.getFullYear(), targetMonth.getMonth(), safeDay), 'yyyy-MM-dd');
           
