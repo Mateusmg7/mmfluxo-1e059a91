@@ -411,19 +411,34 @@ export default function TransacoesPage() {
                     </div>
                   )}
                   {parcelado && !editId && (
-                    <div className="space-y-2">
-                      <Label>Número de parcelas</Label>
-                      <Input
-                        type="number"
-                        min="2"
-                        max="48"
-                        value={totalParcelas}
-                        onChange={(e) => setTotalParcelas(e.target.value)}
-                        placeholder="Ex: 12"
-                      />
+                    <div className="space-y-4 pt-2 border-t border-border/50">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label>Nº de parcelas</Label>
+                          <Input
+                            type="number"
+                            min="2"
+                            max="48"
+                            value={totalParcelas}
+                            onChange={(e) => setTotalParcelas(e.target.value)}
+                            placeholder="Ex: 12"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Dia do Vencimento</Label>
+                          <Input
+                            type="number"
+                            min="1"
+                            max="31"
+                            value={diaVencimento}
+                            onChange={(e) => setDiaVencimento(e.target.value)}
+                            placeholder="Ex: 10"
+                          />
+                        </div>
+                      </div>
                       {valor && parseInt(totalParcelas) >= 2 && (
-                        <p className="text-xs text-muted-foreground">
-                          {parseInt(totalParcelas)}x de {fmt(Math.round((parseFloat(valor) / parseInt(totalParcelas)) * 100) / 100)}
+                        <p className="text-xs text-muted-foreground bg-muted/50 p-2 rounded-md">
+                          Serão criadas <strong>{parseInt(totalParcelas)}x</strong> de <strong>{fmt(Math.round((parseFloat(valor) / parseInt(totalParcelas)) * 100) / 100)}</strong>, vencendo todo dia <strong>{diaVencimento}</strong>.
                         </p>
                       )}
                     </div>
