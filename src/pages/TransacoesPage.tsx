@@ -305,6 +305,7 @@ export default function TransacoesPage() {
       
       if (totalP) {
         setParcelado(true);
+        setIsNewInstallmentMode(false); // Garante que não é modo de criação de novas parcelas
       }
       setDialogOpen(true);
     }, 50);
