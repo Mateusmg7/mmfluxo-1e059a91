@@ -281,6 +281,7 @@ export default function TransacoesPage() {
   };
 
   const handleEdit = (t: any) => {
+    resetForm();
     setEditId(t.id);
     setTipoDespesa(t.tipo_despesa ?? 'essencial');
     setCategoryId(t.category_id ?? '');
@@ -291,6 +292,9 @@ export default function TransacoesPage() {
     setEditGrupoId(t.parcela_grupo_id ?? null);
     setEditTotalParcelas(t.total_parcelas ?? 0);
     setEditParcelaAtual(String(t.parcela_atual ?? 1));
+    if (t.total_parcelas) {
+      setParcelado(true);
+    }
     setDialogOpen(true);
   };
 
@@ -404,12 +408,17 @@ export default function TransacoesPage() {
                       <Input type="time" value={hora} onChange={(e) => setHora(e.target.value)} />
                     </div>
                   </div>
-                  {!editId && (
+                  {!editId ? (
                     <div className="flex items-center gap-2">
                       <Checkbox id="parcelado" checked={parcelado} onCheckedChange={(v) => { setParcelado(!!v); if (!v) setTotalParcelas('2'); }} />
                       <Label htmlFor="parcelado" className="text-sm cursor-pointer">Parcelado</Label>
                     </div>
-                  )}
+                  ) : editId && editTotalParcelas > 0 ? (
+                    <div className="flex items-center gap-2">
+                      <Checkbox id="parcelado" checked={true} disabled />
+                      <Label htmlFor="parcelado" className="text-sm text-muted-foreground">Parcelado (editar parcela individual)</Label>
+                    </div>
+                  ) : null}
                   {parcelado && !editId && (
                     <div className="space-y-4 pt-2 border-t border-border/50">
                       <div className="grid grid-cols-2 gap-4">
