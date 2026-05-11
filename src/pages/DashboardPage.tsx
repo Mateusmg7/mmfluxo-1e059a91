@@ -142,12 +142,18 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between animate-fade-up">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-fade-up">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">Dashboard</h2>
-          <p className="text-sm text-muted-foreground">Bem-vindo de volta, aqui está seu resumo.</p>
+          <h2 className="text-2xl font-bold tracking-tight">
+            Olá, {activeProfile?.name || 'Bem-vindo'}! 👋
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            Aqui está o resumo financeiro do seu perfil.
+          </p>
         </div>
-        <MonthSelector />
+        <div className="flex items-center gap-3">
+          <MonthSelector />
+        </div>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 animate-fade-up">
