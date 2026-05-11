@@ -247,9 +247,6 @@ export default function TransacoesPage() {
         const vencimentoTarget = parseInt(diaVencimento) || baseDate.getDate();
 
         for (let i = 0; i < numParcelas; i++) {
-          // A primeira parcela pode ser na data da compra ou no próximo vencimento
-          // Para cartões, geralmente a primeira parcela cai na fatura atual ou próxima
-          // Vamos seguir a lógica de que a cada mês (i) cai no dia de vencimento escolhido
           const targetMonth = addMonths(new Date(baseDate.getFullYear(), baseDate.getMonth(), 1), i);
           const daysInMonth = new Date(targetMonth.getFullYear(), targetMonth.getMonth() + 1, 0).getDate();
           const safeDay = Math.min(vencimentoTarget, daysInMonth);
