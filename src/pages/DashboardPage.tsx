@@ -83,9 +83,9 @@ export default function DashboardPage() {
     enabled: !!user && !!activeProfile,
   });
 
-  // Filtramos apenas as transações que NÃO são recorrentes para evitar duplicidade
-  const manualTransactions = transactions.filter(t => !t.recorrente);
-  const totalGastosManuais = manualTransactions.reduce((sum, item) => sum + Number(item.valor), 0);
+  // Todas as transações do mês (manuais e parcelas)
+  const monthTransactions = transactions.filter(t => !t.recorrente);
+  const totalGastosManuais = monthTransactions.reduce((sum, item) => sum + Number(item.valor), 0);
   const totalGastosRecorrentes = recurringRules
     .filter(r => r.ativo)
     .reduce((sum, item) => sum + Number(item.valor), 0);
@@ -120,7 +120,7 @@ export default function DashboardPage() {
   };
   
   const combinedActivities = [
-    ...manualTransactions.map(t => ({ ...t, activityType: 'expense' })),
+    ...monthTransactions.map(t => ({ ...t, activityType: 'expense' })),
     ...recurringRules.filter(r => r.ativo).map(r => ({ 
       ...r, 
       id: `rec-${r.id}`, 
