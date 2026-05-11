@@ -472,6 +472,7 @@ export default function TransacoesPage() {
                   )}
                   <Button onClick={handleSave} className="w-full">Salvar</Button>
                 </div>
+              </DialogContent>
             </Dialog>
 
           {/* Busca + filtros */}
