@@ -120,7 +120,7 @@ export default function TransacoesPage() {
   const minNum = valorMin ? parseFloat(valorMin.replace(',', '.')) : null;
   const maxNum = valorMax ? parseFloat(valorMax.replace(',', '.')) : null;
 
-  const filtered = transactions.filter((t: any) => {
+  const filtered = useMemo(() => transactions.filter((t: any) => {
     if (t.recorrente) return false;
     if (t.total_parcelas) return false; // Move parcelas para outra aba
     if (filtroTipo !== 'todos' && t.tipo_despesa !== filtroTipo) return false;
@@ -147,9 +147,9 @@ export default function TransacoesPage() {
       return nA.localeCompare(nB) * mult;
     }
     return 0;
-  });
+  }), [transactions, filtroTipo, filtroCategoria, minNum, maxNum, buscaNorm, ordem]);
 
-  const parcelasFiltered = transactions.filter((t: any) => {
+  const parcelasFiltered = useMemo(() => transactions.filter((t: any) => {
     if (!t.total_parcelas) return false;
     if (filtroTipo !== 'todos' && t.tipo_despesa !== filtroTipo) return false;
     if (filtroCategoria !== 'todas' && t.category_id !== filtroCategoria) return false;
@@ -175,7 +175,7 @@ export default function TransacoesPage() {
       return nA.localeCompare(nB) * mult;
     }
     return 0;
-  });
+  }), [transactions, filtroTipo, filtroCategoria, minNum, maxNum, buscaNorm, ordem]);
 
   const filtrosAtivos =
     (busca ? 1 : 0) +
@@ -234,12 +234,15 @@ export default function TransacoesPage() {
         const updatePayload: any = { ...basePayload, valor: valorNum, data, hora };
         if (editGrupoId && editTotalParcelas > 0) {
           updatePayload.parcela_atual = parseInt(editParcelaAtual) || 1;
+          updatePayload.total_parcelas = editTotalParcelas;
+          updatePayload.parcela_grupo_id = editGrupoId;
         }
         await updateTransaction(editId, updatePayload);
         toast.success('Gasto atualizado');
-      } else if (parcelado && !editId) {
-        const numParcelas = Math.max(2, Math.min(48, parseInt(totalParcelas) || 2));
-        const valorParcela = Math.round((valorNum / numParcelas) * 100) / 100;
+      } else if ((parcelado || isNewInstallmentMode) && !editId) {
+        const numParcelas = Math.max(2, Math.min(60, parseInt(totalParcelas) || 2));
+        const totalValor = parseFloat(valor);
+        const valorParcela = Math.round((totalValor / numParcelas) * 100) / 100;
         const grupoId = crypto.randomUUID();
         const parcelas = [];
         
@@ -247,9 +250,6 @@ export default function TransacoesPage() {
         const vencimentoTarget = parseInt(diaVencimento) || baseDate.getDate();
 
         for (let i = 0; i < numParcelas; i++) {
-          // A primeira parcela pode ser na data da compra ou no próximo vencimento
-          // Para cartões, geralmente a primeira parcela cai na fatura atual ou próxima
-          // Vamos seguir a lógica de que a cada mês (i) cai no dia de vencimento escolhido
           const targetMonth = addMonths(new Date(baseDate.getFullYear(), baseDate.getMonth(), 1), i);
           const daysInMonth = new Date(targetMonth.getFullYear(), targetMonth.getMonth() + 1, 0).getDate();
           const safeDay = Math.min(vencimentoTarget, daysInMonth);
@@ -294,11 +294,18 @@ export default function TransacoesPage() {
       setValor(String(t.valor));
       setData(t.data);
       setHora(t.hora);
-      setEditGrupoId(t.parcela_grupo_id ?? null);
-      setEditTotalParcelas(t.total_parcelas ?? 0);
-      setEditParcelaAtual(String(t.parcela_atual ?? 1));
-      if (t.total_parcelas) {
+      
+      const grupoId = t.parcela_grupo_id;
+      const totalP = t.total_parcelas;
+      const atualP = t.parcela_atual;
+
+      setEditGrupoId(grupoId ?? null);
+      setEditTotalParcelas(totalP ?? 0);
+      setEditParcelaAtual(String(atualP ?? 1));
+      
+      if (totalP) {
         setParcelado(true);
+        setIsNewInstallmentMode(false); // Garante que não é modo de criação de novas parcelas
       }
       setDialogOpen(true);
     }, 50);
@@ -419,7 +426,7 @@ export default function TransacoesPage() {
                     <div className="flex items-center gap-2">
                       <Checkbox 
                         id="parcelado" 
-                        checked={parcelado} 
+                        checked={parcelado || isNewInstallmentMode} 
                         disabled={isNewInstallmentMode}
                         onCheckedChange={(v) => { 
                           setParcelado(!!v); 
@@ -434,7 +441,7 @@ export default function TransacoesPage() {
                       <Label htmlFor="parcelado" className="text-sm text-muted-foreground">Parcelado (editar parcela individual)</Label>
                     </div>
                   ) : null}
-                  {parcelado && !editId && (
+                  {(parcelado || isNewInstallmentMode) && !editId && (
                     <div className="space-y-4 pt-2 border-t border-border/50">
                       <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
@@ -442,7 +449,7 @@ export default function TransacoesPage() {
                           <Input
                             type="number"
                             min="2"
-                            max="48"
+                            max="60"
                             value={totalParcelas}
                             onChange={(e) => setTotalParcelas(e.target.value)}
                             placeholder="Ex: 12"
@@ -460,7 +467,7 @@ export default function TransacoesPage() {
                           />
                         </div>
                       </div>
-                      {valor && parseInt(totalParcelas) >= 2 && (
+                      {valor && parseInt(totalParcelas) >= 2 && !isNaN(parseFloat(valor)) && (
                         <p className="text-xs text-muted-foreground bg-muted/50 p-2 rounded-md">
                           Serão criadas <strong>{parseInt(totalParcelas)}x</strong> de <strong>{fmt(Math.round((parseFloat(valor) / parseInt(totalParcelas)) * 100) / 100)}</strong>, vencendo todo dia <strong>{diaVencimento}</strong>.
                         </p>
@@ -665,6 +672,8 @@ export default function TransacoesPage() {
                 resetForm(); 
                 setIsNewInstallmentMode(true);
                 setParcelado(true); 
+                setTotalParcelas('2');
+                setDiaVencimento(format(new Date(), 'dd'));
                 setDialogOpen(true); 
               }}>
                 <Plus size={16} className="mr-2" />
