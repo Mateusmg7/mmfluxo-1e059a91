@@ -88,6 +88,7 @@ export default function TransacoesPage() {
   const [parcelado, setParcelado] = useState(false);
   const [totalParcelas, setTotalParcelas] = useState('2');
   const [diaVencimento, setDiaVencimento] = useState(format(now, 'dd'));
+  const [isNewInstallmentMode, setIsNewInstallmentMode] = useState(false);
 
   const { data: categories = [] } = useQuery({
     queryKey: qk.categories.byProfile(activeProfile?.id),
@@ -207,6 +208,7 @@ export default function TransacoesPage() {
     setEditGrupoId(null);
     setEditTotalParcelas(0);
     setEditParcelaAtual('1');
+    setIsNewInstallmentMode(false);
   };
 
   const handleSave = async () => {
@@ -415,7 +417,15 @@ export default function TransacoesPage() {
                   </div>
                   {!editId ? (
                     <div className="flex items-center gap-2">
-                      <Checkbox id="parcelado" checked={parcelado} onCheckedChange={(v) => { setParcelado(!!v); if (!v) setTotalParcelas('2'); }} />
+                      <Checkbox 
+                        id="parcelado" 
+                        checked={parcelado} 
+                        disabled={isNewInstallmentMode}
+                        onCheckedChange={(v) => { 
+                          setParcelado(!!v); 
+                          if (!v) setTotalParcelas('2'); 
+                        }} 
+                      />
                       <Label htmlFor="parcelado" className="text-sm cursor-pointer">Parcelado</Label>
                     </div>
                   ) : editId && editTotalParcelas > 0 ? (
@@ -651,7 +661,12 @@ export default function TransacoesPage() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <MonthSelector />
             <div className="flex items-center gap-2">
-              <Button onClick={() => { resetForm(); setParcelado(true); setDialogOpen(true); }}>
+              <Button onClick={() => { 
+                resetForm(); 
+                setIsNewInstallmentMode(true);
+                setParcelado(true); 
+                setDialogOpen(true); 
+              }}>
                 <Plus size={16} className="mr-2" />
                 Nova Parcela
               </Button>
