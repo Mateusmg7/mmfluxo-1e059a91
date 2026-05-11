@@ -647,11 +647,7 @@ export default function TransacoesPage() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <MonthSelector />
             <div className="flex items-center gap-2">
-              <Button onClick={() => {
-                resetForm();
-                setParcelado(true);
-                setDialogOpen(true);
-              }}>
+              <Button onClick={() => { resetForm(); setParcelado(true); setDialogOpen(true); }}>
                 <Plus size={16} className="mr-2" />
                 Nova Parcela
               </Button>
