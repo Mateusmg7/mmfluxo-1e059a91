@@ -431,7 +431,7 @@ export default function TransacoesPage() {
                       <Label htmlFor="parcelado" className="text-sm text-muted-foreground">Parcelado (editar parcela individual)</Label>
                     </div>
                   ) : null}
-                  {parcelado && !editId && (
+                  {(parcelado || isNewInstallmentMode) && !editId && (
                     <div className="space-y-4 pt-2 border-t border-border/50">
                       <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
