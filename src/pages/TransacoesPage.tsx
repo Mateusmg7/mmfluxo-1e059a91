@@ -466,7 +466,7 @@ export default function TransacoesPage() {
                           />
                         </div>
                       </div>
-                      {valor && parseInt(totalParcelas) >= 2 && (
+                      {valor && parseInt(totalParcelas) >= 2 && !isNaN(parseFloat(valor)) && (
                         <p className="text-xs text-muted-foreground bg-muted/50 p-2 rounded-md">
                           Serão criadas <strong>{parseInt(totalParcelas)}x</strong> de <strong>{fmt(Math.round((parseFloat(valor) / parseInt(totalParcelas)) * 100) / 100)}</strong>, vencendo todo dia <strong>{diaVencimento}</strong>.
                         </p>
