@@ -342,19 +342,20 @@ export default function TransacoesPage() {
           <TabsTrigger value="parcelas" className="flex-1 sm:flex-auto">Parcelas</TabsTrigger>
         </TabsList>
 
-        {/* ===== ABA GASTOS (COMPRAS ÚNICAS) ===== */}
         <TabsContent value="gastos" className="space-y-6 mt-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <MonthSelector />
-            <Dialog open={dialogOpen} onOpenChange={(o) => { setDialogOpen(o); if (!o) { resetForm(); qc.invalidateQueries({ queryKey: qk.transactions.all }); } }}>
-              <DialogTrigger asChild>
-                <Button><Plus size={16} className="mr-2" />Adicionar Compra</Button>
-              </DialogTrigger>
-              <DialogContent className="bg-card border-border">
-                <DialogHeader>
-                  <DialogTitle>{editId ? 'Editar' : 'Novo'} Gasto</DialogTitle>
-                </DialogHeader>
-                <div className="space-y-4">
+            <Button onClick={() => { resetForm(); setDialogOpen(true); }}>
+              <Plus size={16} className="mr-2" />Adicionar Compra
+            </Button>
+          </div>
+
+          <Dialog open={dialogOpen} onOpenChange={(o) => { setDialogOpen(o); if (!o) { resetForm(); qc.invalidateQueries({ queryKey: qk.transactions.all }); } }}>
+            <DialogContent className="bg-card border-border">
+              <DialogHeader>
+                <DialogTitle>{editId ? 'Editar' : 'Novo'} Gasto</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
                   <div className="space-y-2">
                     <Label>Tipo de gasto</Label>
                     <Select value={tipoDespesa} onValueChange={(v) => { setTipoDespesa(v); if (v !== 'essencial') setCategoryId(''); }}>
@@ -473,7 +474,6 @@ export default function TransacoesPage() {
                 </div>
               </DialogContent>
             </Dialog>
-          </div>
 
           {/* Busca + filtros */}
           <div className="space-y-3">
