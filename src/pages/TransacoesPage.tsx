@@ -448,7 +448,7 @@ export default function TransacoesPage() {
                           <Input
                             type="number"
                             min="2"
-                            max="48"
+                            max="60"
                             value={totalParcelas}
                             onChange={(e) => setTotalParcelas(e.target.value)}
                             placeholder="Ex: 12"
