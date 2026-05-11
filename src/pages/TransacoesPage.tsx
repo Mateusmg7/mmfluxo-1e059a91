@@ -87,6 +87,7 @@ export default function TransacoesPage() {
   
   const [parcelado, setParcelado] = useState(false);
   const [totalParcelas, setTotalParcelas] = useState('2');
+  const [diaVencimento, setDiaVencimento] = useState(format(now, 'dd'));
 
   const { data: categories = [] } = useQuery({
     queryKey: qk.categories.byProfile(activeProfile?.id),
@@ -201,6 +202,7 @@ export default function TransacoesPage() {
     setHora(format(now, 'HH:mm'));
     setParcelado(false);
     setTotalParcelas('2');
+    setDiaVencimento(format(new Date(), 'dd'));
     setEditId(null);
     setEditGrupoId(null);
     setEditTotalParcelas(0);
@@ -236,17 +238,17 @@ export default function TransacoesPage() {
         const valorParcela = Math.round((valorNum / numParcelas) * 100) / 100;
         const grupoId = crypto.randomUUID();
         const parcelas = [];
-
+        
         const baseDate = new Date(data + 'T12:00:00');
-        const dayOfBilling = baseDate.getDate();
+        const vencimentoTarget = parseInt(diaVencimento) || baseDate.getDate();
 
         for (let i = 0; i < numParcelas; i++) {
-          let dataParcelaDate = addMonths(baseDate, i);
-          
-          // Ajustar para garantir que o dia de vencimento seja respeitado (lidando com meses curtos)
+          // A primeira parcela pode ser na data da compra ou no próximo vencimento
+          // Para cartões, geralmente a primeira parcela cai na fatura atual ou próxima
+          // Vamos seguir a lógica de que a cada mês (i) cai no dia de vencimento escolhido
           const targetMonth = addMonths(new Date(baseDate.getFullYear(), baseDate.getMonth(), 1), i);
           const daysInMonth = new Date(targetMonth.getFullYear(), targetMonth.getMonth() + 1, 0).getDate();
-          const safeDay = Math.min(dayOfBilling, daysInMonth);
+          const safeDay = Math.min(vencimentoTarget, daysInMonth);
           
           const dataParcela = format(new Date(targetMonth.getFullYear(), targetMonth.getMonth(), safeDay), 'yyyy-MM-dd');
           
@@ -409,19 +411,34 @@ export default function TransacoesPage() {
                     </div>
                   )}
                   {parcelado && !editId && (
-                    <div className="space-y-2">
-                      <Label>Número de parcelas</Label>
-                      <Input
-                        type="number"
-                        min="2"
-                        max="48"
-                        value={totalParcelas}
-                        onChange={(e) => setTotalParcelas(e.target.value)}
-                        placeholder="Ex: 12"
-                      />
+                    <div className="space-y-4 pt-2 border-t border-border/50">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label>Nº de parcelas</Label>
+                          <Input
+                            type="number"
+                            min="2"
+                            max="48"
+                            value={totalParcelas}
+                            onChange={(e) => setTotalParcelas(e.target.value)}
+                            placeholder="Ex: 12"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Dia do Vencimento</Label>
+                          <Input
+                            type="number"
+                            min="1"
+                            max="31"
+                            value={diaVencimento}
+                            onChange={(e) => setDiaVencimento(e.target.value)}
+                            placeholder="Ex: 10"
+                          />
+                        </div>
+                      </div>
                       {valor && parseInt(totalParcelas) >= 2 && (
-                        <p className="text-xs text-muted-foreground">
-                          {parseInt(totalParcelas)}x de {fmt(Math.round((parseFloat(valor) / parseInt(totalParcelas)) * 100) / 100)}
+                        <p className="text-xs text-muted-foreground bg-muted/50 p-2 rounded-md">
+                          Serão criadas <strong>{parseInt(totalParcelas)}x</strong> de <strong>{fmt(Math.round((parseFloat(valor) / parseInt(totalParcelas)) * 100) / 100)}</strong>, vencendo todo dia <strong>{diaVencimento}</strong>.
                         </p>
                       )}
                     </div>
