@@ -202,6 +202,7 @@ export default function TransacoesPage() {
     setHora(format(now, 'HH:mm'));
     setParcelado(false);
     setTotalParcelas('2');
+    setDiaVencimento(format(new Date(), 'dd'));
     setEditId(null);
     setEditGrupoId(null);
     setEditTotalParcelas(0);
