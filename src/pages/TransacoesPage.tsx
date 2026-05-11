@@ -120,7 +120,7 @@ export default function TransacoesPage() {
   const minNum = valorMin ? parseFloat(valorMin.replace(',', '.')) : null;
   const maxNum = valorMax ? parseFloat(valorMax.replace(',', '.')) : null;
 
-  const filtered = transactions.filter((t: any) => {
+  const filtered = useMemo(() => transactions.filter((t: any) => {
     if (t.recorrente) return false;
     if (t.total_parcelas) return false; // Move parcelas para outra aba
     if (filtroTipo !== 'todos' && t.tipo_despesa !== filtroTipo) return false;
@@ -147,7 +147,7 @@ export default function TransacoesPage() {
       return nA.localeCompare(nB) * mult;
     }
     return 0;
-  });
+  }), [transactions, filtroTipo, filtroCategoria, minNum, maxNum, buscaNorm, ordem]);
 
   const parcelasFiltered = useMemo(() => transactions.filter((t: any) => {
     if (!t.total_parcelas) return false;
