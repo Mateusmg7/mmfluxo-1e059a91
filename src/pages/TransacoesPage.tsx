@@ -416,7 +416,7 @@ export default function TransacoesPage() {
                     <div className="flex items-center gap-2">
                       <Checkbox 
                         id="parcelado" 
-                        checked={parcelado} 
+                        checked={parcelado || isNewInstallmentMode} 
                         disabled={isNewInstallmentMode}
                         onCheckedChange={(v) => { 
                           setParcelado(!!v); 
