@@ -124,7 +124,7 @@ export default function DashboardPage() {
     ...recurringRules.filter(r => r.ativo).map(r => ({ 
       ...r, 
       id: `rec-${r.id}`, 
-      data: format(new Date(currentMonth.getFullYear(), currentMonth.getMonth(), r.dia_vencimento), 'yyyy-MM-dd'),
+      data: format(new Date(currentMonth.getFullYear(), currentMonth.getMonth(), Math.min(r.dia_vencimento, new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0).getDate())), 'yyyy-MM-dd'),
       activityType: 'expense',
       isRecurringRule: true 
     })),
