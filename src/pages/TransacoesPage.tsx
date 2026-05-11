@@ -202,7 +202,7 @@ export default function TransacoesPage() {
     setHora(format(now, 'HH:mm'));
     setParcelado(false);
     setTotalParcelas('2');
-    setDiaVencimento(format(new Date(), 'dd'));
+    setDiaVencimento(format(now, 'dd'));
     setEditId(null);
     setEditGrupoId(null);
     setEditTotalParcelas(0);
@@ -214,11 +214,13 @@ export default function TransacoesPage() {
     if (tipoDespesa === 'essencial' && !categoryId) { toast.error('Selecione a categoria'); return; }
 
     const valorNum = parseFloat(valor);
+    if (isNaN(valorNum)) { toast.error('Valor inválido'); return; }
+
     const basePayload: any = {
       user_id: user!.id,
       tipo_despesa: tipoDespesa,
       motivo,
-      descricao: motivo,
+      descricao: motivo || (tipoDespesa === 'essencial' ? categories.find(c => c.id === categoryId)?.nome : TIPO_LABELS[tipoDespesa]) || 'Gasto',
       status: 'pago',
       recorrente: false,
       profile_id: activeProfile?.id,
@@ -282,20 +284,22 @@ export default function TransacoesPage() {
 
   const handleEdit = (t: any) => {
     resetForm();
-    setEditId(t.id);
-    setTipoDespesa(t.tipo_despesa ?? 'essencial');
-    setCategoryId(t.category_id ?? '');
-    setMotivo(t.motivo ?? '');
-    setValor(String(t.valor));
-    setData(t.data);
-    setHora(t.hora);
-    setEditGrupoId(t.parcela_grupo_id ?? null);
-    setEditTotalParcelas(t.total_parcelas ?? 0);
-    setEditParcelaAtual(String(t.parcela_atual ?? 1));
-    if (t.total_parcelas) {
-      setParcelado(true);
-    }
-    setDialogOpen(true);
+    setTimeout(() => {
+      setEditId(t.id);
+      setTipoDespesa(t.tipo_despesa ?? 'essencial');
+      setCategoryId(t.category_id ?? '');
+      setMotivo(t.motivo ?? '');
+      setValor(String(t.valor));
+      setData(t.data);
+      setHora(t.hora);
+      setEditGrupoId(t.parcela_grupo_id ?? null);
+      setEditTotalParcelas(t.total_parcelas ?? 0);
+      setEditParcelaAtual(String(t.parcela_atual ?? 1));
+      if (t.total_parcelas) {
+        setParcelado(true);
+      }
+      setDialogOpen(true);
+    }, 50);
   };
 
   const confirmDelete = (id: string) => {
