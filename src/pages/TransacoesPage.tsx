@@ -356,7 +356,6 @@ export default function TransacoesPage() {
                 <DialogTitle>{editId ? 'Editar' : 'Novo'} Gasto</DialogTitle>
               </DialogHeader>
               <div className="space-y-4">
-                <div className="space-y-4">
                   <div className="space-y-2">
                     <Label>Tipo de gasto</Label>
                     <Select value={tipoDespesa} onValueChange={(v) => { setTipoDespesa(v); if (v !== 'essencial') setCategoryId(''); }}>
@@ -473,7 +472,6 @@ export default function TransacoesPage() {
                   )}
                   <Button onClick={handleSave} className="w-full">Salvar</Button>
                 </div>
-              </DialogContent>
             </Dialog>
 
           {/* Busca + filtros */}
