@@ -214,11 +214,13 @@ export default function TransacoesPage() {
     if (tipoDespesa === 'essencial' && !categoryId) { toast.error('Selecione a categoria'); return; }
 
     const valorNum = parseFloat(valor);
+    if (isNaN(valorNum)) { toast.error('Valor inválido'); return; }
+
     const basePayload: any = {
       user_id: user!.id,
       tipo_despesa: tipoDespesa,
       motivo,
-      descricao: motivo,
+      descricao: motivo || (tipoDespesa === 'essencial' ? categories.find(c => c.id === categoryId)?.nome : TIPO_LABELS[tipoDespesa]) || 'Gasto',
       status: 'pago',
       recorrente: false,
       profile_id: activeProfile?.id,
