@@ -149,7 +149,7 @@ export default function TransacoesPage() {
     return 0;
   });
 
-  const parcelasFiltered = transactions.filter((t: any) => {
+  const parcelasFiltered = useMemo(() => transactions.filter((t: any) => {
     if (!t.total_parcelas) return false;
     if (filtroTipo !== 'todos' && t.tipo_despesa !== filtroTipo) return false;
     if (filtroCategoria !== 'todas' && t.category_id !== filtroCategoria) return false;
