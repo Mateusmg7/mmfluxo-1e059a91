@@ -281,6 +281,7 @@ export default function TransacoesPage() {
   };
 
   const handleEdit = (t: any) => {
+    resetForm();
     setEditId(t.id);
     setTipoDespesa(t.tipo_despesa ?? 'essencial');
     setCategoryId(t.category_id ?? '');
@@ -291,6 +292,9 @@ export default function TransacoesPage() {
     setEditGrupoId(t.parcela_grupo_id ?? null);
     setEditTotalParcelas(t.total_parcelas ?? 0);
     setEditParcelaAtual(String(t.parcela_atual ?? 1));
+    if (t.total_parcelas) {
+      setParcelado(true);
+    }
     setDialogOpen(true);
   };
 
