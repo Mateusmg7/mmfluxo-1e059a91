@@ -291,10 +291,16 @@ export default function TransacoesPage() {
       setValor(String(t.valor));
       setData(t.data);
       setHora(t.hora);
-      setEditGrupoId(t.parcela_grupo_id ?? null);
-      setEditTotalParcelas(t.total_parcelas ?? 0);
-      setEditParcelaAtual(String(t.parcela_atual ?? 1));
-      if (t.total_parcelas) {
+      
+      const grupoId = t.parcela_grupo_id;
+      const totalP = t.total_parcelas;
+      const atualP = t.parcela_atual;
+
+      setEditGrupoId(grupoId ?? null);
+      setEditTotalParcelas(totalP ?? 0);
+      setEditParcelaAtual(String(atualP ?? 1));
+      
+      if (totalP) {
         setParcelado(true);
       }
       setDialogOpen(true);
