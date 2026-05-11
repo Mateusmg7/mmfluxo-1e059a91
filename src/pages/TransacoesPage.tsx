@@ -417,7 +417,14 @@ export default function TransacoesPage() {
                   </div>
                   {!editId ? (
                     <div className="flex items-center gap-2">
-                      <Checkbox id="parcelado" checked={parcelado} onCheckedChange={(v) => { setParcelado(!!v); if (!v) setTotalParcelas('2'); }} />
+                      <Checkbox 
+                        id="parcelado" 
+                        checked={parcelado} 
+                        onCheckedChange={(v) => { 
+                          setParcelado(!!v); 
+                          if (!v) setTotalParcelas('2'); 
+                        }} 
+                      />
                       <Label htmlFor="parcelado" className="text-sm cursor-pointer">Parcelado</Label>
                     </div>
                   ) : editId && editTotalParcelas > 0 ? (
