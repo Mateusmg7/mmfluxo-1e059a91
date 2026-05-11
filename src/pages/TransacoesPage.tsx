@@ -88,6 +88,7 @@ export default function TransacoesPage() {
   const [parcelado, setParcelado] = useState(false);
   const [totalParcelas, setTotalParcelas] = useState('2');
   const [diaVencimento, setDiaVencimento] = useState(format(now, 'dd'));
+  const [isNewInstallmentMode, setIsNewInstallmentMode] = useState(false);
 
   const { data: categories = [] } = useQuery({
     queryKey: qk.categories.byProfile(activeProfile?.id),
