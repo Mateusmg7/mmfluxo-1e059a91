@@ -420,6 +420,7 @@ export default function TransacoesPage() {
                       <Checkbox 
                         id="parcelado" 
                         checked={parcelado} 
+                        disabled={isNewInstallmentMode}
                         onCheckedChange={(v) => { 
                           setParcelado(!!v); 
                           if (!v) setTotalParcelas('2'); 
