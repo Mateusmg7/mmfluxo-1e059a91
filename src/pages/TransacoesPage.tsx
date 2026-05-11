@@ -234,6 +234,8 @@ export default function TransacoesPage() {
         const updatePayload: any = { ...basePayload, valor: valorNum, data, hora };
         if (editGrupoId && editTotalParcelas > 0) {
           updatePayload.parcela_atual = parseInt(editParcelaAtual) || 1;
+          updatePayload.total_parcelas = editTotalParcelas;
+          updatePayload.parcela_grupo_id = editGrupoId;
         }
         await updateTransaction(editId, updatePayload);
         toast.success('Gasto atualizado');
