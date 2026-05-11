@@ -175,7 +175,7 @@ export default function TransacoesPage() {
       return nA.localeCompare(nB) * mult;
     }
     return 0;
-  });
+  }), [transactions, filtroTipo, filtroCategoria, minNum, maxNum, buscaNorm, ordem]);
 
   const filtrosAtivos =
     (busca ? 1 : 0) +
