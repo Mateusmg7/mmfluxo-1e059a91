@@ -269,7 +269,7 @@ export default function ProfileSwitcher() {
                   onClick={() => handleProfileSelect(p)}
                 >
               <div className="flex items-center gap-3">
-                <span className="flex items-center justify-center w-8 h-8 rounded-full text-lg shadow-sm border border-black/20" style={{ backgroundColor: p.color, color: '#4B5563' }}>
+                <span className="flex items-center justify-center w-8 h-8 rounded-full text-lg shadow-sm border border-black/20" style={{ backgroundColor: p.color, color: 'rgb(75, 85, 99)' }}>
                   {p.icon}
                 </span>
                     <span className={cn(
