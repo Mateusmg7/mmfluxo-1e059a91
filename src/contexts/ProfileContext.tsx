@@ -15,6 +15,8 @@ interface FinancialProfile {
   created_at: string;
   orcamento_mensal: number;
   pin?: string;
+  pin_reset_code?: string;
+  pin_reset_expires?: string;
 }
 
 interface ProfileContextType {
