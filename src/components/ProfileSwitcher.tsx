@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useProfile } from '@/contexts/ProfileContext';
 import { Button } from '@/components/ui/button';
 import DuplicateDataDialog from '@/components/dialogs/DuplicateDataDialog';
+import { ConfirmDeleteDialog } from '@/components/dialogs/ConfirmDeleteDialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -57,6 +58,8 @@ export default function ProfileSwitcher() {
   const { profiles, activeProfile, setActiveProfileId, createProfile, updateProfile, deleteProfile } = useProfile();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [duplicateOpen, setDuplicateOpen] = useState(false);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [profileToDelete, setProfileToDelete] = useState<string | null>(null);
   const [editId, setEditId] = useState<string | null>(null);
   const [name, setName] = useState('');
   const [icon, setIcon] = useState('👤');
@@ -145,7 +148,8 @@ export default function ProfileSwitcher() {
                     onClick={(e) => { 
                       e.preventDefault();
                       e.stopPropagation(); 
-                      deleteProfile(p.id); 
+                      setProfileToDelete(p.id);
+                      setDeleteConfirmOpen(true);
                     }}
                     className="p-1.5 rounded-md hover:bg-background/80 text-muted-foreground hover:text-destructive transition-colors"
                     title="Remover perfil"
@@ -267,6 +271,19 @@ export default function ProfileSwitcher() {
       </Dialog>
 
       <DuplicateDataDialog open={duplicateOpen} onOpenChange={setDuplicateOpen} />
+      
+      <ConfirmDeleteDialog
+        open={deleteConfirmOpen}
+        onOpenChange={setDeleteConfirmOpen}
+        onConfirm={() => {
+          if (profileToDelete) {
+            deleteProfile(profileToDelete);
+            setProfileToDelete(null);
+          }
+        }}
+        title="Excluir Perfil"
+        description="Tem certeza que deseja excluir este perfil? Todos os dados vinculados a ele serão removidos permanentemente."
+      />
     </>
   );
 }
