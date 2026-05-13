@@ -270,7 +270,20 @@ export default function ProfileSwitcher() {
         </DialogContent>
       </Dialog>
 
-      <DuplicateDataDialog open={duplicateOpen} onOpenChange={setDuplicateOpen} />
+      <DuplicateDataDialog open={duplicateOpen} onOpenChange={duplicateOpen} />
+      
+      <ConfirmDeleteDialog
+        open={deleteConfirmOpen}
+        onOpenChange={setDeleteConfirmOpen}
+        onConfirm={() => {
+          if (profileToDelete) {
+            deleteProfile(profileToDelete);
+            setProfileToDelete(null);
+          }
+        }}
+        title="Excluir Perfil"
+        description="Tem certeza que deseja excluir este perfil? Todos os dados vinculados a ele serão removidos permanentemente."
+      />
     </>
   );
 }
