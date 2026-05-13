@@ -98,7 +98,10 @@ export default function ProfileSwitcher() {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-secondary/50 hover:bg-secondary text-sm font-medium transition-all hover:scale-105 active:scale-95 group">
-            <span className="flex items-center justify-center w-6 h-6 rounded-full transition-transform group-hover:rotate-12" style={{ backgroundColor: activeProfile.color + '20', color: activeProfile.color }}>
+            <span 
+              className="flex items-center justify-center w-6 h-6 rounded-full transition-transform group-hover:rotate-12" 
+              style={{ backgroundColor: activeProfile.color, color: '#fff' }}
+            >
               {activeProfile.icon}
             </span>
             <span className="hidden sm:inline max-w-[100px] truncate">{activeProfile.name}</span>
