@@ -148,7 +148,8 @@ export default function ProfileSwitcher() {
                     onClick={(e) => { 
                       e.preventDefault();
                       e.stopPropagation(); 
-                      deleteProfile(p.id); 
+                      setProfileToDelete(p.id);
+                      setDeleteConfirmOpen(true);
                     }}
                     className="p-1.5 rounded-md hover:bg-background/80 text-muted-foreground hover:text-destructive transition-colors"
                     title="Remover perfil"
