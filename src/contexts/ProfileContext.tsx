@@ -91,6 +91,7 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
     if (profile && !profile.pin) {
       localStorage.setItem('mm_active_profile', id);
     } else {
+      localStorage.setItem('mm_active_profile_hint', id);
       // If it has a PIN, we don't store it in localStorage to force re-entry on reload
       localStorage.removeItem('mm_active_profile');
     }
