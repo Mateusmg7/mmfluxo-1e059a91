@@ -29,7 +29,17 @@ export default function AuthPage() {
     setLoading(true);
 
     try {
-      if (isLogin) {
+      if (isRecovery) {
+        if (password !== confirmPassword) {
+          throw new Error('As senhas não coincidem');
+        }
+        const { error } = await supabase.auth.updateUser({ password });
+        if (error) throw error;
+        toast.success('Senha atualizada com sucesso! Você já pode entrar.');
+        setIsRecovery(false);
+        setIsLogin(true);
+        window.history.replaceState({}, '', window.location.pathname);
+      } else if (isLogin) {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         toast.success('Login realizado!');
