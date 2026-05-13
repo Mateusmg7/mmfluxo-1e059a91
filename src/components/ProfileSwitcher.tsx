@@ -246,11 +246,11 @@ export default function ProfileSwitcher() {
           <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-secondary/50 hover:bg-secondary text-sm font-medium transition-all hover:scale-105 active:scale-95 group">
             <span 
               className="flex items-center justify-center w-6 h-6 rounded-full transition-transform group-hover:rotate-12 border border-black/20" 
-              style={{ backgroundColor: activeProfile.color, color: '#4B5563' }}
+              style={{ backgroundColor: activeProfile.color, color: 'rgb(75, 85, 99)' }}
             >
               {activeProfile.icon}
             </span>
-            <span className="hidden sm:inline max-w-[100px] truncate">{activeProfile.name}</span>
+            <span className="max-w-[100px] truncate">{activeProfile.name}</span>
             <ChevronDown size={14} className="text-muted-foreground transition-transform group-data-[state=open]:rotate-180" />
           </button>
             </DropdownMenuTrigger>
@@ -347,7 +347,7 @@ export default function ProfileSwitcher() {
             }}
           >
             <Lock size={14} className="text-primary" />
-            <span className="hidden sm:inline">Desbloquear Perfil</span>
+            <span>Desbloquear Perfil</span>
           </Button>
         )}
       </div>
