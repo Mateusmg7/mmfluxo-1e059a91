@@ -186,6 +186,8 @@ export type Database = {
           name: string
           orcamento_mensal: number | null
           pin: string | null
+          pin_reset_code: string | null
+          pin_reset_expires: string | null
           user_id: string
         }
         Insert: {
@@ -197,6 +199,8 @@ export type Database = {
           name?: string
           orcamento_mensal?: number | null
           pin?: string | null
+          pin_reset_code?: string | null
+          pin_reset_expires?: string | null
           user_id: string
         }
         Update: {
@@ -208,6 +212,8 @@ export type Database = {
           name?: string
           orcamento_mensal?: number | null
           pin?: string | null
+          pin_reset_code?: string | null
+          pin_reset_expires?: string | null
           user_id?: string
         }
         Relationships: []

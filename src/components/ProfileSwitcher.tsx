@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useProfile } from '@/contexts/ProfileContext';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import DuplicateDataDialog from '@/components/dialogs/DuplicateDataDialog';
 import { ConfirmDeleteDialog } from '@/components/dialogs/ConfirmDeleteDialog';
@@ -69,9 +70,13 @@ export default function ProfileSwitcher() {
   
   // States for PIN entry dialog
   const [pinDialogOpen, setPinDialogOpen] = useState(false);
+  const [resetDialogOpen, setResetDialogOpen] = useState(false);
   const [pendingProfileId, setPendingProfileId] = useState<string | null>(null);
   const [enteredPin, setEnteredPin] = useState(['', '', '', '']);
+  const [resetCode, setResetCode] = useState(['', '', '', '', '', '']);
+  const [isSendingCode, setIsSendingCode] = useState(false);
   const pinInputs = useRef<(HTMLInputElement | null)[]>([]);
+  const resetInputs = useRef<(HTMLInputElement | null)[]>([]);
 
   useEffect(() => {
     if (activeProfile?.color) {
@@ -110,10 +115,68 @@ export default function ProfileSwitcher() {
       setPendingProfileId(p.id);
       setEnteredPin(['', '', '', '']);
       setPinDialogOpen(true);
-      // Small timeout to focus first input after dialog opens
       setTimeout(() => pinInputs.current[0]?.focus(), 100);
     } else {
       setActiveProfileId(p.id);
+    }
+  };
+
+  const handleSendResetCode = async () => {
+    if (!pendingProfileId) return;
+    setIsSendingCode(true);
+    
+    try {
+      const code = Math.floor(100000 + Math.random() * 900000).toString();
+      const expires = new Date(Date.now() + 15 * 60 * 1000).toISOString();
+      
+      const { error } = await supabase
+        .from('financial_profiles')
+        .update({ pin_reset_code: code, pin_reset_expires: expires })
+        .eq('id', pendingProfileId);
+
+      if (error) throw error;
+
+      // In a real app with configured email, this would be an Edge Function call.
+      // Since email setup requires user interaction, we show the code in a toast 
+      // for now so they can test the flow.
+      toast.info(`Código de recuperação (simulado): ${code}`, { duration: 10000 });
+      setResetDialogOpen(true);
+      setPinDialogOpen(false);
+      setTimeout(() => resetInputs.current[0]?.focus(), 100);
+    } catch (err: any) {
+      toast.error('Erro ao enviar código: ' + err.message);
+    } finally {
+      setIsSendingCode(false);
+    }
+  };
+
+  const handleVerifyResetCode = async () => {
+    const finalCode = resetCode.join('');
+    const targetProfile = profiles.find(p => p.id === pendingProfileId);
+    
+    if (targetProfile && targetProfile.pin_reset_code === finalCode) {
+      const isExpired = targetProfile.pin_reset_expires && new Date(targetProfile.pin_reset_expires) < new Date();
+      if (isExpired) {
+        toast.error('Código expirado');
+        return;
+      }
+
+      // Reset the PIN
+      const { error } = await supabase
+        .from('financial_profiles')
+        .update({ pin: null, pin_reset_code: null, pin_reset_expires: null })
+        .eq('id', pendingProfileId);
+
+      if (error) {
+        toast.error('Erro ao resetar PIN');
+      } else {
+        toast.success('PIN removido com sucesso!');
+        setActiveProfileId(pendingProfileId!);
+        setResetDialogOpen(false);
+        setPendingProfileId(null);
+      }
+    } else {
+      toast.error('Código inválido');
     }
   };
 
@@ -135,14 +198,18 @@ export default function ProfileSwitcher() {
 
   const handlePinInputChange = (index: number, value: string) => {
     if (!/^\d*$/.test(value)) return;
-    
     const newPin = [...enteredPin];
     newPin[index] = value.slice(-1);
     setEnteredPin(newPin);
+    if (value && index < 3) pinInputs.current[index + 1]?.focus();
+  };
 
-    if (value && index < 3) {
-      pinInputs.current[index + 1]?.focus();
-    }
+  const handleResetInputChange = (index: number, value: string) => {
+    if (!/^\d*$/.test(value)) return;
+    const newCode = [...resetCode];
+    newCode[index] = value.slice(-1);
+    setResetCode(newCode);
+    if (value && index < 5) resetInputs.current[index + 1]?.focus();
   };
 
   const handlePinKeyDown = (index: number, e: React.KeyboardEvent) => {
@@ -150,6 +217,14 @@ export default function ProfileSwitcher() {
       pinInputs.current[index - 1]?.focus();
     } else if (e.key === 'Enter' && enteredPin.every(v => v !== '')) {
       handlePinSubmit();
+    }
+  };
+
+  const handleResetKeyDown = (index: number, e: React.KeyboardEvent) => {
+    if (e.key === 'Backspace' && !resetCode[index] && index > 0) {
+      resetInputs.current[index - 1]?.focus();
+    } else if (e.key === 'Enter' && resetCode.every(v => v !== '')) {
+      handleVerifyResetCode();
     }
   };
 
@@ -422,6 +497,72 @@ export default function ProfileSwitcher() {
             >
               Confirmar
             </Button>
+            
+            <button 
+              onClick={handleSendResetCode}
+              disabled={isSendingCode}
+              className="w-full text-[10px] text-muted-foreground hover:text-primary transition-colors mt-2"
+            >
+              {isSendingCode ? 'Enviando...' : 'Esqueci minha senha'}
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Reset PIN Dialog */}
+      <Dialog open={resetDialogOpen} onOpenChange={(o) => {
+        if (!o) {
+          setResetDialogOpen(false);
+          setPendingProfileId(null);
+          setResetCode(['', '', '', '', '', '']);
+        }
+      }}>
+        <DialogContent className="bg-card/95 backdrop-blur-lg border-border max-w-[320px] p-6 animate-in fade-in zoom-in-95 duration-200">
+          <DialogHeader className="space-y-3">
+            <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+              <Unlock className="text-primary" size={24} />
+            </div>
+            <DialogTitle className="text-center">Recuperar PIN</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-6 pt-2">
+            <p className="text-xs text-center text-muted-foreground">
+              Insira o código de 6 dígitos enviado para seu e-mail para remover a senha do perfil.
+            </p>
+            <div className="flex justify-center gap-2">
+              {resetCode.map((digit, idx) => (
+                <input
+                  key={idx}
+                  ref={(el) => (resetInputs.current[idx] = el)}
+                  type="text"
+                  inputMode="numeric"
+                  maxLength={1}
+                  value={digit}
+                  onChange={(e) => handleResetInputChange(idx, e.target.value)}
+                  onKeyDown={(e) => handleResetKeyDown(idx, e)}
+                  className="w-8 h-10 text-center text-lg font-bold bg-secondary/40 border border-border rounded-lg focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
+                />
+              ))}
+            </div>
+            <div className="space-y-2">
+              <Button 
+                onClick={handleVerifyResetCode} 
+                className="w-full"
+                disabled={resetCode.some(d => d === '')}
+              >
+                Verificar e Desbloquear
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => {
+                  setResetDialogOpen(false);
+                  setPinDialogOpen(true);
+                }}
+                className="w-full text-[10px]"
+              >
+                Voltar
+              </Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
