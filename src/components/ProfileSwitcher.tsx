@@ -245,8 +245,8 @@ export default function ProfileSwitcher() {
             <DropdownMenuTrigger asChild>
           <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-secondary/50 hover:bg-secondary text-sm font-medium transition-all hover:scale-105 active:scale-95 group">
             <span 
-              className="flex items-center justify-center w-6 h-6 rounded-full transition-transform group-hover:rotate-12 border border-black/20" 
-              style={{ backgroundColor: activeProfile.color, color: 'rgb(75, 85, 99)' }}
+              className="flex items-center justify-center w-6 h-6 rounded-full transition-transform group-hover:rotate-12 border border-black/40 shadow-[0_0_2px_rgba(0,0,0,0.5)]" 
+              style={{ backgroundColor: activeProfile.color, color: '#4B5563', textShadow: '0 0 1px black' }}
             >
               {activeProfile.icon}
             </span>
@@ -269,7 +269,7 @@ export default function ProfileSwitcher() {
                   onClick={() => handleProfileSelect(p)}
                 >
               <div className="flex items-center gap-3">
-                <span className="flex items-center justify-center w-8 h-8 rounded-full text-lg shadow-sm border border-black/20" style={{ backgroundColor: p.color, color: 'rgb(75, 85, 99)' }}>
+                <span className="flex items-center justify-center w-8 h-8 rounded-full text-lg shadow-sm border border-black/40 shadow-[0_0_2px_rgba(0,0,0,0.5)]" style={{ backgroundColor: p.color, color: '#4B5563', textShadow: '0 0 1px black' }}>
                   {p.icon}
                 </span>
                     <span className={cn(
