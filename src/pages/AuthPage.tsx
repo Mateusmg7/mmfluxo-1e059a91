@@ -105,17 +105,32 @@ export default function AuthPage() {
               />
             </div>
           )}
-          <div className="space-y-2">
-            <Label htmlFor="email">E-mail</Label>
-            <Input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="seu@email.com"
-              required
-            />
-          </div>
+          {!isLogin && !isRecovery && (
+            <div className="space-y-2">
+              <Label htmlFor="email">E-mail</Label>
+              <Input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="seu@email.com"
+                required
+              />
+            </div>
+          )}
+          {(isLogin) && (
+            <div className="space-y-2">
+              <Label htmlFor="email">E-mail</Label>
+              <Input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="seu@email.com"
+                required
+              />
+            </div>
+          )}
           <div className="space-y-2">
             <Label htmlFor="password">Senha</Label>
             <Input
