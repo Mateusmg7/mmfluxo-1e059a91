@@ -65,6 +65,13 @@ export default function ProfileSwitcher() {
   const [name, setName] = useState('');
   const [icon, setIcon] = useState('👤');
   const [color, setColor] = useState('#0C5BA8');
+  const [pin, setPin] = useState('');
+  
+  // States for PIN entry dialog
+  const [pinDialogOpen, setPinDialogOpen] = useState(false);
+  const [pendingProfileId, setPendingProfileId] = useState<string | null>(null);
+  const [enteredPin, setEnteredPin] = useState(['', '', '', '']);
+  const pinInputs = useRef<(HTMLInputElement | null)[]>([]);
 
   useEffect(() => {
     if (activeProfile?.color) {
