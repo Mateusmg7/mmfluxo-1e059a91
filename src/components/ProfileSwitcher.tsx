@@ -243,16 +243,16 @@ export default function ProfileSwitcher() {
         {activeProfile ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-secondary/50 hover:bg-secondary text-sm font-medium transition-all hover:scale-105 active:scale-95 group">
-                <span 
-                  className="flex items-center justify-center w-6 h-6 rounded-full transition-transform group-hover:rotate-12" 
-                  style={{ backgroundColor: activeProfile.color, color: '#fff' }}
-                >
-                  {activeProfile.icon}
-                </span>
-                <span className="hidden sm:inline max-w-[100px] truncate">{activeProfile.name}</span>
-                <ChevronDown size={14} className="text-muted-foreground transition-transform group-data-[state=open]:rotate-180" />
-              </button>
+          <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-secondary/50 hover:bg-secondary text-sm font-medium transition-all hover:scale-105 active:scale-95 group">
+            <span 
+              className="flex items-center justify-center w-6 h-6 rounded-full transition-transform group-hover:rotate-12 border border-black/20" 
+              style={{ backgroundColor: activeProfile.color, color: '#4B5563' }}
+            >
+              {activeProfile.icon}
+            </span>
+            <span className="hidden sm:inline max-w-[100px] truncate">{activeProfile.name}</span>
+            <ChevronDown size={14} className="text-muted-foreground transition-transform group-data-[state=open]:rotate-180" />
+          </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-64 p-2 bg-card/95 backdrop-blur-md border-border shadow-xl">
               <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
@@ -268,10 +268,10 @@ export default function ProfileSwitcher() {
                   style={p.id === activeProfile.id ? { backgroundColor: p.color + '15' } : undefined}
                   onClick={() => handleProfileSelect(p)}
                 >
-                  <div className="flex items-center gap-3">
-                    <span className="flex items-center justify-center w-8 h-8 rounded-full text-lg shadow-sm border border-white/20" style={{ backgroundColor: p.color, color: '#fff' }}>
-                      {p.icon}
-                    </span>
+              <div className="flex items-center gap-3">
+                <span className="flex items-center justify-center w-8 h-8 rounded-full text-lg shadow-sm border border-black/20" style={{ backgroundColor: p.color, color: '#4B5563' }}>
+                  {p.icon}
+                </span>
                     <span className={cn(
                       "truncate max-w-[120px] transition-colors flex items-center gap-1.5",
                       p.id === activeProfile.id ? "font-bold" : ""
