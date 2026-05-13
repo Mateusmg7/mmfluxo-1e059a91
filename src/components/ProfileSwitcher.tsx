@@ -198,10 +198,11 @@ export default function ProfileSwitcher() {
                   {p.icon}
                 </span>
                 <span className={cn(
-                  "truncate max-w-[120px] transition-colors",
+                  "truncate max-w-[120px] transition-colors flex items-center gap-1.5",
                   p.id === activeProfile.id ? "font-bold" : ""
                 )} style={{ color: p.id === activeProfile.id ? p.color : undefined }}>
                   {p.name}
+                  {p.pin && <Lock size={10} className="text-muted-foreground/60" />}
                 </span>
               </div>
               <div className="flex items-center gap-1">
