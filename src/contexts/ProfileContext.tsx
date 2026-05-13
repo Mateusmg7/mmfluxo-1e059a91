@@ -114,8 +114,8 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
     qc.invalidateQueries({ queryKey: qk.categories.all });
   };
 
-  const updateProfile = async (id: string, name: string, icon: string, color: string) => {
-    const { error } = await supabase.from('financial_profiles').update({ name, icon, color }).eq('id', id);
+  const updateProfile = async (id: string, name: string, icon: string, color: string, pin?: string) => {
+    const { error } = await supabase.from('financial_profiles').update({ name, icon, color, pin }).eq('id', id);
     if (error) { toast.error(error.message); return; }
     toast.success('Perfil atualizado');
     qc.invalidateQueries({ queryKey: qk.financialProfiles });
