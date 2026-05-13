@@ -47,9 +47,7 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
   const qc = useQueryClient();
   const [currentMonth, setCurrentMonth] = useState(new Date());
-  const [activeProfileId, setActiveProfileId] = useState<string | null>(() => {
-    return localStorage.getItem('mm_active_profile');
-  });
+  const [activeProfileId, setActiveProfileId] = useState<string | null>(null);
 
   const { data: profiles = [], isLoading } = useQuery({
     queryKey: qk.financialProfiles,
