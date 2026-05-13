@@ -42,6 +42,26 @@ export default function AuthPage() {
     }
   };
 
+  const handleForgotPassword = async () => {
+    if (!email) {
+      toast.error('Informe seu e-mail primeiro');
+      return;
+    }
+    
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/auth?type=recovery`,
+      });
+      if (error) throw error;
+      toast.success('Link de recuperação enviado para o seu e-mail!');
+    } catch (error: any) {
+      toast.error(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
       <div className="w-full max-w-md space-y-8">
