@@ -65,10 +65,23 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
 
   // Set default active profile
   useEffect(() => {
-    if (profiles.length > 0 && !profiles.find(p => p.id === activeProfileId)) {
-      const def = profiles.find(p => p.is_default) ?? profiles[0];
-      setActiveProfileId(def.id);
-      localStorage.setItem('mm_active_profile', def.id);
+    if (profiles.length > 0 && !activeProfileId) {
+      const storedId = localStorage.getItem('mm_active_profile');
+      const storedProfile = profiles.find(p => p.id === storedId);
+      
+      // Only auto-restore if profile exists and HAS NO PIN
+      if (storedProfile && !storedProfile.pin) {
+        setActiveProfileId(storedId);
+      } else {
+        // Find first profile without PIN, or default to first if none
+        const defaultProfile = profiles.find(p => p.is_default && !p.pin) || profiles.find(p => !p.pin) || profiles[0];
+        if (defaultProfile) {
+          setActiveProfileId(defaultProfile.id);
+          if (!defaultProfile.pin) {
+            localStorage.setItem('mm_active_profile', defaultProfile.id);
+          }
+        }
+      }
     }
   }, [profiles, activeProfileId]);
 
