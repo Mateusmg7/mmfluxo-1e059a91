@@ -212,6 +212,14 @@ export default function ProfileSwitcher() {
     if (value && index < 5) resetInputs.current[index + 1]?.focus();
   };
 
+  const handlePinKeyDown = (index: number, e: React.KeyboardEvent) => {
+    if (e.key === 'Backspace' && !enteredPin[index] && index > 0) {
+      pinInputs.current[index - 1]?.focus();
+    } else if (e.key === 'Enter' && enteredPin.every(v => v !== '')) {
+      handlePinSubmit();
+    }
+  };
+
   const handleResetKeyDown = (index: number, e: React.KeyboardEvent) => {
     if (e.key === 'Backspace' && !resetCode[index] && index > 0) {
       resetInputs.current[index - 1]?.focus();
