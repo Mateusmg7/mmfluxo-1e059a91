@@ -162,100 +162,120 @@ export default function ProfileSwitcher() {
     setDialogOpen(true);
   };
 
-  if (!activeProfile) return null;
-
   return (
     <>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-secondary/50 hover:bg-secondary text-sm font-medium transition-all hover:scale-105 active:scale-95 group">
-            <span 
-              className="flex items-center justify-center w-6 h-6 rounded-full transition-transform group-hover:rotate-12" 
-              style={{ backgroundColor: activeProfile.color, color: '#fff' }}
-            >
-              {activeProfile.icon}
-            </span>
-            <span className="hidden sm:inline max-w-[100px] truncate">{activeProfile.name}</span>
-            <ChevronDown size={14} className="text-muted-foreground transition-transform group-data-[state=open]:rotate-180" />
-          </button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-64 p-2 bg-card/95 backdrop-blur-md border-border shadow-xl">
-          <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-            Seus Perfis
-          </div>
-          {profiles.map((p) => (
-            <DropdownMenuItem
-              key={p.id}
-              className={cn(
-                "flex items-center justify-between cursor-pointer rounded-md px-2 py-2 mb-1 transition-all",
-                p.id === activeProfile.id ? "bg-opacity-20 shadow-sm" : "hover:bg-secondary/80"
-              )}
-              style={p.id === activeProfile.id ? { backgroundColor: p.color + '15' } : undefined}
-              onClick={() => handleProfileSelect(p)}
-            >
-              <div className="flex items-center gap-3">
-                <span className="flex items-center justify-center w-8 h-8 rounded-full text-lg shadow-sm border border-white/20" style={{ backgroundColor: p.color, color: '#fff' }}>
-                  {p.icon}
-                </span>
-                <span className={cn(
-                  "truncate max-w-[120px] transition-colors flex items-center gap-1.5",
-                  p.id === activeProfile.id ? "font-bold" : ""
-                )} style={{ color: p.id === activeProfile.id ? p.color : undefined }}>
-                  {p.name}
-                  {p.pin && <Lock size={10} className="text-muted-foreground/60" />}
-                </span>
-              </div>
-              <div className="flex items-center gap-1">
-                {p.id === activeProfile.id && <Check size={16} className="text-primary mr-1 animate-in zoom-in-50" />}
-                <button
-                  onClick={(e) => { 
-                    e.preventDefault();
-                    e.stopPropagation(); 
-                    handleEditClick(p); 
-                  }}
-                  className="p-1.5 rounded-md hover:bg-background/80 text-muted-foreground hover:text-primary transition-colors"
-                  title="Editar perfil"
+      <div className="flex items-center gap-2">
+        {activeProfile ? (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-secondary/50 hover:bg-secondary text-sm font-medium transition-all hover:scale-105 active:scale-95 group">
+                <span 
+                  className="flex items-center justify-center w-6 h-6 rounded-full transition-transform group-hover:rotate-12" 
+                  style={{ backgroundColor: activeProfile.color, color: '#fff' }}
                 >
-                  <Pencil size={14} />
-                </button>
-                {!p.is_default && (
-                  <button
-                    onClick={(e) => { 
-                      e.preventDefault();
-                      e.stopPropagation(); 
-                      setProfileToDelete(p.id);
-                      setDeleteConfirmOpen(true);
-                    }}
-                    className="p-1.5 rounded-md hover:bg-background/80 text-muted-foreground hover:text-destructive transition-colors"
-                    title="Remover perfil"
-                  >
-                    <Trash2 size={14} />
-                  </button>
-                )}
+                  {activeProfile.icon}
+                </span>
+                <span className="hidden sm:inline max-w-[100px] truncate">{activeProfile.name}</span>
+                <ChevronDown size={14} className="text-muted-foreground transition-transform group-data-[state=open]:rotate-180" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-64 p-2 bg-card/95 backdrop-blur-md border-border shadow-xl">
+              <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                Seus Perfis
               </div>
-            </DropdownMenuItem>
-          ))}
-          <DropdownMenuSeparator className="my-1 bg-border/50" />
-          {profiles.length < 5 && (
-            <DropdownMenuItem
-              onClick={() => { resetForm(); setDialogOpen(true); }}
-              className="cursor-pointer rounded-md px-2 py-2 text-muted-foreground hover:text-foreground hover:bg-secondary/80"
-            >
-              <Plus size={16} className="mr-2" />
-              Novo perfil
-            </DropdownMenuItem>
-          )}
-          {profiles.length > 1 && (
-            <DropdownMenuItem
-              onClick={() => setDuplicateOpen(true)}
-              className="cursor-pointer rounded-md px-2 py-2 text-muted-foreground hover:text-foreground hover:bg-secondary/80"
-            >
-              <Copy size={16} className="mr-2" />
-              Duplicar dados
-            </DropdownMenuItem>
-          )}
-        </DropdownMenuContent>
-      </DropdownMenu>
+              {profiles.map((p) => (
+                <DropdownMenuItem
+                  key={p.id}
+                  className={cn(
+                    "flex items-center justify-between cursor-pointer rounded-md px-2 py-2 mb-1 transition-all",
+                    p.id === activeProfile.id ? "bg-opacity-20 shadow-sm" : "hover:bg-secondary/80"
+                  )}
+                  style={p.id === activeProfile.id ? { backgroundColor: p.color + '15' } : undefined}
+                  onClick={() => handleProfileSelect(p)}
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="flex items-center justify-center w-8 h-8 rounded-full text-lg shadow-sm border border-white/20" style={{ backgroundColor: p.color, color: '#fff' }}>
+                      {p.icon}
+                    </span>
+                    <span className={cn(
+                      "truncate max-w-[120px] transition-colors flex items-center gap-1.5",
+                      p.id === activeProfile.id ? "font-bold" : ""
+                    )} style={{ color: p.id === activeProfile.id ? p.color : undefined }}>
+                      {p.name}
+                      {p.pin && <Lock size={10} className="text-muted-foreground/60" />}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    {p.id === activeProfile.id && <Check size={16} className="text-primary mr-1 animate-in zoom-in-50" />}
+                    <button
+                      onClick={(e) => { 
+                        e.preventDefault();
+                        e.stopPropagation(); 
+                        handleEditClick(p); 
+                      }}
+                      className="p-1.5 rounded-md hover:bg-background/80 text-muted-foreground hover:text-primary transition-colors"
+                      title="Editar perfil"
+                    >
+                      <Pencil size={14} />
+                    </button>
+                    {!p.is_default && (
+                      <button
+                        onClick={(e) => { 
+                          e.preventDefault();
+                          e.stopPropagation(); 
+                          setProfileToDelete(p.id);
+                          setDeleteConfirmOpen(true);
+                        }}
+                        className="p-1.5 rounded-md hover:bg-background/80 text-muted-foreground hover:text-destructive transition-colors"
+                        title="Remover perfil"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    )}
+                  </div>
+                </DropdownMenuItem>
+              ))}
+              <DropdownMenuSeparator className="my-1 bg-border/50" />
+              {profiles.length < 5 && (
+                <DropdownMenuItem
+                  onClick={() => { resetForm(); setDialogOpen(true); }}
+                  className="cursor-pointer rounded-md px-2 py-2 text-muted-foreground hover:text-foreground hover:bg-secondary/80"
+                >
+                  <Plus size={16} className="mr-2" />
+                  Novo perfil
+                </DropdownMenuItem>
+              )}
+              {profiles.length > 1 && (
+                <DropdownMenuItem
+                  onClick={() => setDuplicateOpen(true)}
+                  className="cursor-pointer rounded-md px-2 py-2 text-muted-foreground hover:text-foreground hover:bg-secondary/80"
+                >
+                  <Copy size={16} className="mr-2" />
+                  Duplicar dados
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        ) : (
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="gap-2 bg-secondary/50 border-none hover:bg-secondary transition-all"
+            onClick={() => {
+              if (profiles.length > 0) {
+                // Try to restore from localStorage even if it has a PIN, 
+                // handleProfileSelect will trigger the dialog
+                const storedId = localStorage.getItem('mm_active_profile_hint');
+                const target = profiles.find(p => p.id === storedId) || profiles[0];
+                handleProfileSelect(target);
+              }
+            }}
+          >
+            <Lock size={14} className="text-primary" />
+            <span className="hidden sm:inline">Desbloquear Perfil</span>
+          </Button>
+        )}
+      </div>
 
       <Dialog open={dialogOpen} onOpenChange={(o) => { setDialogOpen(o); if (!o) resetForm(); }}>
         <DialogContent className="bg-card/95 backdrop-blur-lg border-border max-w-sm animate-in fade-in zoom-in-95 duration-200">
