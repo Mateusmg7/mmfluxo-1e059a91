@@ -14,14 +14,15 @@ interface FinancialProfile {
   is_default: boolean;
   created_at: string;
   orcamento_mensal: number;
+  pin?: string;
 }
 
 interface ProfileContextType {
   profiles: FinancialProfile[];
   activeProfile: FinancialProfile | null;
   setActiveProfileId: (id: string) => void;
-  createProfile: (name: string, icon: string, color: string) => Promise<void>;
-  updateProfile: (id: string, name: string, icon: string, color: string) => Promise<void>;
+  createProfile: (name: string, icon: string, color: string, pin?: string) => Promise<void>;
+  updateProfile: (id: string, name: string, icon: string, color: string, pin?: string) => Promise<void>;
   deleteProfile: (id: string) => Promise<void>;
   loading: boolean;
   currentMonth: Date;
