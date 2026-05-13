@@ -270,7 +270,7 @@ export default function ProfileSwitcher() {
         </DialogContent>
       </Dialog>
 
-      <DuplicateDataDialog open={duplicateOpen} onOpenChange={duplicateOpen} />
+      <DuplicateDataDialog open={duplicateOpen} onOpenChange={setDuplicateOpen} />
       
       <ConfirmDeleteDialog
         open={deleteConfirmOpen}
