@@ -81,17 +81,76 @@ export default function ProfileSwitcher() {
     }
   }, [activeProfile?.color]);
 
-  const resetForm = () => { setName(''); setIcon('👤'); setColor('#0C5BA8'); setEditId(null); };
+  const resetForm = () => { 
+    setName(''); 
+    setIcon('👤'); 
+    setColor('#0C5BA8'); 
+    setPin('');
+    setEditId(null); 
+  };
 
   const handleSave = async () => {
     if (!name.trim()) return;
+    if (pin && pin.length !== 4) {
+      toast.error('O PIN deve ter 4 dígitos');
+      return;
+    }
+
     if (editId) {
-      await updateProfile(editId, name, icon, color);
+      await updateProfile(editId, name, icon, color, pin || undefined);
     } else {
-      await createProfile(name, icon, color);
+      await createProfile(name, icon, color, pin || undefined);
     }
     setDialogOpen(false);
     resetForm();
+  };
+
+  const handleProfileSelect = (p: any) => {
+    if (p.pin && p.id !== activeProfile?.id) {
+      setPendingProfileId(p.id);
+      setEnteredPin(['', '', '', '']);
+      setPinDialogOpen(true);
+      // Small timeout to focus first input after dialog opens
+      setTimeout(() => pinInputs.current[0]?.focus(), 100);
+    } else {
+      setActiveProfileId(p.id);
+    }
+  };
+
+  const handlePinSubmit = () => {
+    const finalPin = enteredPin.join('');
+    const targetProfile = profiles.find(p => p.id === pendingProfileId);
+    
+    if (targetProfile && targetProfile.pin === finalPin) {
+      setActiveProfileId(pendingProfileId!);
+      setPinDialogOpen(false);
+      setPendingProfileId(null);
+      setEnteredPin(['', '', '', '']);
+    } else {
+      toast.error('PIN incorreto');
+      setEnteredPin(['', '', '', '']);
+      pinInputs.current[0]?.focus();
+    }
+  };
+
+  const handlePinInputChange = (index: number, value: string) => {
+    if (!/^\d*$/.test(value)) return;
+    
+    const newPin = [...enteredPin];
+    newPin[index] = value.slice(-1);
+    setEnteredPin(newPin);
+
+    if (value && index < 3) {
+      pinInputs.current[index + 1]?.focus();
+    }
+  };
+
+  const handlePinKeyDown = (index: number, e: React.KeyboardEvent) => {
+    if (e.key === 'Backspace' && !enteredPin[index] && index > 0) {
+      pinInputs.current[index - 1]?.focus();
+    } else if (e.key === 'Enter' && enteredPin.every(v => v !== '')) {
+      handlePinSubmit();
+    }
   };
 
   const handleEditClick = (p: any) => {
@@ -99,6 +158,7 @@ export default function ProfileSwitcher() {
     setName(p.name);
     setIcon(p.icon);
     setColor(p.color || '#0C5BA8');
+    setPin(p.pin || '');
     setDialogOpen(true);
   };
 
