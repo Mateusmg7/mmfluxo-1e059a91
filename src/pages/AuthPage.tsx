@@ -108,6 +108,19 @@ export default function AuthPage() {
               minLength={6}
             />
           </div>
+          
+          {isLogin && (
+            <div className="flex justify-end">
+              <button
+                type="button"
+                onClick={handleForgotPassword}
+                className="text-xs text-primary hover:underline"
+                disabled={loading}
+              >
+                Esqueceu a senha?
+              </button>
+            </div>
+          )}
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? 'Carregando...' : isLogin ? 'Entrar' : 'Criar conta'}
           </Button>
