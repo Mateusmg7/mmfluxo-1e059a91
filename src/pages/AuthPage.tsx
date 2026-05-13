@@ -88,7 +88,7 @@ export default function AuthPage() {
         <div className="text-center">
           <h1 className="text-3xl font-bold gradient-brand">MM Fluxo</h1>
           <p className="mt-2 text-muted-foreground">
-            {isLogin ? 'Entre na sua conta' : 'Crie sua conta'}
+            {isRecovery ? 'Redefinir sua senha' : isLogin ? 'Entre na sua conta' : 'Crie sua conta'}
           </p>
         </div>
 
