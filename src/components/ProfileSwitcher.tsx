@@ -338,6 +338,25 @@ export default function ProfileSwitcher() {
                 </div>
               </div>
             </div>
+            <div className="space-y-2">
+              <Label className="text-xs font-semibold uppercase text-muted-foreground flex items-center gap-2">
+                Senha PIN (4 dígitos)
+                {pin ? <Lock size={12} className="text-primary" /> : <Unlock size={12} className="text-muted-foreground" />}
+              </Label>
+              <Input 
+                value={pin} 
+                onChange={(e) => {
+                  const val = e.target.value.replace(/\D/g, '').slice(0, 4);
+                  setPin(val);
+                }} 
+                placeholder="Opcional" 
+                maxLength={4}
+                type="password"
+                inputMode="numeric"
+                className="bg-secondary/30 border-border/50 focus:border-primary/50 tracking-[1em] text-center font-bold"
+              />
+              <p className="text-[10px] text-muted-foreground">Deixe em branco para remover a senha.</p>
+            </div>
             <Button onClick={handleSave} className="w-full h-11 shadow-lg shadow-primary/20 transition-all active:scale-95 font-semibold">
               {editId ? 'Atualizar Perfil' : 'Criar Perfil'}
             </Button>
