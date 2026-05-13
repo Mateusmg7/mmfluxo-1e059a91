@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useProfile } from '@/contexts/ProfileContext';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import DuplicateDataDialog from '@/components/dialogs/DuplicateDataDialog';
 import { ConfirmDeleteDialog } from '@/components/dialogs/ConfirmDeleteDialog';
