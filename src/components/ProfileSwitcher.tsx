@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useProfile } from '@/contexts/ProfileContext';
 import { Button } from '@/components/ui/button';
 import DuplicateDataDialog from '@/components/dialogs/DuplicateDataDialog';
@@ -18,8 +18,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Check, ChevronDown, Plus, Pencil, Trash2, Copy, Palette } from 'lucide-react';
+import { Check, ChevronDown, Plus, Pencil, Trash2, Copy, Palette, Lock, Unlock } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 const ICONS = ['👤', '👨‍👩‍👧‍👦', '🏢', '🏠', '💼'];
 const COLORS = ['#0C5BA8', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'];
@@ -64,6 +65,13 @@ export default function ProfileSwitcher() {
   const [name, setName] = useState('');
   const [icon, setIcon] = useState('👤');
   const [color, setColor] = useState('#0C5BA8');
+  const [pin, setPin] = useState('');
+  
+  // States for PIN entry dialog
+  const [pinDialogOpen, setPinDialogOpen] = useState(false);
+  const [pendingProfileId, setPendingProfileId] = useState<string | null>(null);
+  const [enteredPin, setEnteredPin] = useState(['', '', '', '']);
+  const pinInputs = useRef<(HTMLInputElement | null)[]>([]);
 
   useEffect(() => {
     if (activeProfile?.color) {
@@ -73,17 +81,76 @@ export default function ProfileSwitcher() {
     }
   }, [activeProfile?.color]);
 
-  const resetForm = () => { setName(''); setIcon('👤'); setColor('#0C5BA8'); setEditId(null); };
+  const resetForm = () => { 
+    setName(''); 
+    setIcon('👤'); 
+    setColor('#0C5BA8'); 
+    setPin('');
+    setEditId(null); 
+  };
 
   const handleSave = async () => {
     if (!name.trim()) return;
+    if (pin && pin.length !== 4) {
+      toast.error('O PIN deve ter 4 dígitos');
+      return;
+    }
+
     if (editId) {
-      await updateProfile(editId, name, icon, color);
+      await updateProfile(editId, name, icon, color, pin || undefined);
     } else {
-      await createProfile(name, icon, color);
+      await createProfile(name, icon, color, pin || undefined);
     }
     setDialogOpen(false);
     resetForm();
+  };
+
+  const handleProfileSelect = (p: any) => {
+    if (p.pin && p.id !== activeProfile?.id) {
+      setPendingProfileId(p.id);
+      setEnteredPin(['', '', '', '']);
+      setPinDialogOpen(true);
+      // Small timeout to focus first input after dialog opens
+      setTimeout(() => pinInputs.current[0]?.focus(), 100);
+    } else {
+      setActiveProfileId(p.id);
+    }
+  };
+
+  const handlePinSubmit = () => {
+    const finalPin = enteredPin.join('');
+    const targetProfile = profiles.find(p => p.id === pendingProfileId);
+    
+    if (targetProfile && targetProfile.pin === finalPin) {
+      setActiveProfileId(pendingProfileId!);
+      setPinDialogOpen(false);
+      setPendingProfileId(null);
+      setEnteredPin(['', '', '', '']);
+    } else {
+      toast.error('PIN incorreto');
+      setEnteredPin(['', '', '', '']);
+      pinInputs.current[0]?.focus();
+    }
+  };
+
+  const handlePinInputChange = (index: number, value: string) => {
+    if (!/^\d*$/.test(value)) return;
+    
+    const newPin = [...enteredPin];
+    newPin[index] = value.slice(-1);
+    setEnteredPin(newPin);
+
+    if (value && index < 3) {
+      pinInputs.current[index + 1]?.focus();
+    }
+  };
+
+  const handlePinKeyDown = (index: number, e: React.KeyboardEvent) => {
+    if (e.key === 'Backspace' && !enteredPin[index] && index > 0) {
+      pinInputs.current[index - 1]?.focus();
+    } else if (e.key === 'Enter' && enteredPin.every(v => v !== '')) {
+      handlePinSubmit();
+    }
   };
 
   const handleEditClick = (p: any) => {
@@ -91,6 +158,7 @@ export default function ProfileSwitcher() {
     setName(p.name);
     setIcon(p.icon);
     setColor(p.color || '#0C5BA8');
+    setPin(p.pin || '');
     setDialogOpen(true);
   };
 
@@ -123,17 +191,18 @@ export default function ProfileSwitcher() {
                 p.id === activeProfile.id ? "bg-opacity-20 shadow-sm" : "hover:bg-secondary/80"
               )}
               style={p.id === activeProfile.id ? { backgroundColor: p.color + '15' } : undefined}
-              onClick={() => setActiveProfileId(p.id)}
+              onClick={() => handleProfileSelect(p)}
             >
               <div className="flex items-center gap-3">
                 <span className="flex items-center justify-center w-8 h-8 rounded-full text-lg shadow-sm border border-white/20" style={{ backgroundColor: p.color, color: '#fff' }}>
                   {p.icon}
                 </span>
                 <span className={cn(
-                  "truncate max-w-[120px] transition-colors",
+                  "truncate max-w-[120px] transition-colors flex items-center gap-1.5",
                   p.id === activeProfile.id ? "font-bold" : ""
                 )} style={{ color: p.id === activeProfile.id ? p.color : undefined }}>
                   {p.name}
+                  {p.pin && <Lock size={10} className="text-muted-foreground/60" />}
                 </span>
               </div>
               <div className="flex items-center gap-1">
@@ -269,8 +338,69 @@ export default function ProfileSwitcher() {
                 </div>
               </div>
             </div>
+            <div className="space-y-2">
+              <Label className="text-xs font-semibold uppercase text-muted-foreground flex items-center gap-2">
+                Senha PIN (4 dígitos)
+                {pin ? <Lock size={12} className="text-primary" /> : <Unlock size={12} className="text-muted-foreground" />}
+              </Label>
+              <Input 
+                value={pin} 
+                onChange={(e) => {
+                  const val = e.target.value.replace(/\D/g, '').slice(0, 4);
+                  setPin(val);
+                }} 
+                placeholder="Opcional" 
+                maxLength={4}
+                type="password"
+                inputMode="numeric"
+                className="bg-secondary/30 border-border/50 focus:border-primary/50 tracking-[1em] text-center font-bold"
+              />
+              <p className="text-[10px] text-muted-foreground">Deixe em branco para remover a senha.</p>
+            </div>
             <Button onClick={handleSave} className="w-full h-11 shadow-lg shadow-primary/20 transition-all active:scale-95 font-semibold">
               {editId ? 'Atualizar Perfil' : 'Criar Perfil'}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={pinDialogOpen} onOpenChange={(o) => {
+        if (!o) {
+          setPinDialogOpen(false);
+          setPendingProfileId(null);
+          setEnteredPin(['', '', '', '']);
+        }
+      }}>
+        <DialogContent className="bg-card/95 backdrop-blur-lg border-border max-w-[280px] p-6 animate-in fade-in zoom-in-95 duration-200">
+          <DialogHeader className="space-y-3">
+            <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+              <Lock className="text-primary" size={24} />
+            </div>
+            <DialogTitle className="text-center">Acesso Protegido</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-6 pt-2">
+            <p className="text-xs text-center text-muted-foreground">Insira o PIN de 4 dígitos para acessar este perfil.</p>
+            <div className="flex justify-center gap-3">
+              {enteredPin.map((digit, idx) => (
+                <input
+                  key={idx}
+                  ref={(el) => (pinInputs.current[idx] = el)}
+                  type="password"
+                  inputMode="numeric"
+                  maxLength={1}
+                  value={digit}
+                  onChange={(e) => handlePinInputChange(idx, e.target.value)}
+                  onKeyDown={(e) => handlePinKeyDown(idx, e)}
+                  className="w-10 h-12 text-center text-xl font-bold bg-secondary/40 border border-border rounded-lg focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
+                />
+              ))}
+            </div>
+            <Button 
+              onClick={handlePinSubmit} 
+              className="w-full"
+              disabled={enteredPin.some(d => d === '')}
+            >
+              Confirmar
             </Button>
           </div>
         </DialogContent>
