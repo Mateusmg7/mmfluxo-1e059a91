@@ -364,6 +364,48 @@ export default function ProfileSwitcher() {
         </DialogContent>
       </Dialog>
 
+      <Dialog open={pinDialogOpen} onOpenChange={(o) => {
+        if (!o) {
+          setPinDialogOpen(false);
+          setPendingProfileId(null);
+          setEnteredPin(['', '', '', '']);
+        }
+      }}>
+        <DialogContent className="bg-card/95 backdrop-blur-lg border-border max-w-[280px] p-6 animate-in fade-in zoom-in-95 duration-200">
+          <DialogHeader className="space-y-3">
+            <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+              <Lock className="text-primary" size={24} />
+            </div>
+            <DialogTitle className="text-center">Acesso Protegido</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-6 pt-2">
+            <p className="text-xs text-center text-muted-foreground">Insira o PIN de 4 dígitos para acessar este perfil.</p>
+            <div className="flex justify-center gap-3">
+              {enteredPin.map((digit, idx) => (
+                <input
+                  key={idx}
+                  ref={(el) => (pinInputs.current[idx] = el)}
+                  type="password"
+                  inputMode="numeric"
+                  maxLength={1}
+                  value={digit}
+                  onChange={(e) => handlePinInputChange(idx, e.target.value)}
+                  onKeyDown={(e) => handlePinKeyDown(idx, e)}
+                  className="w-10 h-12 text-center text-xl font-bold bg-secondary/40 border border-border rounded-lg focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
+                />
+              ))}
+            </div>
+            <Button 
+              onClick={handlePinSubmit} 
+              className="w-full"
+              disabled={enteredPin.some(d => d === '')}
+            >
+              Confirmar
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       <DuplicateDataDialog open={duplicateOpen} onOpenChange={setDuplicateOpen} />
       
       <ConfirmDeleteDialog
