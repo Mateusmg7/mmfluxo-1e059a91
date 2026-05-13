@@ -84,13 +84,13 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
     qc.invalidateQueries({ queryKey: qk.goals.all });
   };
 
-  const createProfile = async (name: string, icon: string, color: string) => {
+  const createProfile = async (name: string, icon: string, color: string, pin?: string) => {
     if (profiles.length >= 5) {
       toast.error('Máximo de 5 perfis atingido');
       return;
     }
     const { data, error } = await supabase.from('financial_profiles').insert({
-      user_id: user!.id, name, icon, color,
+      user_id: user!.id, name, icon, color, pin,
     }).select().single();
     if (error) { toast.error(error.message); return; }
 
