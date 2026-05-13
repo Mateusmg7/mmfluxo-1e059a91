@@ -87,7 +87,13 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
 
   const handleSetActive = (id: string) => {
     setActiveProfileId(id);
-    localStorage.setItem('mm_active_profile', id);
+    const profile = profiles.find(p => p.id === id);
+    if (profile && !profile.pin) {
+      localStorage.setItem('mm_active_profile', id);
+    } else {
+      // If it has a PIN, we don't store it in localStorage to force re-entry on reload
+      localStorage.removeItem('mm_active_profile');
+    }
     // Invalidate all data queries so they refetch with new profile
     qc.invalidateQueries({ queryKey: qk.transactions.all });
     qc.invalidateQueries({ queryKey: qk.extraIncome.all });
