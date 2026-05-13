@@ -69,9 +69,13 @@ export default function ProfileSwitcher() {
   
   // States for PIN entry dialog
   const [pinDialogOpen, setPinDialogOpen] = useState(false);
+  const [resetDialogOpen, setResetDialogOpen] = useState(false);
   const [pendingProfileId, setPendingProfileId] = useState<string | null>(null);
   const [enteredPin, setEnteredPin] = useState(['', '', '', '']);
+  const [resetCode, setResetCode] = useState(['', '', '', '', '', '']);
+  const [isSendingCode, setIsSendingCode] = useState(false);
   const pinInputs = useRef<(HTMLInputElement | null)[]>([]);
+  const resetInputs = useRef<(HTMLInputElement | null)[]>([]);
 
   useEffect(() => {
     if (activeProfile?.color) {
