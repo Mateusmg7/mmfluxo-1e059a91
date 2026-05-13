@@ -497,6 +497,72 @@ export default function ProfileSwitcher() {
             >
               Confirmar
             </Button>
+            
+            <button 
+              onClick={handleSendResetCode}
+              disabled={isSendingCode}
+              className="w-full text-[10px] text-muted-foreground hover:text-primary transition-colors mt-2"
+            >
+              {isSendingCode ? 'Enviando...' : 'Esqueci minha senha'}
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Reset PIN Dialog */}
+      <Dialog open={resetDialogOpen} onOpenChange={(o) => {
+        if (!o) {
+          setResetDialogOpen(false);
+          setPendingProfileId(null);
+          setResetCode(['', '', '', '', '', '']);
+        }
+      }}>
+        <DialogContent className="bg-card/95 backdrop-blur-lg border-border max-w-[320px] p-6 animate-in fade-in zoom-in-95 duration-200">
+          <DialogHeader className="space-y-3">
+            <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+              <Unlock className="text-primary" size={24} />
+            </div>
+            <DialogTitle className="text-center">Recuperar PIN</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-6 pt-2">
+            <p className="text-xs text-center text-muted-foreground">
+              Insira o código de 6 dígitos enviado para seu e-mail para remover a senha do perfil.
+            </p>
+            <div className="flex justify-center gap-2">
+              {resetCode.map((digit, idx) => (
+                <input
+                  key={idx}
+                  ref={(el) => (resetInputs.current[idx] = el)}
+                  type="text"
+                  inputMode="numeric"
+                  maxLength={1}
+                  value={digit}
+                  onChange={(e) => handleResetInputChange(idx, e.target.value)}
+                  onKeyDown={(e) => handleResetKeyDown(idx, e)}
+                  className="w-8 h-10 text-center text-lg font-bold bg-secondary/40 border border-border rounded-lg focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
+                />
+              ))}
+            </div>
+            <div className="space-y-2">
+              <Button 
+                onClick={handleVerifyResetCode} 
+                className="w-full"
+                disabled={resetCode.some(d => d === '')}
+              >
+                Verificar e Desbloquear
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => {
+                  setResetDialogOpen(false);
+                  setPinDialogOpen(true);
+                }}
+                className="w-full text-[10px]"
+              >
+                Voltar
+              </Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
