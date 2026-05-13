@@ -191,7 +191,7 @@ export default function ProfileSwitcher() {
                 p.id === activeProfile.id ? "bg-opacity-20 shadow-sm" : "hover:bg-secondary/80"
               )}
               style={p.id === activeProfile.id ? { backgroundColor: p.color + '15' } : undefined}
-              onClick={() => setActiveProfileId(p.id)}
+              onClick={() => handleProfileSelect(p)}
             >
               <div className="flex items-center gap-3">
                 <span className="flex items-center justify-center w-8 h-8 rounded-full text-lg shadow-sm border border-white/20" style={{ backgroundColor: p.color, color: '#fff' }}>
