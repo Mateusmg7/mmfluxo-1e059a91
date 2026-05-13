@@ -119,16 +119,22 @@ export default function ProfileSwitcher() {
             <DropdownMenuItem
               key={p.id}
               className={cn(
-                "flex items-center justify-between cursor-pointer rounded-md px-2 py-2 mb-1 transition-colors",
-                p.id === activeProfile.id ? "bg-primary/10 text-primary font-medium" : "hover:bg-secondary/80"
+                "flex items-center justify-between cursor-pointer rounded-md px-2 py-2 mb-1 transition-all",
+                p.id === activeProfile.id ? "bg-opacity-20 shadow-sm" : "hover:bg-secondary/80"
               )}
+              style={p.id === activeProfile.id ? { backgroundColor: p.color + '15' } : undefined}
               onClick={() => setActiveProfileId(p.id)}
             >
               <div className="flex items-center gap-3">
-                <span className="flex items-center justify-center w-8 h-8 rounded-full text-lg" style={{ backgroundColor: p.color + '15' }}>
+                <span className="flex items-center justify-center w-8 h-8 rounded-full text-lg shadow-sm border border-white/20" style={{ backgroundColor: p.color, color: '#fff' }}>
                   {p.icon}
                 </span>
-                <span className="truncate max-w-[120px]">{p.name}</span>
+                <span className={cn(
+                  "truncate max-w-[120px] transition-colors",
+                  p.id === activeProfile.id ? "font-bold" : ""
+                )} style={{ color: p.id === activeProfile.id ? p.color : undefined }}>
+                  {p.name}
+                </span>
               </div>
               <div className="flex items-center gap-1">
                 {p.id === activeProfile.id && <Check size={16} className="text-primary mr-1 animate-in zoom-in-50" />}
