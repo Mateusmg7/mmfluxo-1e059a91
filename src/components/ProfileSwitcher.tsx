@@ -114,10 +114,68 @@ export default function ProfileSwitcher() {
       setPendingProfileId(p.id);
       setEnteredPin(['', '', '', '']);
       setPinDialogOpen(true);
-      // Small timeout to focus first input after dialog opens
       setTimeout(() => pinInputs.current[0]?.focus(), 100);
     } else {
       setActiveProfileId(p.id);
+    }
+  };
+
+  const handleSendResetCode = async () => {
+    if (!pendingProfileId) return;
+    setIsSendingCode(true);
+    
+    try {
+      const code = Math.floor(100000 + Math.random() * 900000).toString();
+      const expires = new Date(Date.now() + 15 * 60 * 1000).toISOString();
+      
+      const { error } = await supabase
+        .from('financial_profiles')
+        .update({ pin_reset_code: code, pin_reset_expires: expires })
+        .eq('id', pendingProfileId);
+
+      if (error) throw error;
+
+      // In a real app with configured email, this would be an Edge Function call.
+      // Since email setup requires user interaction, we show the code in a toast 
+      // for now so they can test the flow.
+      toast.info(`Código de recuperação (simulado): ${code}`, { duration: 10000 });
+      setResetDialogOpen(true);
+      setPinDialogOpen(false);
+      setTimeout(() => resetInputs.current[0]?.focus(), 100);
+    } catch (err: any) {
+      toast.error('Erro ao enviar código: ' + err.message);
+    } finally {
+      setIsSendingCode(false);
+    }
+  };
+
+  const handleVerifyResetCode = async () => {
+    const finalCode = resetCode.join('');
+    const targetProfile = profiles.find(p => p.id === pendingProfileId);
+    
+    if (targetProfile && targetProfile.pin_reset_code === finalCode) {
+      const isExpired = targetProfile.pin_reset_expires && new Date(targetProfile.pin_reset_expires) < new Date();
+      if (isExpired) {
+        toast.error('Código expirado');
+        return;
+      }
+
+      // Reset the PIN
+      const { error } = await supabase
+        .from('financial_profiles')
+        .update({ pin: null, pin_reset_code: null, pin_reset_expires: null })
+        .eq('id', pendingProfileId);
+
+      if (error) {
+        toast.error('Erro ao resetar PIN');
+      } else {
+        toast.success('PIN removido com sucesso!');
+        setActiveProfileId(pendingProfileId!);
+        setResetDialogOpen(false);
+        setPendingProfileId(null);
+      }
+    } else {
+      toast.error('Código inválido');
     }
   };
 
@@ -139,21 +197,25 @@ export default function ProfileSwitcher() {
 
   const handlePinInputChange = (index: number, value: string) => {
     if (!/^\d*$/.test(value)) return;
-    
     const newPin = [...enteredPin];
     newPin[index] = value.slice(-1);
     setEnteredPin(newPin);
-
-    if (value && index < 3) {
-      pinInputs.current[index + 1]?.focus();
-    }
+    if (value && index < 3) pinInputs.current[index + 1]?.focus();
   };
 
-  const handlePinKeyDown = (index: number, e: React.KeyboardEvent) => {
-    if (e.key === 'Backspace' && !enteredPin[index] && index > 0) {
-      pinInputs.current[index - 1]?.focus();
-    } else if (e.key === 'Enter' && enteredPin.every(v => v !== '')) {
-      handlePinSubmit();
+  const handleResetInputChange = (index: number, value: string) => {
+    if (!/^\d*$/.test(value)) return;
+    const newCode = [...resetCode];
+    newCode[index] = value.slice(-1);
+    setResetCode(newCode);
+    if (value && index < 5) resetInputs.current[index + 1]?.focus();
+  };
+
+  const handleResetKeyDown = (index: number, e: React.KeyboardEvent) => {
+    if (e.key === 'Backspace' && !resetCode[index] && index > 0) {
+      resetInputs.current[index - 1]?.focus();
+    } else if (e.key === 'Enter' && resetCode.every(v => v !== '')) {
+      handleVerifyResetCode();
     }
   };
 
