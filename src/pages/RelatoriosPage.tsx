@@ -1,5 +1,5 @@
 import { MonthSelector } from '@/components/layout/MonthSelector';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import {
   fetchTransactionsByPeriod,
   fetchAllTransactionsByPeriod,
@@ -15,10 +15,10 @@ import { useProfile } from '@/contexts/ProfileContext';
 import { useQuery } from '@tanstack/react-query';
 import { qk } from '@/lib/queryKeys';
 
-import { format, startOfMonth, endOfMonth, addMonths, subMonths, isSameMonth } from 'date-fns';
+import { format, startOfMonth, endOfMonth, isSameMonth } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowDownCircle, ArrowUpCircle, TrendingUp, TrendingDown, ChevronLeft, ChevronRight, Download, FileText, BarChart3, PieChartIcon, Layers, Wallet } from 'lucide-react';
+import { ArrowDownCircle, ArrowUpCircle, TrendingUp, ChevronLeft, ChevronRight, Download, FileText, BarChart3, PieChartIcon, Layers, Wallet, ListFilter, Info } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
 import { MonthlyEvolutionChart } from '@/components/charts/MonthlyEvolutionChart';
 import { MonthlyComparisonChart } from '@/components/charts/MonthlyComparisonChart';
@@ -27,7 +27,13 @@ import { renderActiveSlice } from '@/components/charts/ActivePieSlice';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { useNavigate } from 'react-router-dom';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { exportPdf } from '@/lib/exportPdf';
 
 const COLORS_MAP: Record<string, string> = {
@@ -52,7 +58,14 @@ export default function RelatoriosPage() {
   const [activeGroupIdx, setActiveGroupIdx] = useState<number | undefined>(undefined);
   const [activeCatIdx, setActiveCatIdx] = useState<number | undefined>(undefined);
   const [activePieIdx, setActivePieIdx] = useState<number | undefined>(undefined);
-  const navigate = useNavigate();
+  
+  // Drill-down state
+  const [drillDownData, setDrillDownData] = useState<{
+    type: 'tipo' | 'categoria';
+    name: string;
+    transactions: any[];
+    color: string;
+  } | null>(null);
   
   const now = new Date();
   const monthStart = format(startOfMonth(currentMonth), 'yyyy-MM-dd');
@@ -314,7 +327,34 @@ export default function RelatoriosPage() {
                   <div className="h-72">
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart onClick={() => setActiveGroupIdx(undefined)}>
-                        <Pie data={groupPieDataWithPct} dataKey="value" nameKey="name" cx="50%" cy="42%" innerRadius={40} outerRadius={70} paddingAngle={3} strokeWidth={0} activeShape={renderActiveSlice} activeIndex={activeGroupIdx} onMouseDown={(_, idx) => { setActiveGroupIdx(prev => prev === idx ? undefined : idx); }} rootTabIndex={-1}>
+                        <Pie 
+                          data={groupPieDataWithPct} 
+                          dataKey="value" 
+                          nameKey="name" 
+                          cx="50%" 
+                          cy="42%" 
+                          innerRadius={40} 
+                          outerRadius={70} 
+                          paddingAngle={3} 
+                          strokeWidth={0} 
+                          activeShape={renderActiveSlice} 
+                          activeIndex={activeGroupIdx} 
+                          onMouseDown={(_, idx) => { setActiveGroupIdx(prev => prev === idx ? undefined : idx); }}
+                          onClick={(data, idx) => {
+                            const tipoKey = Object.keys(TIPO_LABELS).find(key => TIPO_LABELS[key] === data.name);
+                            if (tipoKey) {
+                              const filtered = transactions.filter((t: any) => t.tipo_despesa === tipoKey);
+                              setDrillDownData({
+                                type: 'tipo',
+                                name: data.name,
+                                transactions: filtered,
+                                color: data.color
+                              });
+                            }
+                          }}
+                          rootTabIndex={-1}
+                          style={{ cursor: 'pointer' }}
+                        >
                           {groupPieDataWithPct.map((entry, i) => (<Cell key={i} fill={entry.color} />))}
                         </Pie>
                         <Tooltip content={<PieTooltip fmt={fmt} />} active={activeGroupIdx !== undefined} />
@@ -340,7 +380,31 @@ export default function RelatoriosPage() {
                   <div className="h-72">
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart onClick={() => setActiveCatIdx(undefined)}>
-                        <Pie data={pieData} dataKey="total" nameKey="nome" cx="50%" cy="42%" innerRadius={40} outerRadius={70} paddingAngle={2} strokeWidth={0} activeShape={renderActiveSlice} activeIndex={activeCatIdx} onMouseDown={(_, idx) => { setActiveCatIdx(prev => prev === idx ? undefined : idx); }} rootTabIndex={-1}>
+                        <Pie 
+                          data={pieData} 
+                          dataKey="total" 
+                          nameKey="nome" 
+                          cx="50%" 
+                          cy="42%" 
+                          innerRadius={40} 
+                          outerRadius={70} 
+                          paddingAngle={2} 
+                          strokeWidth={0} 
+                          activeShape={renderActiveSlice} 
+                          activeIndex={activeCatIdx} 
+                          onMouseDown={(_, idx) => { setActiveCatIdx(prev => prev === idx ? undefined : idx); }}
+                          onClick={(data) => {
+                            const filtered = transactions.filter((t: any) => (t.categories?.nome || 'Outros') === data.nome && t.tipo_despesa === 'essencial');
+                            setDrillDownData({
+                              type: 'categoria',
+                              name: data.nome,
+                              transactions: filtered,
+                              color: data.cor
+                            });
+                          }}
+                          rootTabIndex={-1}
+                          style={{ cursor: 'pointer' }}
+                        >
                           {pieData.map((entry, i) => (<Cell key={i} fill={entry.cor} />))}
                         </Pie>
                         <Tooltip content={<PieTooltip fmt={fmt} />} active={activeCatIdx !== undefined} />
@@ -475,7 +539,32 @@ export default function RelatoriosPage() {
                   <div className="h-72">
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart onClick={() => setActivePieIdx(undefined)}>
-                        <Pie data={pieData} dataKey="total" nameKey="nome" cx="50%" cy="50%" innerRadius={50} outerRadius={85} strokeWidth={2} stroke="hsl(var(--background))" label={renderCustomLabel} activeShape={renderActiveSlice} activeIndex={activePieIdx} onMouseDown={(_, idx) => { setActivePieIdx(prev => prev === idx ? undefined : idx); }} rootTabIndex={-1}>
+                        <Pie 
+                          data={pieData} 
+                          dataKey="total" 
+                          nameKey="nome" 
+                          cx="50%" 
+                          cy="50%" 
+                          innerRadius={50} 
+                          outerRadius={85} 
+                          strokeWidth={2} 
+                          stroke="hsl(var(--background))" 
+                          label={renderCustomLabel} 
+                          activeShape={renderActiveSlice} 
+                          activeIndex={activePieIdx} 
+                          onMouseDown={(_, idx) => { setActivePieIdx(prev => prev === idx ? undefined : idx); }}
+                          onClick={(data) => {
+                            const filtered = transactions.filter((t: any) => (t.categories?.nome || 'Outros') === data.nome && t.tipo_despesa === 'essencial');
+                            setDrillDownData({
+                              type: 'categoria',
+                              name: data.nome,
+                              transactions: filtered,
+                              color: data.cor
+                            });
+                          }}
+                          rootTabIndex={-1}
+                          style={{ cursor: 'pointer' }}
+                        >
                           {pieData.map((entry, i) => (<Cell key={i} fill={entry.cor} />))}
                         </Pie>
                         <Tooltip content={<PieTooltip fmt={fmt} />} active={activePieIdx !== undefined} />
@@ -640,6 +729,93 @@ export default function RelatoriosPage() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Drill-down Dialog */}
+      <Dialog open={!!drillDownData} onOpenChange={(open) => !open && setDrillDownData(null)}>
+        <DialogContent className="max-w-md max-h-[85vh] overflow-hidden flex flex-col p-0 gap-0 border-none shadow-2xl rounded-2xl sm:rounded-2xl">
+          <DialogHeader className="p-6 pb-4 relative overflow-hidden">
+            <div 
+              className="absolute inset-0 opacity-10 pointer-events-none" 
+              style={{ backgroundColor: drillDownData?.color }} 
+            />
+            <div className="flex items-center gap-3 relative z-10">
+              <div 
+                className="p-2.5 rounded-xl shadow-inner"
+                style={{ backgroundColor: `${drillDownData?.color}20` }}
+              >
+                <ListFilter size={20} style={{ color: drillDownData?.color }} />
+              </div>
+              <div className="flex flex-col">
+                <DialogTitle className="text-lg font-bold tracking-tight">
+                  {drillDownData?.name}
+                </DialogTitle>
+                <DialogDescription className="text-xs font-medium">
+                  {drillDownData?.transactions.length} {drillDownData?.transactions.length === 1 ? 'transação encontrada' : 'transações encontradas'}
+                </DialogDescription>
+              </div>
+            </div>
+          </DialogHeader>
+
+          <div className="flex-1 overflow-y-auto px-6 pb-6 pt-2 space-y-3 custom-scrollbar">
+            {drillDownData?.transactions.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-12 text-muted-foreground animate-in fade-in zoom-in duration-300">
+                <div className="p-4 rounded-full bg-muted/50 mb-3">
+                  <Info size={32} strokeWidth={1.5} />
+                </div>
+                <p className="text-sm">Nenhuma transação encontrada.</p>
+              </div>
+            ) : (
+              drillDownData?.transactions.map((t: any, idx: number) => (
+                <div 
+                  key={t.id} 
+                  className="flex items-center justify-between p-3.5 rounded-xl bg-muted/30 border border-muted-foreground/5 hover:bg-muted/50 transition-colors animate-in slide-in-from-bottom-2 duration-300"
+                  style={{ animationDelay: `${idx * 50}ms` }}
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div 
+                      className="w-1.5 h-8 rounded-full flex-shrink-0" 
+                      style={{ backgroundColor: drillDownData.color }} 
+                    />
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold truncate leading-tight">
+                        {t.motivo || t.categories?.nome || TIPO_LABELS[t.tipo_despesa]}
+                      </p>
+                      <p className="text-[11px] text-muted-foreground mt-1 flex items-center gap-1.5 font-medium">
+                        <span className="opacity-80">{format(new Date(t.data + 'T00:00'), 'dd/MM', { locale: ptBR })}</span>
+                        <span className="w-0.5 h-0.5 rounded-full bg-muted-foreground/30" />
+                        <span className="opacity-80">{t.hora?.slice(0, 5) || '00:00'}</span>
+                        {drillDownData.type === 'tipo' && t.categories?.nome && (
+                          <>
+                            <span className="w-0.5 h-0.5 rounded-full bg-muted-foreground/30" />
+                            <span className="opacity-80 truncate">{t.categories.nome}</span>
+                          </>
+                        )}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-end gap-1 ml-3">
+                    <span className="text-sm font-bold text-destructive">
+                      {fmt(Number(t.valor))}
+                    </span>
+                    {t.status && (
+                      <span className="text-[9px] uppercase tracking-tighter font-black opacity-40">
+                        {t.status}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+          
+          <div className="p-4 bg-muted/20 border-t border-border/50 flex items-center justify-between">
+            <span className="text-xs font-semibold text-muted-foreground">Total da Categoria</span>
+            <span className="text-sm font-bold">
+              {fmt(drillDownData?.transactions.reduce((sum, t) => sum + Number(t.valor), 0) || 0)}
+            </span>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
