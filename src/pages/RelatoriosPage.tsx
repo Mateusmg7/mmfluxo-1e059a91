@@ -58,6 +58,8 @@ export default function RelatoriosPage() {
   const [activeGroupIdx, setActiveGroupIdx] = useState<number | undefined>(undefined);
   const [activeCatIdx, setActiveCatIdx] = useState<number | undefined>(undefined);
   const [activePieIdx, setActivePieIdx] = useState<number | undefined>(undefined);
+  const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(null);
+  const [isLongPress, setIsLongPress] = useState(false);
   
   // Drill-down state
   const [drillDownData, setDrillDownData] = useState<{
@@ -340,11 +342,20 @@ export default function RelatoriosPage() {
                           activeShape={renderActiveSlice} 
                           activeIndex={activeGroupIdx} 
                           onMouseDown={(data, idx) => { 
-                            setActiveGroupIdx(prev => prev === idx ? undefined : idx);
-                            // Trigger click logic on mobile via onMouseDown if needed, 
-                            // though onClick should work if not blocked.
+                            setIsLongPress(false);
+                            const timer = setTimeout(() => {
+                              setIsLongPress(true);
+                              setActiveGroupIdx(idx);
+                            }, 500); // 500ms for long press
+                            setLongPressTimer(timer);
+                          }}
+                          onMouseUp={() => {
+                            if (longPressTimer) clearTimeout(longPressTimer);
                           }}
                           onClick={(data, idx) => {
+                            if (longPressTimer) clearTimeout(longPressTimer);
+                            if (isLongPress) return;
+
                             const tipoKey = Object.keys(TIPO_LABELS).find(key => TIPO_LABELS[key] === data.name);
                             if (tipoKey) {
                               const filtered = transactions.filter((t: any) => t.tipo_despesa === tipoKey);
@@ -357,6 +368,7 @@ export default function RelatoriosPage() {
                             }
                           }}
                           onMouseEnter={(_, idx) => setActiveGroupIdx(idx)}
+                          onMouseLeave={() => setActiveGroupIdx(undefined)}
                           rootTabIndex={-1}
                           style={{ cursor: 'pointer' }}
                         >
@@ -398,9 +410,20 @@ export default function RelatoriosPage() {
                           activeShape={renderActiveSlice} 
                           activeIndex={activeCatIdx} 
                           onMouseDown={(data, idx) => { 
-                            setActiveCatIdx(prev => prev === idx ? undefined : idx);
+                            setIsLongPress(false);
+                            const timer = setTimeout(() => {
+                              setIsLongPress(true);
+                              setActiveCatIdx(idx);
+                            }, 500);
+                            setLongPressTimer(timer);
+                          }}
+                          onMouseUp={() => {
+                            if (longPressTimer) clearTimeout(longPressTimer);
                           }}
                           onClick={(data, idx) => {
+                            if (longPressTimer) clearTimeout(longPressTimer);
+                            if (isLongPress) return;
+
                             const filtered = transactions.filter((t: any) => (t.categories?.nome || 'Outros') === data.nome && t.tipo_despesa === 'essencial');
                             setDrillDownData({
                               type: 'categoria',
@@ -410,6 +433,7 @@ export default function RelatoriosPage() {
                             });
                           }}
                           onMouseEnter={(_, idx) => setActiveCatIdx(idx)}
+                          onMouseLeave={() => setActiveCatIdx(undefined)}
                           rootTabIndex={-1}
                           style={{ cursor: 'pointer' }}
                         >
@@ -561,9 +585,20 @@ export default function RelatoriosPage() {
                           activeShape={renderActiveSlice} 
                           activeIndex={activePieIdx} 
                           onMouseDown={(data, idx) => { 
-                            setActivePieIdx(prev => prev === idx ? undefined : idx);
+                            setIsLongPress(false);
+                            const timer = setTimeout(() => {
+                              setIsLongPress(true);
+                              setActivePieIdx(idx);
+                            }, 500);
+                            setLongPressTimer(timer);
+                          }}
+                          onMouseUp={() => {
+                            if (longPressTimer) clearTimeout(longPressTimer);
                           }}
                           onClick={(data, idx) => {
+                            if (longPressTimer) clearTimeout(longPressTimer);
+                            if (isLongPress) return;
+
                             const filtered = transactions.filter((t: any) => (t.categories?.nome || 'Outros') === data.nome && t.tipo_despesa === 'essencial');
                             setDrillDownData({
                               type: 'categoria',
@@ -573,6 +608,7 @@ export default function RelatoriosPage() {
                             });
                           }}
                           onMouseEnter={(_, idx) => setActivePieIdx(idx)}
+                          onMouseLeave={() => setActivePieIdx(undefined)}
                           rootTabIndex={-1}
                           style={{ cursor: 'pointer' }}
                         >
