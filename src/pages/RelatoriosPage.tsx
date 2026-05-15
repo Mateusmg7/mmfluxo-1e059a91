@@ -19,7 +19,7 @@ import { format, startOfMonth, endOfMonth, isSameMonth } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowDownCircle, ArrowUpCircle, TrendingUp, ChevronLeft, ChevronRight, Download, FileText, BarChart3, PieChartIcon, Layers, Wallet, ListFilter, Info } from 'lucide-react';
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid, CellProps } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
 import { MonthlyEvolutionChart } from '@/components/charts/MonthlyEvolutionChart';
 import { MonthlyComparisonChart } from '@/components/charts/MonthlyComparisonChart';
 import { PieTooltip } from '@/components/charts/PieTooltip';
@@ -356,7 +356,7 @@ export default function RelatoriosPage() {
                               });
                             }
                           }}
-                          onPieEnter={(_, idx) => setActiveGroupIdx(idx)}
+                          onMouseEnter={(_, idx) => setActiveGroupIdx(idx)}
                           rootTabIndex={-1}
                           style={{ cursor: 'pointer' }}
                         >
@@ -409,7 +409,7 @@ export default function RelatoriosPage() {
                               color: data.cor
                             });
                           }}
-                          onPieEnter={(_, idx) => setActiveCatIdx(idx)}
+                          onMouseEnter={(_, idx) => setActiveCatIdx(idx)}
                           rootTabIndex={-1}
                           style={{ cursor: 'pointer' }}
                         >
@@ -572,7 +572,7 @@ export default function RelatoriosPage() {
                               color: data.cor
                             });
                           }}
-                          onPieEnter={(_, idx) => setActivePieIdx(idx)}
+                          onMouseEnter={(_, idx) => setActivePieIdx(idx)}
                           rootTabIndex={-1}
                           style={{ cursor: 'pointer' }}
                         >
