@@ -339,7 +339,11 @@ export default function RelatoriosPage() {
                           strokeWidth={0} 
                           activeShape={renderActiveSlice} 
                           activeIndex={activeGroupIdx} 
-                          onMouseDown={(_, idx) => { setActiveGroupIdx(prev => prev === idx ? undefined : idx); }}
+                          onMouseDown={(data, idx) => { 
+                            setActiveGroupIdx(prev => prev === idx ? undefined : idx);
+                            // Trigger click logic on mobile via onMouseDown if needed, 
+                            // though onClick should work if not blocked.
+                          }}
                           onClick={(data, idx) => {
                             const tipoKey = Object.keys(TIPO_LABELS).find(key => TIPO_LABELS[key] === data.name);
                             if (tipoKey) {
@@ -352,6 +356,7 @@ export default function RelatoriosPage() {
                               });
                             }
                           }}
+                          onMouseEnter={(_, idx) => setActiveGroupIdx(idx)}
                           rootTabIndex={-1}
                           style={{ cursor: 'pointer' }}
                         >
@@ -392,8 +397,10 @@ export default function RelatoriosPage() {
                           strokeWidth={0} 
                           activeShape={renderActiveSlice} 
                           activeIndex={activeCatIdx} 
-                          onMouseDown={(_, idx) => { setActiveCatIdx(prev => prev === idx ? undefined : idx); }}
-                          onClick={(data) => {
+                          onMouseDown={(data, idx) => { 
+                            setActiveCatIdx(prev => prev === idx ? undefined : idx);
+                          }}
+                          onClick={(data, idx) => {
                             const filtered = transactions.filter((t: any) => (t.categories?.nome || 'Outros') === data.nome && t.tipo_despesa === 'essencial');
                             setDrillDownData({
                               type: 'categoria',
@@ -402,6 +409,7 @@ export default function RelatoriosPage() {
                               color: data.cor
                             });
                           }}
+                          onMouseEnter={(_, idx) => setActiveCatIdx(idx)}
                           rootTabIndex={-1}
                           style={{ cursor: 'pointer' }}
                         >
@@ -552,8 +560,10 @@ export default function RelatoriosPage() {
                           label={renderCustomLabel} 
                           activeShape={renderActiveSlice} 
                           activeIndex={activePieIdx} 
-                          onMouseDown={(_, idx) => { setActivePieIdx(prev => prev === idx ? undefined : idx); }}
-                          onClick={(data) => {
+                          onMouseDown={(data, idx) => { 
+                            setActivePieIdx(prev => prev === idx ? undefined : idx);
+                          }}
+                          onClick={(data, idx) => {
                             const filtered = transactions.filter((t: any) => (t.categories?.nome || 'Outros') === data.nome && t.tipo_despesa === 'essencial');
                             setDrillDownData({
                               type: 'categoria',
@@ -562,6 +572,7 @@ export default function RelatoriosPage() {
                               color: data.cor
                             });
                           }}
+                          onMouseEnter={(_, idx) => setActivePieIdx(idx)}
                           rootTabIndex={-1}
                           style={{ cursor: 'pointer' }}
                         >
